@@ -1,0 +1,16 @@
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # state management
+  riverpod: ^2.5.0
+
+  # local database (fast + scalable)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # charts
+  fl_chart: ^0.66.0
+
+  # date formatting
+  intl: ^0.18.0
