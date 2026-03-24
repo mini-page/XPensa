@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../provider/expense_providers.dart';
+import '../provider/preferences_providers.dart';
+import '../widgets/amount_visibility.dart';
 import '../widgets/expense_category.dart';
 
 class StatsScreen extends ConsumerWidget {
@@ -20,6 +22,7 @@ class StatsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(statsProvider);
+    final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -81,7 +84,7 @@ class StatsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${_currencyFormat.format(stats.monthTotal)} spent',
+                        '${maskAmount(_currencyFormat.format(stats.monthTotal), masked: privacyModeEnabled)} spent',
                         style: const TextStyle(
                           color: Color(0xFF152039),
                           fontWeight: FontWeight.w900,
@@ -98,11 +101,15 @@ class StatsScreen extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(26),
               decoration: BoxDecoration(
-                color: const Color(0xFF2B2B29),
+                gradient: const LinearGradient(
+                  colors: <Color>[Color(0xFF0A6BE8), Color(0xFF5DA2FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(34),
                 boxShadow: const <BoxShadow>[
                   BoxShadow(
-                    color: Color(0x22000000),
+                    color: Color(0x2209386D),
                     blurRadius: 28,
                     offset: Offset(0, 18),
                   ),
@@ -115,9 +122,11 @@ class StatsScreen extends ConsumerWidget {
                     children: <Widget>[
                       CircleAvatar(
                         radius: 22,
-                        backgroundColor: Color(0xFF383734),
-                        child: Icon(Icons.pie_chart_outline_rounded,
-                            color: Color(0xFFF4D990)),
+                        backgroundColor: Color(0x26FFFFFF),
+                        child: Icon(
+                          Icons.pie_chart_outline_rounded,
+                          color: Colors.white,
+                        ),
                       ),
                       SizedBox(width: 14),
                       Expanded(
@@ -135,7 +144,7 @@ class StatsScreen extends ConsumerWidget {
                             Text(
                               'YOUR SPENDING REPORT',
                               style: TextStyle(
-                                color: Color(0xFF98958D),
+                                color: Color(0xCCFFFFFF),
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
                               ),
@@ -150,7 +159,7 @@ class StatsScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF383734),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Column(
@@ -159,16 +168,19 @@ class StatsScreen extends ConsumerWidget {
                         const Text(
                           'TOTAL SPENT THIS MONTH',
                           style: TextStyle(
-                            color: Color(0xFF8E8A81),
+                            color: Color(0xFF8EA0BC),
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.4,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          _currencyFormat.format(stats.monthTotal),
+                          maskAmount(
+                            _currencyFormat.format(stats.monthTotal),
+                            masked: privacyModeEnabled,
+                          ),
                           style: const TextStyle(
-                            color: Color(0xFFF9DF9A),
+                            color: Color(0xFF13213B),
                             fontSize: 38,
                             fontWeight: FontWeight.w900,
                           ),
@@ -176,21 +188,41 @@ class StatsScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 22),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: const <BoxShadow>[
+                  BoxShadow(
+                    color: Color(0x1209386D),
+                    blurRadius: 22,
+                    offset: Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   const Text(
                     'BREAKDOWN',
                     style: TextStyle(
-                      color: Color(0xFF8E8A81),
-                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0A6BE8),
+                      fontWeight: FontWeight.w900,
                       letterSpacing: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   if (stats.categoryTotals.isEmpty)
                     const Text(
                       'No expenses yet. Add your first transaction to see the category mix.',
                       style: TextStyle(
-                        color: Color(0xFFE7E4DE),
+                        color: Color(0xFF6E7F9C),
                         fontWeight: FontWeight.w600,
                         height: 1.5,
                       ),
@@ -199,37 +231,54 @@ class StatsScreen extends ConsumerWidget {
                     ...stats.categoryTotals.entries.take(5).map((entry) {
                       final category = resolveCategory(entry.key);
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: category.color,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                entry.key,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F8FE),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: category.color.withValues(alpha: 0.16),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Icon(
+                                  category.icon,
+                                  color: category.color,
                                 ),
                               ),
-                            ),
-                            Text(
-                              _currencyFormat.format(entry.value),
-                              style: const TextStyle(
-                                color: Color(0xFFF7E6BC),
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  entry.key,
+                                  style: const TextStyle(
+                                    color: Color(0xFF152039),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                              Text(
+                                maskAmount(
+                                  _currencyFormat.format(entry.value),
+                                  masked: privacyModeEnabled,
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF0A6BE8),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }),

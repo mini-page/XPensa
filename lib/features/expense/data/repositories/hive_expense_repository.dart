@@ -8,8 +8,8 @@ class HiveExpenseRepository implements ExpenseRepository {
   final ExpenseLocalDatasource _localDatasource;
 
   @override
-  Future<void> addExpense(ExpenseModel expense) {
-    return _localDatasource.addExpense(expense);
+  Future<void> saveExpense(ExpenseModel expense) {
+    return _localDatasource.saveExpense(expense);
   }
 
   @override

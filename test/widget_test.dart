@@ -28,7 +28,8 @@ class _FakeExpenseRepository implements ExpenseRepository {
   final List<ExpenseModel> _items = <ExpenseModel>[];
 
   @override
-  Future<void> addExpense(ExpenseModel expense) async {
+  Future<void> saveExpense(ExpenseModel expense) async {
+    _items.removeWhere((item) => item.id == expense.id);
     _items.add(expense);
   }
 

@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasource/expense_local_datasource.dart';
+import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../../data/repositories/hive_expense_repository.dart';
+import '../../domain/repositories/account_repository.dart';
 import '../../domain/repositories/expense_repository.dart';
+import 'account_providers.dart';
 
 final expenseLocalDatasourceProvider = Provider<ExpenseLocalDatasource>((ref) {
   return ExpenseLocalDatasource();
@@ -39,27 +42,6 @@ class ExpenseListNotifier extends AsyncNotifier<List<ExpenseModel>> {
       return <ExpenseModel>[];
     }
   }
-
-  Future<void> addExpense(ExpenseModel expense) async {
-    final currentExpenses = state.valueOrNull ?? const <ExpenseModel>[];
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await _repository.addExpense(expense);
-      return <ExpenseModel>[expense, ...currentExpenses]
-        ..sort((left, right) => right.date.compareTo(left.date));
-    });
-  }
-
-  Future<void> deleteExpense(String id) async {
-    final currentExpenses = state.valueOrNull ?? const <ExpenseModel>[];
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await _repository.deleteExpense(id);
-      return currentExpenses
-          .where((expense) => expense.id != id)
-          .toList(growable: false);
-    });
-  }
 }
 
 class ExpenseController {
@@ -67,23 +49,146 @@ class ExpenseController {
 
   final Ref _ref;
 
+  ExpenseRepository get _expenseRepository =>
+      _ref.read(expenseRepositoryProvider);
+  AccountRepository get _accountRepository =>
+      _ref.read(accountRepositoryProvider);
+
   Future<void> addExpense({
     required double amount,
     required String category,
     required DateTime date,
     required String note,
+    String? accountId,
   }) async {
     final expense = ExpenseModel.create(
       amount: amount,
       category: category,
       date: date,
-      note: note.isEmpty ? 'Manual Entry' : note,
+      note: note.trim(),
+      accountId: accountId,
     );
-    await _ref.read(expenseListProvider.notifier).addExpense(expense);
+
+    await _applyBalanceAdjustments(nextExpense: expense);
+    await _expenseRepository.saveExpense(expense);
+    _refreshState();
+  }
+
+  Future<void> updateExpense({
+    required String id,
+    required double amount,
+    required String category,
+    required DateTime date,
+    required String note,
+    String? accountId,
+  }) async {
+    final existingExpense = await _findExpenseById(id);
+    if (existingExpense == null) {
+      return;
+    }
+
+    final updatedExpense = existingExpense.copyWith(
+      amount: amount,
+      category: category.trim(),
+      date: date,
+      note: note.trim(),
+      accountId: accountId,
+      clearAccountId: accountId == null,
+    );
+
+    await _applyBalanceAdjustments(
+      previousExpense: existingExpense,
+      nextExpense: updatedExpense,
+    );
+    await _expenseRepository.saveExpense(updatedExpense);
+    _refreshState();
   }
 
   Future<void> deleteExpense(String id) async {
-    await _ref.read(expenseListProvider.notifier).deleteExpense(id);
+    final existingExpense = await _findExpenseById(id);
+    if (existingExpense == null) {
+      return;
+    }
+
+    await _applyBalanceAdjustments(previousExpense: existingExpense);
+    await _expenseRepository.deleteExpense(id);
+    _refreshState();
+  }
+
+  Future<void> _applyBalanceAdjustments({
+    ExpenseModel? previousExpense,
+    ExpenseModel? nextExpense,
+  }) async {
+    final accounts = await _loadAccounts();
+    if (accounts.isEmpty) {
+      return;
+    }
+
+    final accountsById = <String, AccountModel>{
+      for (final account in accounts) account.id: account,
+    };
+    final pendingUpdates = <String, AccountModel>{};
+
+    if (previousExpense?.accountId case final String accountId) {
+      final account = pendingUpdates[accountId] ?? accountsById[accountId];
+      if (account != null) {
+        pendingUpdates[accountId] = account.copyWith(
+          balance: account.balance + previousExpense!.amount,
+        );
+      }
+    }
+
+    if (nextExpense?.accountId case final String accountId) {
+      final account = pendingUpdates[accountId] ?? accountsById[accountId];
+      if (account != null) {
+        pendingUpdates[accountId] = account.copyWith(
+          balance: account.balance - nextExpense!.amount,
+        );
+      }
+    }
+
+    for (final account in pendingUpdates.values) {
+      await _accountRepository.saveAccount(account);
+    }
+  }
+
+  Future<List<AccountModel>> _loadAccounts() async {
+    final currentAccounts = _ref.read(accountListProvider).valueOrNull;
+    if (currentAccounts != null) {
+      return currentAccounts;
+    }
+
+    try {
+      return await _accountRepository.getAllAccounts();
+    } catch (_) {
+      return <AccountModel>[];
+    }
+  }
+
+  Future<ExpenseModel?> _findExpenseById(String id) async {
+    final currentExpenses = _ref.read(expenseListProvider).valueOrNull;
+    final loadedExpense = currentExpenses?.where((expense) => expense.id == id);
+    if (loadedExpense != null && loadedExpense.isNotEmpty) {
+      return loadedExpense.first;
+    }
+
+    try {
+      final expenses = await _expenseRepository.getAllExpenses();
+      for (final expense in expenses) {
+        if (expense.id == id) {
+          return expense;
+        }
+      }
+    } catch (_) {
+      return null;
+    }
+
+    return null;
+  }
+
+  void _refreshState() {
+    _ref.invalidate(expenseListProvider);
+    _ref.invalidate(accountListProvider);
   }
 }
 

@@ -9,6 +9,7 @@ class ExpenseModel {
     required this.category,
     required DateTime date,
     required this.note,
+    this.accountId,
   }) : date = date.toUtc() {
     if (id.isEmpty) {
       throw ArgumentError.value(id, 'id', 'Expense id cannot be empty.');
@@ -28,6 +29,7 @@ class ExpenseModel {
     required String category,
     required DateTime date,
     String note = '',
+    String? accountId,
   }) {
     return ExpenseModel(
       id: _ExpenseIdGenerator.generate(),
@@ -35,6 +37,7 @@ class ExpenseModel {
       category: category.trim(),
       date: date,
       note: note.trim(),
+      accountId: accountId?.trim().isEmpty ?? true ? null : accountId?.trim(),
     );
   }
 
@@ -43,6 +46,7 @@ class ExpenseModel {
   final String category;
   final DateTime date;
   final String note;
+  final String? accountId;
 
   ExpenseModel copyWith({
     String? id,
@@ -50,6 +54,8 @@ class ExpenseModel {
     String? category,
     DateTime? date,
     String? note,
+    String? accountId,
+    bool clearAccountId = false,
   }) {
     return ExpenseModel(
       id: id ?? this.id,
@@ -57,6 +63,7 @@ class ExpenseModel {
       category: category ?? this.category,
       date: date ?? this.date,
       note: note ?? this.note,
+      accountId: clearAccountId ? null : accountId ?? this.accountId,
     );
   }
 }
@@ -69,12 +76,27 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
 
   @override
   ExpenseModel read(BinaryReader reader) {
+    final id = reader.readString();
+    final amount = reader.readDouble();
+    final category = reader.readString();
+    final date =
+        DateTime.fromMillisecondsSinceEpoch(reader.readInt(), isUtc: true);
+    final note = reader.readString();
+    String? accountId;
+    try {
+      final storedAccountId = reader.readString();
+      accountId = storedAccountId.isEmpty ? null : storedAccountId;
+    } catch (_) {
+      accountId = null;
+    }
+
     return ExpenseModel(
-      id: reader.readString(),
-      amount: reader.readDouble(),
-      category: reader.readString(),
-      date: DateTime.fromMillisecondsSinceEpoch(reader.readInt(), isUtc: true),
-      note: reader.readString(),
+      id: id,
+      amount: amount,
+      category: category,
+      date: date,
+      note: note,
+      accountId: accountId,
     );
   }
 
@@ -86,6 +108,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeString(obj.category)
       ..writeInt(obj.date.millisecondsSinceEpoch)
       ..writeString(obj.note);
+    writer.writeString(obj.accountId ?? '');
   }
 }
 

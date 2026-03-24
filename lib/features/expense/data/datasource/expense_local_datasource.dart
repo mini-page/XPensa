@@ -13,7 +13,7 @@ class ExpenseLocalDatasource {
     return expenses;
   }
 
-  Future<void> addExpense(ExpenseModel expense) async {
+  Future<void> saveExpense(ExpenseModel expense) async {
     await _box.put(expense.id, expense);
   }
 

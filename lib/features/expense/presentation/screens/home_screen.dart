@@ -2,23 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
+import '../provider/account_providers.dart';
 import '../provider/expense_providers.dart';
+import '../provider/preferences_providers.dart';
+import '../widgets/amount_visibility.dart';
 import '../widgets/expense_category.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
 import 'add_expense_screen.dart';
+import 'records_history_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late DateTime _selectedDate;
+  late DateTime _windowStart;
+
+  @override
+  void initState() {
+    super.initState();
+    final today = DateUtils.dateOnly(DateTime.now());
+    _selectedDate = today;
+    _windowStart = today.subtract(const Duration(days: 3));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final expenseState = ref.watch(expenseListProvider);
     final expenses = expenseState.valueOrNull ?? const <ExpenseModel>[];
+    final accounts =
+        ref.watch(accountListProvider).valueOrNull ?? const <AccountModel>[];
     final stats = ref.watch(statsProvider);
+    final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
     final currencyFormat =
         NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final visibleDates = List<DateTime>.generate(
+      7,
+      (index) => _windowStart.add(Duration(days: index)),
+    );
+    final selectedExpenses = expenses
+        .where((expense) => _isSameLocalDay(expense.date, _selectedDate))
+        .toList(growable: false)
+      ..sort((left, right) => right.date.compareTo(left.date));
+    final selectedTotal = selectedExpenses.fold<double>(
+      0,
+      (sum, expense) => sum + expense.amount,
+    );
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -26,32 +62,47 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _Header(stats: stats, currencyFormat: currencyFormat),
+            _Header(
+              stats: stats,
+              currencyFormat: currencyFormat,
+              privacyModeEnabled: privacyModeEnabled,
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _FeatureRow(
-                      onSoonTap: (label) => _showSoonMessage(context, label)),
+                    onSoonTap: (label) => _showSoonMessage(context, label),
+                  ),
                   const SizedBox(height: 22),
                   QuickActionBar(
                     actions: const <QuickActionItem>[
                       QuickActionItem(label: 'SMS', icon: Icons.sms_outlined),
                       QuickActionItem(
-                          label: 'VOICE', icon: Icons.mic_none_rounded),
+                        label: 'VOICE',
+                        icon: Icons.mic_none_rounded,
+                      ),
                       QuickActionItem(
-                          label: 'SPLIT', icon: Icons.group_outlined),
+                        label: 'SPLIT',
+                        icon: Icons.group_outlined,
+                      ),
                       QuickActionItem(
-                          label: 'SMART', icon: Icons.bolt_outlined),
+                        label: 'SMART',
+                        icon: Icons.bolt_outlined,
+                      ),
                       QuickActionItem(
-                          label: 'MANUAL',
-                          icon: Icons.add_rounded,
-                          isHighlighted: true),
+                        label: 'MANUAL',
+                        icon: Icons.add_rounded,
+                        isHighlighted: true,
+                      ),
                     ],
                     onTap: (action) {
                       if (action.label == 'MANUAL') {
-                        _openAddExpenseScreen(context);
+                        _openAddExpenseScreen(
+                          context,
+                          initialDate: _selectedDate,
+                        );
                         return;
                       }
                       _showSoonMessage(context, action.label);
@@ -67,8 +118,11 @@ class HomeScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(right: 12),
                           child: _AmountChip(
                             label: currencyFormat.format(amount),
-                            onTap: () => _openAddExpenseScreen(context,
-                                initialAmount: amount),
+                            onTap: () => _openAddExpenseScreen(
+                              context,
+                              initialAmount: amount,
+                              initialDate: _selectedDate,
+                            ),
                           ),
                         );
                       }).toList(growable: false),
@@ -84,6 +138,7 @@ class HomeScreen extends ConsumerWidget {
                         onTap: () => _openAddExpenseScreen(
                           context,
                           initialCategory: category.name,
+                          initialDate: _selectedDate,
                         ),
                       );
                     }).toList(growable: false),
@@ -102,12 +157,29 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const Spacer(),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => _openRecordsHistoryScreen(context),
                         child: const Text('View All'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
+                  _DateStripCard(
+                    visibleDates: visibleDates,
+                    selectedDate: _selectedDate,
+                    selectedTotalText: maskAmount(
+                      currencyFormat.format(selectedTotal),
+                      masked: privacyModeEnabled,
+                    ),
+                    transactionCount: selectedExpenses.length,
+                    onDateSelected: (date) {
+                      setState(() {
+                        _selectedDate = date;
+                      });
+                    },
+                    onPrevious: () => _shiftWindow(-7),
+                    onNext: () => _shiftWindow(7),
+                  ),
+                  const SizedBox(height: 18),
                   if (expenseState.hasError)
                     const _EmptyCard(
                       title: 'Storage unavailable',
@@ -127,10 +199,18 @@ class HomeScreen extends ConsumerWidget {
                       message:
                           'Tap the blue add button or choose a quick amount to record your first transaction.',
                     )
+                  else if (selectedExpenses.isEmpty)
+                    _EmptyCard(
+                      title: _emptyTitleFor(_selectedDate),
+                      message: _emptyMessageFor(_selectedDate),
+                    )
                   else
-                    ...expenses.take(5).map((expense) {
+                    ...selectedExpenses.map((expense) {
                       return TransactionCard(
                         expense: expense,
+                        accountLabel: _accountLabelFor(expense, accounts),
+                        maskAmounts: privacyModeEnabled,
+                        onEdit: () => _openEditExpenseScreen(context, expense),
                         onDelete: () => ref
                             .read(expenseControllerProvider)
                             .deleteExpense(expense.id),
@@ -149,13 +229,41 @@ class HomeScreen extends ConsumerWidget {
     BuildContext context, {
     double? initialAmount,
     String? initialCategory,
+    DateTime? initialDate,
   }) {
     return Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => AddExpenseScreen(
           initialAmount: initialAmount,
           initialCategory: initialCategory,
+          initialDate: initialDate,
         ),
+      ),
+    );
+  }
+
+  Future<void> _openEditExpenseScreen(
+    BuildContext context,
+    ExpenseModel expense,
+  ) {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AddExpenseScreen(
+          expenseId: expense.id,
+          initialAmount: expense.amount,
+          initialCategory: expense.category,
+          initialDate: expense.date.toLocal(),
+          initialNote: expense.note,
+          initialAccountId: expense.accountId,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openRecordsHistoryScreen(BuildContext context) {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const RecordsHistoryScreen(),
       ),
     );
   }
@@ -163,9 +271,66 @@ class HomeScreen extends ConsumerWidget {
   void _showSoonMessage(BuildContext context, String label) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(
-              '$label shortcuts arrive after the core expense flow is stable.')),
+        content: Text(
+          '$label shortcuts arrive after the core expense flow is stable.',
+        ),
+      ),
     );
+  }
+
+  void _shiftWindow(int days) {
+    setState(() {
+      _windowStart = _windowStart.add(Duration(days: days));
+      _selectedDate = _selectedDate.add(Duration(days: days));
+    });
+  }
+
+  bool _isSameLocalDay(DateTime expenseDate, DateTime targetDate) {
+    final localDate = expenseDate.toLocal();
+    return localDate.year == targetDate.year &&
+        localDate.month == targetDate.month &&
+        localDate.day == targetDate.day;
+  }
+
+  String _emptyTitleFor(DateTime date) {
+    if (_isToday(date)) {
+      return 'No transactions yet today';
+    }
+    if (date.isAfter(DateUtils.dateOnly(DateTime.now()))) {
+      return 'No planned transactions';
+    }
+    return 'No transactions on this day';
+  }
+
+  String _emptyMessageFor(DateTime date) {
+    if (_isToday(date)) {
+      return 'Use the quick add flow to record today\'s first expense.';
+    }
+    if (date.isAfter(DateUtils.dateOnly(DateTime.now()))) {
+      return 'Future days are available here so users can review scheduled spending once it exists.';
+    }
+    return 'Swipe across the date strip or jump back to today to review another day.';
+  }
+
+  bool _isToday(DateTime date) {
+    final today = DateUtils.dateOnly(DateTime.now());
+    return date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+  }
+
+  String? _accountLabelFor(ExpenseModel expense, List<AccountModel> accounts) {
+    if (expense.accountId == null) {
+      return null;
+    }
+
+    for (final account in accounts) {
+      if (account.id == expense.accountId) {
+        return account.name;
+      }
+    }
+
+    return 'Archived Account';
   }
 }
 
@@ -173,10 +338,12 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.stats,
     required this.currencyFormat,
+    required this.privacyModeEnabled,
   });
 
   final ExpenseStats stats;
   final NumberFormat currencyFormat;
+  final bool privacyModeEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -190,8 +357,11 @@ class _Header extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              const Icon(Icons.grid_view_rounded,
-                  color: Colors.white, size: 24),
+              const Icon(
+                Icons.grid_view_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
               const SizedBox(width: 14),
               Text(
                 'Pensa',
@@ -207,7 +377,7 @@ class _Header extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            '[ All Accounts - ${currencyFormat.format(stats.monthTotal)} ]',
+            '[ All Accounts - ${maskAmount(currencyFormat.format(stats.monthTotal), masked: privacyModeEnabled)} ]',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -219,9 +389,16 @@ class _Header extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               _MetricColumn(
-                  label: 'EXPENSE SO FAR',
-                  value: currencyFormat.format(stats.monthTotal)),
-              _MetricColumn(label: 'INCOME SO FAR', value: '₹0'),
+                label: 'EXPENSE SO FAR',
+                value: maskAmount(
+                  currencyFormat.format(stats.monthTotal),
+                  masked: privacyModeEnabled,
+                ),
+              ),
+              _MetricColumn(
+                label: 'INCOME SO FAR',
+                value: maskAmount('₹0', masked: privacyModeEnabled),
+              ),
             ],
           ),
         ],
@@ -447,6 +624,207 @@ class _CategoryTile extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DateStripCard extends StatelessWidget {
+  const _DateStripCard({
+    required this.visibleDates,
+    required this.selectedDate,
+    required this.selectedTotalText,
+    required this.transactionCount,
+    required this.onDateSelected,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  final List<DateTime> visibleDates;
+  final DateTime selectedDate;
+  final String selectedTotalText;
+  final int transactionCount;
+  final ValueChanged<DateTime> onDateSelected;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final monthFormat = DateFormat('MMMM yyyy');
+    final weekdayFormat = DateFormat('E');
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x1209386D),
+            blurRadius: 22,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  monthFormat.format(selectedDate),
+                  style: const TextStyle(
+                    color: Color(0xFF17233D),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              _DateNavButton(
+                icon: Icons.arrow_back_rounded,
+                onTap: onPrevious,
+              ),
+              const SizedBox(width: 8),
+              _DateNavButton(
+                icon: Icons.arrow_forward_rounded,
+                onTap: onNext,
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: visibleDates.map((date) {
+              final isSelected = DateUtils.isSameDay(date, selectedDate);
+              return Expanded(
+                child: _DayPill(
+                  label:
+                      weekdayFormat.format(date).substring(0, 1).toUpperCase(),
+                  day: date.day.toString().padLeft(2, '0'),
+                  isSelected: isSelected,
+                  onTap: () => onDateSelected(date),
+                ),
+              );
+            }).toList(growable: false),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F9FC),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: <Widget>[
+                const Expanded(
+                  child: Text(
+                    'Selected day',
+                    style: TextStyle(
+                      color: Color(0xFF6D7D98),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Text(
+                  '$transactionCount txns',
+                  style: const TextStyle(
+                    color: Color(0xFF8F9FB7),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  selectedTotalText,
+                  style: const TextStyle(
+                    color: Color(0xFF152039),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DateNavButton extends StatelessWidget {
+  const _DateNavButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFFF5F7FB),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Icon(icon, size: 18, color: const Color(0xFF7E8CA4)),
+        ),
+      ),
+    );
+  }
+}
+
+class _DayPill extends StatelessWidget {
+  const _DayPill({
+    required this.label,
+    required this.day,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String day;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFD6F57C) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: <Widget>[
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? const Color(0xFF253411)
+                    : const Color(0xFF96A2B8),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              day,
+              style: TextStyle(
+                color: isSelected
+                    ? const Color(0xFF253411)
+                    : const Color(0xFF17233D),
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+              ),
+            ),
+          ],
         ),
       ),
     );

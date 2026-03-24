@@ -1,55 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../provider/account_providers.dart';
+import '../widgets/account_editor_sheet.dart';
+import 'accounts_screen.dart';
 import 'add_expense_screen.dart';
+import 'categories_screen.dart';
 import 'home_screen.dart';
-import 'placeholder_screen.dart';
+import 'profile_screen.dart';
 import 'stats_screen.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   int _selectedIndex = 0;
 
   late final List<Widget> _pages = <Widget>[
     const HomeScreen(),
     StatsScreen(),
-    const PlaceholderScreen(
-      title: 'Categories',
-      description:
-          'Spending buckets and richer category management land after the MVP flow is stable.',
-      icon: Icons.grid_view_rounded,
-    ),
-    const PlaceholderScreen(
-      title: 'Accounts',
-      description:
-          'Multi-account management is intentionally held back while the core expense flow is refined.',
-      icon: Icons.wallet_outlined,
-    ),
-    const PlaceholderScreen(
-      title: 'Profile',
-      description:
-          'Profile settings, preferences, and personalization will be layered in after the first release.',
-      icon: Icons.person_outline_rounded,
-    ),
+    const CategoriesScreen(),
+    AccountsScreen(),
+    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
-      floatingActionButton: _selectedIndex <= 1
-          ? FloatingActionButton(
-              onPressed: _openAddExpenseScreen,
-              backgroundColor: const Color(0xFF0A6BE8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.add_rounded, size: 34),
-            )
-          : null,
+      floatingActionButton: _selectedIndex == 4
+          ? null
+          : SizedBox(
+              width: 72,
+              height: 72,
+              child: FloatingActionButton(
+                onPressed: _handleFabPressed,
+                backgroundColor: const Color(0xFF0A6BE8),
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shape: const CircleBorder(),
+                child: Icon(
+                  _selectedIndex == 3
+                      ? Icons.add_card_rounded
+                      : Icons.add_rounded,
+                  size: 32,
+                ),
+              ),
+            ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF0A6BE8),
@@ -97,6 +98,40 @@ class _AppShellState extends State<AppShell> {
       MaterialPageRoute<void>(
         builder: (_) => const AddExpenseScreen(),
       ),
+    );
+  }
+
+  Future<void> _handleFabPressed() async {
+    if (_selectedIndex == 0 || _selectedIndex == 1 || _selectedIndex == 2) {
+      await _openAddExpenseScreen();
+      return;
+    }
+
+    if (_selectedIndex != 3) {
+      return;
+    }
+
+    await _openAddAccountSheet();
+  }
+
+  Future<void> _openAddAccountSheet() async {
+    final result = await showAccountEditorSheet(context);
+    if (result == null) {
+      return;
+    }
+
+    await ref.read(accountControllerProvider).saveAccount(
+          name: result.name,
+          iconKey: result.iconKey,
+          balance: result.balance,
+        );
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${result.name} created.')),
     );
   }
 }

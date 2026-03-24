@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/utils/hive_bootstrap.dart';
+import 'features/expense/presentation/provider/preferences_providers.dart';
 import 'features/expense/presentation/screens/app_shell.dart';
 
 Future<void> main() async {
@@ -10,11 +11,13 @@ Future<void> main() async {
   runApp(const ProviderScope(child: PensaApp()));
 }
 
-class PensaApp extends StatelessWidget {
+class PensaApp extends ConsumerWidget {
   const PensaApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(appThemeModeProvider);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Pensa',
@@ -28,6 +31,18 @@ class PensaApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF0E1626),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF4A9DFF),
+          brightness: Brightness.dark,
+          primary: const Color(0xFF4A9DFF),
+          secondary: const Color(0xFFFF6C89),
+          surface: const Color(0xFF182234),
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: themeMode,
       home: const AppShell(),
     );
   }

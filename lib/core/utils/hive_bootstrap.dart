@@ -1,6 +1,12 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../features/expense/data/datasource/account_local_datasource.dart';
+import '../../features/expense/data/datasource/budget_local_datasource.dart';
 import '../../features/expense/data/datasource/expense_local_datasource.dart';
+import '../../features/expense/data/datasource/preferences_local_datasource.dart';
+import '../../features/expense/data/models/account_model.dart';
+import '../../features/expense/data/models/app_preferences_model.dart';
+import '../../features/expense/data/models/budget_model.dart';
 import '../../features/expense/data/models/expense_model.dart';
 
 abstract final class HiveBootstrap {
@@ -10,9 +16,28 @@ abstract final class HiveBootstrap {
     if (!Hive.isAdapterRegistered(ExpenseModelAdapter.typeIdValue)) {
       Hive.registerAdapter(ExpenseModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(BudgetModelAdapter.typeIdValue)) {
+      Hive.registerAdapter(BudgetModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(AccountModelAdapter.typeIdValue)) {
+      Hive.registerAdapter(AccountModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(AppPreferencesModelAdapter.typeIdValue)) {
+      Hive.registerAdapter(AppPreferencesModelAdapter());
+    }
 
     if (!Hive.isBoxOpen(ExpenseLocalDatasource.boxName)) {
       await Hive.openBox<ExpenseModel>(ExpenseLocalDatasource.boxName);
+    }
+    if (!Hive.isBoxOpen(BudgetLocalDatasource.boxName)) {
+      await Hive.openBox<BudgetModel>(BudgetLocalDatasource.boxName);
+    }
+    if (!Hive.isBoxOpen(AccountLocalDatasource.boxName)) {
+      await Hive.openBox<AccountModel>(AccountLocalDatasource.boxName);
+    }
+    if (!Hive.isBoxOpen(PreferencesLocalDatasource.boxName)) {
+      await Hive.openBox<AppPreferencesModel>(
+          PreferencesLocalDatasource.boxName);
     }
   }
 }
