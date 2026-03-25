@@ -1,6 +1,6 @@
-# Pensa
+# XPensa
 
-Pensa is a cross-platform expense tracker designed for a simple, focused money-management experience. The app aims to make daily spending easy to log, easy to review, and easy to understand without clutter.
+XPensa is a cross-platform expense tracker designed for a simple, focused money-management experience. The app aims to make daily spending easy to log, easy to review, and easy to understand without clutter.
 
 ## Overview
 
@@ -14,7 +14,7 @@ Pensa is a cross-platform expense tracker designed for a simple, focused money-m
 
 ## Core Experience
 
-Pensa is being shaped around a lightweight, distraction-free flow:
+XPensa is being shaped around a lightweight, distraction-free flow:
 
 - add an expense in a few taps
 - view spending in a clean list
@@ -78,7 +78,7 @@ flutter run
 
 ## Platform Support
 
-Pensa is built with Flutter, which allows one codebase to target:
+XPensa is built with Flutter, which allows one codebase to target:
 
 - Android
 - iOS
@@ -89,7 +89,7 @@ Pensa is built with Flutter, which allows one codebase to target:
 
 ## Project Status
 
-Pensa is in an early build phase. The foundation is being prepared around a polished expense-entry experience first, with broader finance features planned after the MVP is stable.
+XPensa is in an early build phase. The foundation is being prepared around a polished expense-entry experience first, with broader finance features planned after the MVP is stable.
 
 ## Roadmap
 
