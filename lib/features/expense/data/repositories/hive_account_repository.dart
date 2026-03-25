@@ -21,4 +21,9 @@ class HiveAccountRepository implements AccountRepository {
   Future<void> saveAccount(AccountModel account) {
     return _localDatasource.saveAccount(account);
   }
+
+  @override
+  Future<void> saveAccounts(List<AccountModel> accounts) {
+    return _localDatasource.saveAccounts(accounts);
+  }
 }

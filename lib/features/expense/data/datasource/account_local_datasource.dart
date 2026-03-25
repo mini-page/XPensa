@@ -17,6 +17,11 @@ class AccountLocalDatasource {
     await _box.put(account.id, account);
   }
 
+  Future<void> saveAccounts(List<AccountModel> accounts) async {
+    final entries = {for (final account in accounts) account.id: account};
+    await _box.putAll(entries);
+  }
+
   Future<void> deleteAccount(String id) async {
     await _box.delete(id);
   }
