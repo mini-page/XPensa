@@ -13,6 +13,10 @@ class ExpenseLocalDatasource {
     return expenses;
   }
 
+  Future<ExpenseModel?> getExpenseById(String id) async {
+    return _box.get(id);
+  }
+
   Future<void> saveExpense(ExpenseModel expense) async {
     await _box.put(expense.id, expense);
   }

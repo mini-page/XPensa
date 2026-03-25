@@ -21,4 +21,9 @@ class HiveExpenseRepository implements ExpenseRepository {
   Future<List<ExpenseModel>> getAllExpenses() {
     return _localDatasource.getAllExpenses();
   }
+
+  @override
+  Future<ExpenseModel?> getExpenseById(String id) {
+    return _localDatasource.getExpenseById(id);
+  }
 }
