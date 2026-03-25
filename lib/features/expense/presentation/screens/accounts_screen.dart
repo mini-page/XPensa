@@ -20,6 +20,15 @@ class AccountsScreen extends ConsumerWidget {
 
   final NumberFormat _currency;
 
+  String _formatSignedAmount(double amount, {required bool masked}) {
+    if (amount == 0) {
+      return maskAmount(_currency.format(0), masked: masked);
+    }
+
+    final absolute = maskAmount(_currency.format(amount.abs()), masked: masked);
+    return '${amount > 0 ? '+' : '-'}$absolute';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(statsProvider);
@@ -98,11 +107,20 @@ class AccountsScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _SummaryChip(
-                          label: 'Active Accounts',
-                          value: '${summary.accountCount}',
+                          label: 'Income So Far',
+                          value: maskAmount(
+                            _currency.format(stats.monthIncomeTotal),
+                            masked: privacyModeEnabled,
+                          ),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 12),
+                  _SummaryChip(
+                    label: 'Active Accounts / Net',
+                    value:
+                        '${summary.accountCount} • ${_formatSignedAmount(stats.monthNetTotal, masked: privacyModeEnabled)}',
                   ),
                 ],
               ),

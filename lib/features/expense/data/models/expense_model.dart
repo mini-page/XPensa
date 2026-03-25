@@ -2,6 +2,28 @@ import 'dart:math';
 
 import 'package:hive/hive.dart';
 
+enum TransactionType { expense, income }
+
+extension TransactionTypeCodec on TransactionType {
+  String get storageValue {
+    switch (this) {
+      case TransactionType.expense:
+        return 'expense';
+      case TransactionType.income:
+        return 'income';
+    }
+  }
+
+  static TransactionType fromStorageValue(String value) {
+    switch (value) {
+      case 'income':
+        return TransactionType.income;
+      default:
+        return TransactionType.expense;
+    }
+  }
+}
+
 class ExpenseModel {
   ExpenseModel({
     required this.id,
@@ -10,17 +32,24 @@ class ExpenseModel {
     required DateTime date,
     required this.note,
     this.accountId,
+    this.type = TransactionType.expense,
   }) : date = date.toUtc() {
     if (id.isEmpty) {
       throw ArgumentError.value(id, 'id', 'Expense id cannot be empty.');
     }
     if (amount <= 0) {
       throw ArgumentError.value(
-          amount, 'amount', 'Expense amount must be positive.');
+        amount,
+        'amount',
+        'Expense amount must be positive.',
+      );
     }
     if (category.trim().isEmpty) {
       throw ArgumentError.value(
-          category, 'category', 'Expense category cannot be empty.');
+        category,
+        'category',
+        'Expense category cannot be empty.',
+      );
     }
   }
 
@@ -30,6 +59,7 @@ class ExpenseModel {
     required DateTime date,
     String note = '',
     String? accountId,
+    TransactionType type = TransactionType.expense,
   }) {
     return ExpenseModel(
       id: _ExpenseIdGenerator.generate(),
@@ -38,6 +68,7 @@ class ExpenseModel {
       date: date,
       note: note.trim(),
       accountId: accountId?.trim().isEmpty ?? true ? null : accountId?.trim(),
+      type: type,
     );
   }
 
@@ -47,6 +78,11 @@ class ExpenseModel {
   final DateTime date;
   final String note;
   final String? accountId;
+  final TransactionType type;
+
+  bool get isIncome => type == TransactionType.income;
+
+  double get signedAmount => isIncome ? amount : -amount;
 
   ExpenseModel copyWith({
     String? id,
@@ -56,6 +92,7 @@ class ExpenseModel {
     String? note,
     String? accountId,
     bool clearAccountId = false,
+    TransactionType? type,
   }) {
     return ExpenseModel(
       id: id ?? this.id,
@@ -64,6 +101,7 @@ class ExpenseModel {
       date: date ?? this.date,
       note: note ?? this.note,
       accountId: clearAccountId ? null : accountId ?? this.accountId,
+      type: type ?? this.type,
     );
   }
 }
@@ -82,12 +120,20 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
     final date =
         DateTime.fromMillisecondsSinceEpoch(reader.readInt(), isUtc: true);
     final note = reader.readString();
+
     String? accountId;
     try {
       final storedAccountId = reader.readString();
       accountId = storedAccountId.isEmpty ? null : storedAccountId;
     } catch (_) {
       accountId = null;
+    }
+
+    TransactionType type;
+    try {
+      type = TransactionTypeCodec.fromStorageValue(reader.readString());
+    } catch (_) {
+      type = TransactionType.expense;
     }
 
     return ExpenseModel(
@@ -97,6 +143,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       date: date,
       note: note,
       accountId: accountId,
+      type: type,
     );
   }
 
@@ -107,8 +154,9 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeDouble(obj.amount)
       ..writeString(obj.category)
       ..writeInt(obj.date.millisecondsSinceEpoch)
-      ..writeString(obj.note);
-    writer.writeString(obj.accountId ?? '');
+      ..writeString(obj.note)
+      ..writeString(obj.accountId ?? '')
+      ..writeString(obj.type.storageValue);
   }
 }
 

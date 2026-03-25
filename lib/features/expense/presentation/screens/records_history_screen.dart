@@ -44,7 +44,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     );
     final filteredTotal = filteredExpenses.fold<double>(
       0,
-      (sum, expense) => sum + expense.amount,
+      (sum, expense) => sum + expense.signedAmount,
     );
 
     return Scaffold(
@@ -87,7 +87,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           const Text(
-                            'Filtered Spend',
+                            'Filtered Net',
                             style: TextStyle(
                               color: Color(0xFF0A6BE8),
                               fontWeight: FontWeight.w800,
@@ -96,12 +96,15 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            maskAmount(
-                              currency.format(filteredTotal),
+                            _formatSignedAmount(
+                              filteredTotal,
+                              currency,
                               masked: privacyModeEnabled,
                             ),
-                            style: const TextStyle(
-                              color: Color(0xFF152039),
+                            style: TextStyle(
+                              color: filteredTotal >= 0
+                                  ? const Color(0xFF1DAA63)
+                                  : const Color(0xFFFF446D),
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                             ),
@@ -414,9 +417,23 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
           initialDate: expense.date.toLocal(),
           initialNote: expense.note,
           initialAccountId: expense.accountId,
+          initialType: expense.type,
         ),
       ),
     );
+  }
+
+  String _formatSignedAmount(
+    double amount,
+    NumberFormat currency, {
+    required bool masked,
+  }) {
+    if (amount == 0) {
+      return maskAmount(currency.format(0), masked: masked);
+    }
+
+    final absolute = maskAmount(currency.format(amount.abs()), masked: masked);
+    return '${amount > 0 ? '+' : '-'}$absolute';
   }
 }
 

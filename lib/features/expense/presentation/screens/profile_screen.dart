@@ -39,7 +39,7 @@ class ProfileScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'Pensa',
+                      'XPensa',
                       style: TextStyle(
                         color: Color(0xFF152039),
                         fontSize: 28,
@@ -256,7 +256,7 @@ class _ProfileHeroCard extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Pensa now stores real local preferences for appearance, reminders, and privacy masking.',
+            'XPensa now stores real local preferences for appearance, reminders, and privacy masking.',
             style: TextStyle(
               color: Color(0xD9FFFFFF),
               fontSize: 15,

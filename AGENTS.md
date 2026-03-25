@@ -1,8 +1,8 @@
-# AGENTS.md - Pensa Expense Tracker
+# AGENTS.md - XPensa Expense Tracker
 
 ## 1. System Overview
 
-Pensa is a cross-platform, offline-first expense tracker built with:
+XPensa is a cross-platform, offline-first expense tracker built with:
 
 - Flutter for UI
 - Riverpod for state management

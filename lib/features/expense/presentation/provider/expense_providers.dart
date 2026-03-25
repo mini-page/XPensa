@@ -60,6 +60,7 @@ class ExpenseController {
     required DateTime date,
     required String note,
     String? accountId,
+    TransactionType type = TransactionType.expense,
   }) async {
     final expense = ExpenseModel.create(
       amount: amount,
@@ -67,6 +68,7 @@ class ExpenseController {
       date: date,
       note: note.trim(),
       accountId: accountId,
+      type: type,
     );
 
     await _applyBalanceAdjustments(nextExpense: expense);
@@ -81,6 +83,7 @@ class ExpenseController {
     required DateTime date,
     required String note,
     String? accountId,
+    TransactionType type = TransactionType.expense,
   }) async {
     final existingExpense = await _findExpenseById(id);
     if (existingExpense == null) {
@@ -94,6 +97,7 @@ class ExpenseController {
       note: note.trim(),
       accountId: accountId,
       clearAccountId: accountId == null,
+      type: type,
     );
 
     await _applyBalanceAdjustments(
@@ -132,8 +136,11 @@ class ExpenseController {
     if (previousExpense?.accountId case final String accountId) {
       final account = pendingUpdates[accountId] ?? accountsById[accountId];
       if (account != null) {
+        final delta = previousExpense!.isIncome
+            ? -previousExpense.amount
+            : previousExpense.amount;
         pendingUpdates[accountId] = account.copyWith(
-          balance: account.balance + previousExpense!.amount,
+          balance: account.balance + delta,
         );
       }
     }
@@ -141,8 +148,10 @@ class ExpenseController {
     if (nextExpense?.accountId case final String accountId) {
       final account = pendingUpdates[accountId] ?? accountsById[accountId];
       if (account != null) {
+        final delta =
+            nextExpense!.isIncome ? nextExpense.amount : -nextExpense.amount;
         pendingUpdates[accountId] = account.copyWith(
-          balance: account.balance - nextExpense!.amount,
+          balance: account.balance + delta,
         );
       }
     }
@@ -195,9 +204,13 @@ class ExpenseController {
 class ExpenseStats {
   const ExpenseStats({
     required this.monthTotal,
+    required this.monthIncomeTotal,
+    required this.monthNetTotal,
     required this.todayTotal,
+    required this.todayIncomeTotal,
     required this.transactionCount,
     required this.categoryTotals,
+    required this.incomeCategoryTotals,
   });
 
   factory ExpenseStats.fromExpenses(List<ExpenseModel> expenses) {
@@ -206,32 +219,59 @@ class ExpenseStats {
       return expense.date.year == now.year && expense.date.month == now.month;
     }).toList(growable: false);
 
-    final todayExpenses = monthExpenses.where((expense) {
+    final todayTransactions = monthExpenses.where((expense) {
       return expense.date.day == now.day;
     }).toList(growable: false);
 
-    final totals = <String, double>{};
+    final expenseTotals = <String, double>{};
+    final incomeTotals = <String, double>{};
+
     for (final expense in monthExpenses) {
-      totals.update(
+      final targetMap = expense.isIncome ? incomeTotals : expenseTotals;
+      targetMap.update(
         expense.category,
         (value) => value + expense.amount,
         ifAbsent: () => expense.amount,
       );
     }
 
-    final sortedEntries = totals.entries.toList()
+    final sortedExpenseEntries = expenseTotals.entries.toList()
+      ..sort((left, right) => right.value.compareTo(left.value));
+    final sortedIncomeEntries = incomeTotals.entries.toList()
       ..sort((left, right) => right.value.compareTo(left.value));
 
+    final monthExpenseTotal = monthExpenses
+        .where((expense) => !expense.isIncome)
+        .fold<double>(0, (sum, expense) => sum + expense.amount);
+    final monthIncomeTotal = monthExpenses
+        .where((expense) => expense.isIncome)
+        .fold<double>(0, (sum, expense) => sum + expense.amount);
+    final todayExpenseTotal = todayTransactions
+        .where((expense) => !expense.isIncome)
+        .fold<double>(0, (sum, expense) => sum + expense.amount);
+    final todayIncomeTotal = todayTransactions
+        .where((expense) => expense.isIncome)
+        .fold<double>(0, (sum, expense) => sum + expense.amount);
+
     return ExpenseStats(
-      monthTotal: monthExpenses.fold(0, (sum, expense) => sum + expense.amount),
-      todayTotal: todayExpenses.fold(0, (sum, expense) => sum + expense.amount),
+      monthTotal: monthExpenseTotal,
+      monthIncomeTotal: monthIncomeTotal,
+      monthNetTotal: monthIncomeTotal - monthExpenseTotal,
+      todayTotal: todayExpenseTotal,
+      todayIncomeTotal: todayIncomeTotal,
       transactionCount: monthExpenses.length,
-      categoryTotals: Map<String, double>.fromEntries(sortedEntries),
+      categoryTotals: Map<String, double>.fromEntries(sortedExpenseEntries),
+      incomeCategoryTotals:
+          Map<String, double>.fromEntries(sortedIncomeEntries),
     );
   }
 
   final double monthTotal;
+  final double monthIncomeTotal;
+  final double monthNetTotal;
   final double todayTotal;
+  final double todayIncomeTotal;
   final int transactionCount;
   final Map<String, double> categoryTotals;
+  final Map<String, double> incomeCategoryTotals;
 }

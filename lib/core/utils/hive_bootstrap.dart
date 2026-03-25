@@ -4,10 +4,12 @@ import '../../features/expense/data/datasource/account_local_datasource.dart';
 import '../../features/expense/data/datasource/budget_local_datasource.dart';
 import '../../features/expense/data/datasource/expense_local_datasource.dart';
 import '../../features/expense/data/datasource/preferences_local_datasource.dart';
+import '../../features/expense/data/datasource/recurring_subscription_local_datasource.dart';
 import '../../features/expense/data/models/account_model.dart';
 import '../../features/expense/data/models/app_preferences_model.dart';
 import '../../features/expense/data/models/budget_model.dart';
 import '../../features/expense/data/models/expense_model.dart';
+import '../../features/expense/data/models/recurring_subscription_model.dart';
 
 abstract final class HiveBootstrap {
   static Future<void> initialize() async {
@@ -25,6 +27,11 @@ abstract final class HiveBootstrap {
     if (!Hive.isAdapterRegistered(AppPreferencesModelAdapter.typeIdValue)) {
       Hive.registerAdapter(AppPreferencesModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(
+      RecurringSubscriptionModelAdapter.typeIdValue,
+    )) {
+      Hive.registerAdapter(RecurringSubscriptionModelAdapter());
+    }
 
     if (!Hive.isBoxOpen(ExpenseLocalDatasource.boxName)) {
       await Hive.openBox<ExpenseModel>(ExpenseLocalDatasource.boxName);
@@ -38,6 +45,11 @@ abstract final class HiveBootstrap {
     if (!Hive.isBoxOpen(PreferencesLocalDatasource.boxName)) {
       await Hive.openBox<AppPreferencesModel>(
           PreferencesLocalDatasource.boxName);
+    }
+    if (!Hive.isBoxOpen(RecurringSubscriptionLocalDatasource.boxName)) {
+      await Hive.openBox<RecurringSubscriptionModel>(
+        RecurringSubscriptionLocalDatasource.boxName,
+      );
     }
   }
 }

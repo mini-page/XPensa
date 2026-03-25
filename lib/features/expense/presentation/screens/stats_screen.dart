@@ -47,7 +47,7 @@ class StatsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Spending\nStats',
+                        'Money\nFlow',
                         style:
                             Theme.of(context).textTheme.displaySmall?.copyWith(
                                   height: 1,
@@ -84,7 +84,7 @@ class StatsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${maskAmount(_currencyFormat.format(stats.monthTotal), masked: privacyModeEnabled)} spent',
+                        '${_formatSignedAmount(stats.monthNetTotal, masked: privacyModeEnabled)} net',
                         style: const TextStyle(
                           color: Color(0xFF152039),
                           fontWeight: FontWeight.w900,
@@ -124,7 +124,7 @@ class StatsScreen extends ConsumerWidget {
                         radius: 22,
                         backgroundColor: Color(0x26FFFFFF),
                         child: Icon(
-                          Icons.pie_chart_outline_rounded,
+                          Icons.insights_rounded,
                           color: Colors.white,
                         ),
                       ),
@@ -142,7 +142,7 @@ class StatsScreen extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              'YOUR SPENDING REPORT',
+                              'EXPENSE, INCOME, AND NET',
                               style: TextStyle(
                                 color: Color(0xCCFFFFFF),
                                 fontWeight: FontWeight.w800,
@@ -154,7 +154,33 @@ class StatsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 26),
+                  const SizedBox(height: 22),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: _MetricTile(
+                          label: 'Spent',
+                          value: maskAmount(
+                            _currencyFormat.format(stats.monthTotal),
+                            masked: privacyModeEnabled,
+                          ),
+                          accent: const Color(0xFFFF5B6C),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _MetricTile(
+                          label: 'Income',
+                          value: maskAmount(
+                            _currencyFormat.format(stats.monthIncomeTotal),
+                            masked: privacyModeEnabled,
+                          ),
+                          accent: const Color(0xFF1DAA63),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -166,7 +192,7 @@ class StatsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         const Text(
-                          'TOTAL SPENT THIS MONTH',
+                          'NET THIS MONTH',
                           style: TextStyle(
                             color: Color(0xFF8EA0BC),
                             fontWeight: FontWeight.w800,
@@ -175,12 +201,14 @@ class StatsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          maskAmount(
-                            _currencyFormat.format(stats.monthTotal),
+                          _formatSignedAmount(
+                            stats.monthNetTotal,
                             masked: privacyModeEnabled,
                           ),
-                          style: const TextStyle(
-                            color: Color(0xFF13213B),
+                          style: TextStyle(
+                            color: stats.monthNetTotal >= 0
+                                ? const Color(0xFF1DAA63)
+                                : const Color(0xFFFF446D),
                             fontSize: 38,
                             fontWeight: FontWeight.w900,
                           ),
@@ -192,101 +220,199 @@ class StatsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 22),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: const <BoxShadow>[
-                  BoxShadow(
-                    color: Color(0x1209386D),
-                    blurRadius: 22,
-                    offset: Offset(0, 12),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                    'BREAKDOWN',
-                    style: TextStyle(
-                      color: Color(0xFF0A6BE8),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (stats.categoryTotals.isEmpty)
-                    const Text(
-                      'No expenses yet. Add your first transaction to see the category mix.',
-                      style: TextStyle(
-                        color: Color(0xFF6E7F9C),
-                        fontWeight: FontWeight.w600,
-                        height: 1.5,
-                      ),
-                    )
-                  else
-                    ...stats.categoryTotals.entries.take(5).map((entry) {
-                      final category = resolveCategory(entry.key);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 14,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F8FE),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color: category.color.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Icon(
-                                  category.icon,
-                                  color: category.color,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  entry.key,
-                                  style: const TextStyle(
-                                    color: Color(0xFF152039),
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                maskAmount(
-                                  _currencyFormat.format(entry.value),
-                                  masked: privacyModeEnabled,
-                                ),
-                                style: const TextStyle(
-                                  color: Color(0xFF0A6BE8),
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                ],
-              ),
+            _BreakdownCard(
+              title: 'Expense Breakdown',
+              emptyMessage:
+                  'No expenses yet. Add a transaction to see category mix.',
+              entries: stats.categoryTotals.entries.toList(growable: false),
+              privacyModeEnabled: privacyModeEnabled,
+              currencyFormat: _currencyFormat,
+              income: false,
+            ),
+            const SizedBox(height: 16),
+            _BreakdownCard(
+              title: 'Income Breakdown',
+              emptyMessage:
+                  'No income yet. Add income to understand where money is coming from.',
+              entries:
+                  stats.incomeCategoryTotals.entries.toList(growable: false),
+              privacyModeEnabled: privacyModeEnabled,
+              currencyFormat: _currencyFormat,
+              income: true,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  String _formatSignedAmount(double amount, {required bool masked}) {
+    if (amount == 0) {
+      return maskAmount(_currencyFormat.format(0), masked: masked);
+    }
+
+    final absolute = maskAmount(
+      _currencyFormat.format(amount.abs()),
+      masked: masked,
+    );
+    return '${amount > 0 ? '+' : '-'}$absolute';
+  }
+}
+
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.accent,
+  });
+
+  final String label;
+  final String value;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              color: accent,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFF152039),
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BreakdownCard extends StatelessWidget {
+  const _BreakdownCard({
+    required this.title,
+    required this.emptyMessage,
+    required this.entries,
+    required this.privacyModeEnabled,
+    required this.currencyFormat,
+    required this.income,
+  });
+
+  final String title;
+  final String emptyMessage;
+  final List<MapEntry<String, double>> entries;
+  final bool privacyModeEnabled;
+  final NumberFormat currencyFormat;
+  final bool income;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x1209386D),
+            blurRadius: 22,
+            offset: Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFF0A6BE8),
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (entries.isEmpty)
+            Text(
+              emptyMessage,
+              style: const TextStyle(
+                color: Color(0xFF6E7F9C),
+                fontWeight: FontWeight.w600,
+                height: 1.5,
+              ),
+            )
+          else
+            ...entries.take(5).map((entry) {
+              final category = resolveCategory(entry.key, income: income);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F8FE),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: category.color.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          category.icon,
+                          color: category.color,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          entry.key,
+                          style: const TextStyle(
+                            color: Color(0xFF152039),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${income ? '+' : ''}${maskAmount(currencyFormat.format(entry.value), masked: privacyModeEnabled)}',
+                        style: TextStyle(
+                          color: income
+                              ? const Color(0xFF1DAA63)
+                              : const Color(0xFF0A6BE8),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+        ],
       ),
     );
   }

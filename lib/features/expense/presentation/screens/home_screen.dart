@@ -12,6 +12,7 @@ import '../widgets/expense_category.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
 import 'add_expense_screen.dart';
+import 'manage_subscriptions_screen.dart';
 import 'records_history_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -53,7 +54,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ..sort((left, right) => right.date.compareTo(left.date));
     final selectedTotal = selectedExpenses.fold<double>(
       0,
-      (sum, expense) => sum + expense.amount,
+      (sum, expense) => sum + expense.signedAmount,
     );
 
     return SingleChildScrollView(
@@ -72,7 +73,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _FeatureRow(
-                  onSoonTap: (label) => _showSoonMessage(context, label),
+                  onSplitTap: () => _openSplitBillSheet(context),
+                  onRecurringTap: () => _openSubscriptionsScreen(context),
                 ),
                 const SizedBox(height: 22),
                 QuickActionBar(
@@ -102,6 +104,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         context,
                         initialDate: _selectedDate,
                       );
+                      return;
+                    }
+                    if (action.label == 'SPLIT') {
+                      _openSplitBillSheet(context);
                       return;
                     }
                     _showSoonMessage(context, action.label);
@@ -165,8 +171,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _DateStripCard(
                   visibleDates: visibleDates,
                   selectedDate: _selectedDate,
-                  selectedTotalText: maskAmount(
-                    currencyFormat.format(selectedTotal),
+                  selectedTotalText: _formatSignedCurrency(
+                    selectedTotal,
+                    currencyFormat,
                     masked: privacyModeEnabled,
                   ),
                   transactionCount: selectedExpenses.length,
@@ -252,6 +259,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           initialDate: expense.date.toLocal(),
           initialNote: expense.note,
           initialAccountId: expense.accountId,
+          initialType: expense.type,
         ),
       ),
     );
@@ -262,6 +270,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       MaterialPageRoute<void>(
         builder: (_) => const RecordsHistoryScreen(),
       ),
+    );
+  }
+
+  Future<void> _openSubscriptionsScreen(BuildContext context) {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ManageSubscriptionsScreen(),
+      ),
+    );
+  }
+
+  Future<void> _openSplitBillSheet(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      builder: (_) => const _SplitBillSheet(),
     );
   }
 
@@ -345,6 +373,11 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final netTotal = _formatSignedCurrency(
+      stats.monthNetTotal,
+      currencyFormat,
+      masked: privacyModeEnabled,
+    );
     return Container(
       padding: EdgeInsets.fromLTRB(22, topPadding + 14, 22, 28),
       decoration: const BoxDecoration(
@@ -378,7 +411,7 @@ class _Header extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            'All Accounts - ${maskAmount(currencyFormat.format(stats.monthTotal), masked: privacyModeEnabled)}',
+            'All Accounts - $netTotal',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 25,
@@ -398,7 +431,10 @@ class _Header extends StatelessWidget {
               ),
               _MetricColumn(
                 label: 'INCOME SO FAR',
-                value: maskAmount('₹0', masked: privacyModeEnabled),
+                value: maskAmount(
+                  currencyFormat.format(stats.monthIncomeTotal),
+                  masked: privacyModeEnabled,
+                ),
               ),
             ],
           ),
@@ -444,9 +480,13 @@ class _MetricColumn extends StatelessWidget {
 }
 
 class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({required this.onSoonTap});
+  const _FeatureRow({
+    required this.onSplitTap,
+    required this.onRecurringTap,
+  });
 
-  final ValueChanged<String> onSoonTap;
+  final VoidCallback onSplitTap;
+  final VoidCallback onRecurringTap;
 
   @override
   Widget build(BuildContext context) {
@@ -457,7 +497,7 @@ class _FeatureRow extends StatelessWidget {
             title: 'Split Bills',
             subtitle: 'SPLITWISE',
             icon: Icons.group_outlined,
-            onTap: () => onSoonTap('Split bills'),
+            onTap: onSplitTap,
           ),
         ),
         const SizedBox(width: 14),
@@ -466,7 +506,7 @@ class _FeatureRow extends StatelessWidget {
             title: 'Recurring',
             subtitle: 'MANAGE SUBS',
             icon: Icons.sync_alt_rounded,
-            onTap: () => onSoonTap('Recurring'),
+            onTap: onRecurringTap,
           ),
         ),
       ],
@@ -870,6 +910,243 @@ class _EmptyCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+String _formatSignedCurrency(
+  double amount,
+  NumberFormat currencyFormat, {
+  required bool masked,
+}) {
+  if (amount == 0) {
+    return maskAmount(currencyFormat.format(0), masked: masked);
+  }
+
+  final absolute = maskAmount(
+    currencyFormat.format(amount.abs()),
+    masked: masked,
+  );
+  final prefix = amount > 0 ? '+' : '-';
+  return '$prefix$absolute';
+}
+
+class _SplitBillSheet extends StatefulWidget {
+  const _SplitBillSheet();
+
+  @override
+  State<_SplitBillSheet> createState() => _SplitBillSheetState();
+}
+
+class _SplitBillSheetState extends State<_SplitBillSheet> {
+  final TextEditingController _amountController =
+      TextEditingController(text: '0');
+  int _peopleCount = 2;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currency = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    );
+    final totalAmount = double.tryParse(_amountController.text) ?? 0;
+    final perPerson = _peopleCount <= 0 ? 0 : totalAmount / _peopleCount;
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          12,
+          20,
+          20 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Center(
+              child: Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD6DFEB),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Split Bill',
+              style: TextStyle(
+                color: Color(0xFF152039),
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Calculate a fair share before you save the final transaction.',
+              style: TextStyle(
+                color: Color(0xFF8EA0BC),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Total amount',
+                prefixText: '₹ ',
+                filled: true,
+                fillColor: const Color(0xFFF6F8FC),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF6F8FC),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Row(
+                children: <Widget>[
+                  const Expanded(
+                    child: Text(
+                      'People',
+                      style: TextStyle(
+                        color: Color(0xFF152039),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  _StepperButton(
+                    icon: Icons.remove_rounded,
+                    onTap: _peopleCount > 2
+                        ? () => setState(() => _peopleCount -= 1)
+                        : null,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Text(
+                      '$_peopleCount',
+                      style: const TextStyle(
+                        color: Color(0xFF152039),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  _StepperButton(
+                    icon: Icons.add_rounded,
+                    onTap: () => setState(() => _peopleCount += 1),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: <double>[200, 500, 1000, 2000].map((amount) {
+                return ActionChip(
+                  label: Text(currency.format(amount)),
+                  backgroundColor: const Color(0xFFEFF5FF),
+                  labelStyle: const TextStyle(
+                    color: Color(0xFF0A6BE8),
+                    fontWeight: FontWeight.w800,
+                  ),
+                  onPressed: () {
+                    _amountController.text = amount.toStringAsFixed(0);
+                    setState(() {});
+                  },
+                );
+              }).toList(growable: false),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: <Color>[Color(0xFF0A6BE8), Color(0xFF56A0FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Text(
+                    'Per person',
+                    style: TextStyle(
+                      color: Color(0xCCFFFFFF),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    currency.format(perPerson),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: onTap == null ? const Color(0xFFF1F4F8) : const Color(0xFFE8F1FF),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 34,
+          height: 34,
+          child: Icon(
+            icon,
+            color: onTap == null
+                ? const Color(0xFFAAB7CB)
+                : const Color(0xFF0A6BE8),
+            size: 18,
+          ),
+        ),
       ),
     );
   }

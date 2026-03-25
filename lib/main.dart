@@ -16,11 +16,11 @@ Future<void> main() async {
     ),
   );
   await HiveBootstrap.initialize();
-  runApp(const ProviderScope(child: PensaApp()));
+  runApp(const ProviderScope(child: XPensaApp()));
 }
 
-class PensaApp extends ConsumerWidget {
-  const PensaApp({super.key});
+class XPensaApp extends ConsumerWidget {
+  const XPensaApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/models/expense_model.dart';
+import '../../data/models/recurring_subscription_model.dart';
 import '../provider/budget_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
+import '../provider/recurring_subscription_providers.dart';
 import '../widgets/amount_visibility.dart';
 import '../widgets/budget_editor_sheet.dart';
 import '../widgets/expense_category.dart';
+import '../widgets/subscription_icons.dart';
+import 'add_expense_screen.dart';
+import 'manage_subscriptions_screen.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
@@ -23,60 +29,46 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   Widget build(BuildContext context) {
     final stats = ref.watch(statsProvider);
     final budgetState = ref.watch(budgetTargetsProvider);
+    final subscriptionState = ref.watch(recurringSubscriptionListProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
     final currency = NumberFormat.currency(
       locale: 'en_IN',
       symbol: '₹',
-      decimalDigits: 1,
+      decimalDigits: 0,
     );
     final budgets = budgetState.valueOrNull ?? defaultBudgetTargets;
-
-    // Build grid children
-    final List<Widget> gridChildren = _showIncome
-        ? <Widget>[
-            ..._incomeEntries.map((entry) {
-              return _GridCategoryCard(
-                title: entry.title,
-                icon: entry.icon,
-                tone: entry.tone,
-                amount: '₹0.0',
-                onTap: () => _openBudgetEditor(
-                  categoryName: expenseCategories.first.name,
-                  currentBudget: budgets[expenseCategories.first.name] ?? 0,
-                ),
-              );
-            }),
-            _AddCategoryCard(
-              onTap: () => _openBudgetEditor(
-                categoryName: expenseCategories.first.name,
-                currentBudget: budgets[expenseCategories.first.name] ?? 0,
-              ),
-            ),
-          ]
-        : <Widget>[
-            ...expenseCategories.map((category) {
-              final spent = stats.categoryTotals[category.name] ?? 0;
-              return _GridCategoryCard(
-                title: category.name,
-                icon: category.icon,
-                tone: category.color,
-                amount: maskAmount(
-                  currency.format(spent),
-                  masked: privacyModeEnabled,
-                ),
-                onTap: () => _openBudgetEditor(
-                  categoryName: category.name,
-                  currentBudget: budgets[category.name] ?? 0,
-                ),
-              );
-            }),
-            _AddCategoryCard(
-              onTap: () => _openBudgetEditor(
-                categoryName: expenseCategories.first.name,
-                currentBudget: budgets[expenseCategories.first.name] ?? 0,
-              ),
-            ),
-          ];
+    final subscriptions =
+        subscriptionState.valueOrNull ?? const <RecurringSubscriptionModel>[];
+    final categoryCards = _showIncome
+        ? incomeCategories
+            .map((category) => _CategoryGridData(
+                  title: category.name,
+                  icon: category.icon,
+                  tone: category.color,
+                  amount: stats.incomeCategoryTotals[category.name] ?? 0,
+                  onTap: () => _openTransactionComposer(
+                    category.name,
+                    TransactionType.income,
+                  ),
+                ))
+            .toList(growable: false)
+        : expenseCategories
+            .map((category) => _CategoryGridData(
+                  title: category.name,
+                  icon: category.icon,
+                  tone: category.color,
+                  amount: stats.categoryTotals[category.name] ?? 0,
+                  budget: budgets[category.name] ?? 0,
+                  onTap: () => _openBudgetEditor(
+                    categoryName: category.name,
+                    currentBudget: budgets[category.name] ?? 0,
+                  ),
+                ))
+            .toList(growable: false);
+    final topAmount =
+        _showIncome ? stats.monthIncomeTotal : stats.monthNetTotal;
+    final topLabel =
+        _showIncome ? 'Income captured this month' : 'Current net flow';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -84,18 +76,18 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // ── Balance header ──
             Row(
               children: <Widget>[
-                const Icon(
-                  Icons.blur_on_rounded,
-                  color: Color(0xFF0A6BE8),
+                Icon(
+                  _showIncome ? Icons.savings_outlined : Icons.blur_on_rounded,
+                  color: const Color(0xFF0A6BE8),
                   size: 28,
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  maskAmount(
-                    currency.format(stats.monthTotal),
+                  _formatSignedAmount(
+                    topAmount,
+                    currency,
                     masked: privacyModeEnabled,
                   ),
                   style: const TextStyle(
@@ -107,17 +99,15 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Current balance',
-              style: TextStyle(
+            Text(
+              topLabel,
+              style: const TextStyle(
                 color: Color(0xFF90A1BE),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 20),
-
-            // ── Expenses / Incomes toggle + Create New ──
             Row(
               children: <Widget>[
                 Expanded(
@@ -134,10 +124,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 ),
                 const SizedBox(width: 12),
                 FilledButton(
-                  onPressed: () => _openBudgetEditor(
-                    categoryName: expenseCategories.first.name,
-                    currentBudget: budgets[expenseCategories.first.name] ?? 0,
-                  ),
+                  onPressed: _showIncome
+                      ? () => _openTransactionComposer(
+                            incomeCategories.first.name,
+                            TransactionType.income,
+                          )
+                      : () => _openBudgetEditor(
+                            categoryName: expenseCategories.first.name,
+                            currentBudget:
+                                budgets[expenseCategories.first.name] ?? 0,
+                          ),
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF0A6BE8),
                     shape: RoundedRectangleBorder(
@@ -148,21 +144,19 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                       vertical: 16,
                     ),
                   ),
-                  child: const Text(
-                    'Create New',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                  child: Text(
+                    _showIncome ? 'Add Income' : 'Set Budget',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
             ),
-            if (budgetState.isLoading)
+            if (budgetState.isLoading && !_showIncome)
               const Padding(
                 padding: EdgeInsets.only(top: 16),
                 child: LinearProgressIndicator(minHeight: 4),
               ),
             const SizedBox(height: 22),
-
-            // ── 3-column category grid ──
             GridView.count(
               crossAxisCount: 3,
               shrinkWrap: true,
@@ -170,11 +164,42 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               mainAxisSpacing: 14,
               crossAxisSpacing: 14,
               childAspectRatio: 0.82,
-              children: gridChildren,
+              children: <Widget>[
+                ...categoryCards.map((entry) {
+                  final amountText = _showIncome
+                      ? '+${maskAmount(currency.format(entry.amount), masked: privacyModeEnabled)}'
+                      : maskAmount(
+                          currency.format(entry.amount),
+                          masked: privacyModeEnabled,
+                        );
+                  final detailText = !_showIncome && entry.budget > 0
+                      ? 'Budget ${maskAmount(currency.format(entry.budget), masked: privacyModeEnabled)}'
+                      : null;
+                  return _GridCategoryCard(
+                    title: entry.title,
+                    icon: entry.icon,
+                    tone: entry.tone,
+                    amount: amountText,
+                    detail: detailText,
+                    actionLabel: _showIncome ? 'Quick Add' : 'Edit Budget',
+                    onTap: entry.onTap,
+                  );
+                }),
+                _AddCategoryCard(
+                  onTap: _showIncome
+                      ? () => _openTransactionComposer(
+                            incomeCategories.first.name,
+                            TransactionType.income,
+                          )
+                      : () => _openBudgetEditor(
+                            categoryName: expenseCategories.first.name,
+                            currentBudget:
+                                budgets[expenseCategories.first.name] ?? 0,
+                          ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
-
-            // ── Recurring Subs section ──
             Row(
               children: <Widget>[
                 const Text(
@@ -188,24 +213,39 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: _showManageMessage,
+                  onPressed: _openManageSubscriptions,
                   child: const Text('Manage'),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              height: 170,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _subscriptions.map((subscription) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 14),
-                    child: _SubscriptionCard(subscription: subscription),
-                  );
-                }).toList(growable: false),
+            if (subscriptionState.isLoading && subscriptions.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (subscriptions.isEmpty)
+              const _EmptySubscriptionsCard()
+            else
+              SizedBox(
+                height: 170,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: subscriptions.map((subscription) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: _SubscriptionCard(
+                        subscription: subscription,
+                        amount: maskAmount(
+                          currency.format(subscription.amount),
+                          masked: privacyModeEnabled,
+                        ),
+                        onTap: _openManageSubscriptions,
+                      ),
+                    );
+                  }).toList(growable: false),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -223,14 +263,18 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       initialAmount: currentBudget,
     );
 
-    if (result == null) return;
+    if (result == null) {
+      return;
+    }
 
     await ref.read(budgetControllerProvider).saveBudget(
           category: result.category,
           monthlyLimit: result.amount,
         );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -241,17 +285,28 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  void _showManageMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content:
-            Text('Recurring subscription management will be expanded soon.'),
+  Future<void> _openManageSubscriptions() {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ManageSubscriptionsScreen(),
+      ),
+    );
+  }
+
+  Future<void> _openTransactionComposer(
+    String category,
+    TransactionType type,
+  ) {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AddExpenseScreen(
+          initialCategory: category,
+          initialType: type,
+        ),
       ),
     );
   }
 }
-
-// ── Pill Switch ─────────────────────────────────────────────────────────────
 
 class _PillSwitch extends StatelessWidget {
   const _PillSwitch({
@@ -329,21 +384,23 @@ class _SwitchOption extends StatelessWidget {
   }
 }
 
-// ── Grid Category Card (matches the design reference) ───────────────────────
-
 class _GridCategoryCard extends StatelessWidget {
   const _GridCategoryCard({
     required this.title,
     required this.icon,
     required this.tone,
     required this.amount,
+    required this.actionLabel,
     required this.onTap,
+    this.detail,
   });
 
   final String title;
   final IconData icon;
   final Color tone;
   final String amount;
+  final String? detail;
+  final String actionLabel;
   final VoidCallback onTap;
 
   @override
@@ -390,10 +447,22 @@ class _GridCategoryCard extends StatelessWidget {
                       fontSize: 15,
                     ),
                   ),
+                  if (detail != null) ...<Widget>[
+                    const SizedBox(height: 2),
+                    Text(
+                      detail!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF6C7D99),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            // 3-dot menu overlay
             Positioned(
               top: 6,
               right: 2,
@@ -406,15 +475,11 @@ class _GridCategoryCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 color: Colors.white,
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    onTap();
-                  }
-                },
+                onSelected: (_) => onTap(),
                 itemBuilder: (context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'edit',
-                    child: Text('Edit Budget'),
+                  PopupMenuItem<String>(
+                    value: 'primary',
+                    child: Text(actionLabel),
                   ),
                 ],
               ),
@@ -425,8 +490,6 @@ class _GridCategoryCard extends StatelessWidget {
     );
   }
 }
-
-// ── Add Category Card (+) ───────────────────────────────────────────────────
 
 class _AddCategoryCard extends StatelessWidget {
   const _AddCategoryCard({required this.onTap});
@@ -453,18 +516,94 @@ class _AddCategoryCard extends StatelessWidget {
   }
 }
 
-// ── Subscription Card ───────────────────────────────────────────────────────
-
 class _SubscriptionCard extends StatelessWidget {
-  const _SubscriptionCard({required this.subscription});
+  const _SubscriptionCard({
+    required this.subscription,
+    required this.amount,
+    required this.onTap,
+  });
 
-  final _Subscription subscription;
+  final RecurringSubscriptionModel subscription;
+  final String amount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(28),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
+        child: Container(
+          width: 168,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: const <BoxShadow>[
+              BoxShadow(
+                color: Color(0x1209386D),
+                blurRadius: 22,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F6FB),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  resolveSubscriptionIcon(subscription.iconKey),
+                  color: const Color(0xFF8BA0C0),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                subscription.name,
+                style: const TextStyle(
+                  color: Color(0xFF13213B),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${subscription.isActive ? '' : 'Paused • '}$amount/mo',
+                style: const TextStyle(
+                  color: Color(0xFF94A4BE),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'NEXT: ${DateFormat('d MMM').format(subscription.nextBillDate).toUpperCase()}',
+                style: const TextStyle(
+                  color: Color(0xFF0A6BE8),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptySubscriptionsCard extends StatelessWidget {
+  const _EmptySubscriptionsCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -476,134 +615,45 @@ class _SubscriptionCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F6FB),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(subscription.icon, color: const Color(0xFF8BA0C0)),
-          ),
-          const Spacer(),
-          Text(
-            subscription.name,
-            style: const TextStyle(
-              color: Color(0xFF13213B),
-              fontWeight: FontWeight.w800,
-              fontSize: 22,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subscription.price,
-            style: const TextStyle(
-              color: Color(0xFF94A4BE),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            subscription.nextBill,
-            style: const TextStyle(
-              color: Color(0xFF0A6BE8),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+      child: const Text(
+        'No subscriptions yet. Use Manage to create your recurring bills.',
+        style: TextStyle(
+          color: Color(0xFF6E7F9C),
+          fontWeight: FontWeight.w600,
+          height: 1.5,
+        ),
       ),
     );
   }
 }
 
-// ── Data Models ─────────────────────────────────────────────────────────────
-
-class _Subscription {
-  const _Subscription({
-    required this.name,
-    required this.price,
-    required this.nextBill,
-    required this.icon,
-  });
-
-  final String name;
-  final String price;
-  final String nextBill;
-  final IconData icon;
-}
-
-class _IncomeEntry {
-  const _IncomeEntry({
+class _CategoryGridData {
+  const _CategoryGridData({
     required this.title,
     required this.icon,
     required this.tone,
+    required this.amount,
+    required this.onTap,
+    this.budget = 0,
   });
 
   final String title;
   final IconData icon;
   final Color tone;
+  final double amount;
+  final double budget;
+  final VoidCallback onTap;
 }
 
-// ── Static Data ─────────────────────────────────────────────────────────────
+String _formatSignedAmount(
+  double amount,
+  NumberFormat currency, {
+  required bool masked,
+}) {
+  if (amount == 0) {
+    return maskAmount(currency.format(0), masked: masked);
+  }
 
-const List<_IncomeEntry> _incomeEntries = <_IncomeEntry>[
-  _IncomeEntry(
-    title: 'Salary',
-    icon: Icons.work_outline_rounded,
-    tone: Color(0xFF8FC7FF),
-  ),
-  _IncomeEntry(
-    title: 'Award',
-    icon: Icons.emoji_events_outlined,
-    tone: Color(0xFFB4EFB8),
-  ),
-  _IncomeEntry(
-    title: 'Coupon',
-    icon: Icons.confirmation_num_outlined,
-    tone: Color(0xFFFFB9C6),
-  ),
-  _IncomeEntry(
-    title: 'Grant',
-    icon: Icons.card_giftcard_outlined,
-    tone: Color(0xFFD0BEFF),
-  ),
-  _IncomeEntry(
-    title: 'Lottery',
-    icon: Icons.casino_outlined,
-    tone: Color(0xFFFFE38A),
-  ),
-  _IncomeEntry(
-    title: 'Refund',
-    icon: Icons.replay_circle_filled_outlined,
-    tone: Color(0xFF7FD4C0),
-  ),
-  _IncomeEntry(
-    title: 'Sale',
-    icon: Icons.sell_outlined,
-    tone: Color(0xFFFFCB7A),
-  ),
-];
-
-const List<_Subscription> _subscriptions = <_Subscription>[
-  _Subscription(
-    name: 'Netflix',
-    price: '₹499/mo',
-    nextBill: 'NEXT: 25 MAR',
-    icon: Icons.tv_rounded,
-  ),
-  _Subscription(
-    name: 'Spotify',
-    price: '₹119/mo',
-    nextBill: 'NEXT: 1 APR',
-    icon: Icons.music_note_rounded,
-  ),
-  _Subscription(
-    name: 'YouTube',
-    price: '₹129/mo',
-    nextBill: 'NEXT: 8 APR',
-    icon: Icons.play_circle_outline_rounded,
-  ),
-];
+  final value = maskAmount(currency.format(amount.abs()), masked: masked);
+  return '${amount > 0 ? '+' : '-'}$value';
+}

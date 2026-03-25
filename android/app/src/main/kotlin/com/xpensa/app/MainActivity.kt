@@ -1,4 +1,4 @@
-package com.pensa.mini.pensa
+package com.xpensa.app
 
 import io.flutter.embedding.android.FlutterActivity
 

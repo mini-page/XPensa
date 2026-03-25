@@ -55,9 +55,58 @@ const List<ExpenseCategory> expenseCategories = <ExpenseCategory>[
   ),
 ];
 
-ExpenseCategory resolveCategory(String name) {
+const List<ExpenseCategory> incomeCategories = <ExpenseCategory>[
+  ExpenseCategory(
+    name: 'Salary',
+    icon: Icons.work_outline_rounded,
+    color: Color(0xFF8FC7FF),
+  ),
+  ExpenseCategory(
+    name: 'Award',
+    icon: Icons.emoji_events_outlined,
+    color: Color(0xFFB4EFB8),
+  ),
+  ExpenseCategory(
+    name: 'Coupon',
+    icon: Icons.confirmation_num_outlined,
+    color: Color(0xFFFFB9C6),
+  ),
+  ExpenseCategory(
+    name: 'Grant',
+    icon: Icons.card_giftcard_outlined,
+    color: Color(0xFFD0BEFF),
+  ),
+  ExpenseCategory(
+    name: 'Lottery',
+    icon: Icons.casino_outlined,
+    color: Color(0xFFFFE38A),
+  ),
+  ExpenseCategory(
+    name: 'Refund',
+    icon: Icons.replay_circle_filled_outlined,
+    color: Color(0xFF7FD4C0),
+  ),
+  ExpenseCategory(
+    name: 'Sale',
+    icon: Icons.sell_outlined,
+    color: Color(0xFFFFCB7A),
+  ),
+];
+
+ExpenseCategory resolveExpenseCategory(String name) {
   return expenseCategories.firstWhere(
     (category) => category.name == name,
     orElse: () => expenseCategories.last,
   );
+}
+
+ExpenseCategory resolveIncomeCategory(String name) {
+  return incomeCategories.firstWhere(
+    (category) => category.name == name,
+    orElse: () => incomeCategories.last,
+  );
+}
+
+ExpenseCategory resolveCategory(String name, {bool income = false}) {
+  return income ? resolveIncomeCategory(name) : resolveExpenseCategory(name);
 }
