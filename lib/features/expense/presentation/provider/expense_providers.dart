@@ -176,23 +176,17 @@ class ExpenseController {
 
   Future<ExpenseModel?> _findExpenseById(String id) async {
     final currentExpenses = _ref.read(expenseListProvider).valueOrNull;
-    final loadedExpense = currentExpenses?.where((expense) => expense.id == id);
-    if (loadedExpense != null && loadedExpense.isNotEmpty) {
-      return loadedExpense.first;
+    final loadedExpense =
+        currentExpenses?.where((expense) => expense.id == id).firstOrNull;
+    if (loadedExpense != null) {
+      return loadedExpense;
     }
 
     try {
-      final expenses = await _expenseRepository.getAllExpenses();
-      for (final expense in expenses) {
-        if (expense.id == id) {
-          return expense;
-        }
-      }
+      return await _expenseRepository.getExpenseById(id);
     } catch (_) {
       return null;
     }
-
-    return null;
   }
 
   void _refreshState() {
