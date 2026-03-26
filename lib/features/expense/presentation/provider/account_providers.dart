@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasource/account_local_datasource.dart';
@@ -22,8 +24,8 @@ final accountRepositoryProvider = Provider<AccountRepository>((ref) {
 
 final accountListProvider =
     AsyncNotifierProvider<AccountListNotifier, List<AccountModel>>(
-  AccountListNotifier.new,
-);
+      AccountListNotifier.new,
+    );
 
 final accountControllerProvider = Provider<AccountController>((ref) {
   return AccountController(ref);
@@ -32,8 +34,10 @@ final accountControllerProvider = Provider<AccountController>((ref) {
 final accountSummaryProvider = Provider<AccountSummary>((ref) {
   final accounts =
       ref.watch(accountListProvider).valueOrNull ?? const <AccountModel>[];
-  final totalBalance =
-      accounts.fold<double>(0, (sum, account) => sum + account.balance);
+  final totalBalance = accounts.fold<double>(
+    0,
+    (sum, account) => sum + account.balance,
+  );
   return AccountSummary(
     totalBalance: totalBalance,
     accountCount: accounts.length,
@@ -51,25 +55,35 @@ class AccountListNotifier extends AsyncNotifier<List<AccountModel>> {
         return accounts;
       }
 
-      final seededAccounts = defaultAccounts.map((seed) {
-        return AccountModel.create(
-          name: seed.name,
-          iconKey: seed.iconKey,
-          balance: seed.balance,
-        );
-      }).toList(growable: false);
+      final seededAccounts = defaultAccounts
+          .map((seed) {
+            return AccountModel.create(
+              name: seed.name,
+              iconKey: seed.iconKey,
+              balance: seed.balance,
+            );
+          })
+          .toList(growable: false);
 
       await _repository.saveAccounts(seededAccounts);
 
       return seededAccounts;
-    } catch (_) {
-      return defaultAccounts.map((seed) {
-        return AccountModel.create(
-          name: seed.name,
-          iconKey: seed.iconKey,
-          balance: seed.balance,
-        );
-      }).toList(growable: false);
+    } catch (e, stackTrace) {
+      dev.log(
+        'Failed to fetch or seed accounts',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'AccountListNotifier',
+      );
+      return defaultAccounts
+          .map((seed) {
+            return AccountModel.create(
+              name: seed.name,
+              iconKey: seed.iconKey,
+              balance: seed.balance,
+            );
+          })
+          .toList(growable: false);
     }
   }
 
@@ -111,17 +125,8 @@ class AccountController {
     required double balance,
   }) async {
     final account = id == null
-        ? AccountModel.create(
-            name: name,
-            iconKey: iconKey,
-            balance: balance,
-          )
-        : AccountModel(
-            id: id,
-            name: name,
-            iconKey: iconKey,
-            balance: balance,
-          );
+        ? AccountModel.create(name: name, iconKey: iconKey, balance: balance)
+        : AccountModel(id: id, name: name, iconKey: iconKey, balance: balance);
 
     await _ref.read(accountListProvider.notifier).saveAccount(account);
   }

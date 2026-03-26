@@ -41,7 +41,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         subscriptionState.valueOrNull ?? const <RecurringSubscriptionModel>[];
     final categoryCards = _showIncome
         ? incomeCategories
-            .map((category) => _CategoryGridData(
+              .map(
+                (category) => _CategoryGridData(
                   title: category.name,
                   icon: category.icon,
                   tone: category.color,
@@ -50,10 +51,12 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                     category.name,
                     TransactionType.income,
                   ),
-                ))
-            .toList(growable: false)
+                ),
+              )
+              .toList(growable: false)
         : expenseCategories
-            .map((category) => _CategoryGridData(
+              .map(
+                (category) => _CategoryGridData(
                   title: category.name,
                   icon: category.icon,
                   tone: category.color,
@@ -63,12 +66,15 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                     categoryName: category.name,
                     currentBudget: budgets[category.name] ?? 0,
                   ),
-                ))
-            .toList(growable: false);
-    final topAmount =
-        _showIncome ? stats.monthIncomeTotal : stats.monthNetTotal;
-    final topLabel =
-        _showIncome ? 'Income captured this month' : 'Current net flow';
+                ),
+              )
+              .toList(growable: false);
+    final topAmount = _showIncome
+        ? stats.monthIncomeTotal
+        : stats.monthNetTotal;
+    final topLabel = _showIncome
+        ? 'Income captured this month'
+        : 'Current net flow';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -126,14 +132,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 FilledButton(
                   onPressed: _showIncome
                       ? () => _openTransactionComposer(
-                            incomeCategories.first.name,
-                            TransactionType.income,
-                          )
+                          incomeCategories.first.name,
+                          TransactionType.income,
+                        )
                       : () => _openBudgetEditor(
-                            categoryName: expenseCategories.first.name,
-                            currentBudget:
-                                budgets[expenseCategories.first.name] ?? 0,
-                          ),
+                          categoryName: expenseCategories.first.name,
+                          currentBudget:
+                              budgets[expenseCategories.first.name] ?? 0,
+                        ),
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF0A6BE8),
                     shape: RoundedRectangleBorder(
@@ -188,14 +194,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 _AddCategoryCard(
                   onTap: _showIncome
                       ? () => _openTransactionComposer(
-                            incomeCategories.first.name,
-                            TransactionType.income,
-                          )
+                          incomeCategories.first.name,
+                          TransactionType.income,
+                        )
                       : () => _openBudgetEditor(
-                            categoryName: expenseCategories.first.name,
-                            currentBudget:
-                                budgets[expenseCategories.first.name] ?? 0,
-                          ),
+                          categoryName: expenseCategories.first.name,
+                          currentBudget:
+                              budgets[expenseCategories.first.name] ?? 0,
+                        ),
                 ),
               ],
             ),
@@ -231,19 +237,21 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 height: 170,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: subscriptions.map((subscription) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 14),
-                      child: _SubscriptionCard(
-                        subscription: subscription,
-                        amount: maskAmount(
-                          currency.format(subscription.amount),
-                          masked: privacyModeEnabled,
-                        ),
-                        onTap: _openManageSubscriptions,
-                      ),
-                    );
-                  }).toList(growable: false),
+                  children: subscriptions
+                      .map((subscription) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 14),
+                          child: _SubscriptionCard(
+                            subscription: subscription,
+                            amount: maskAmount(
+                              currency.format(subscription.amount),
+                              masked: privacyModeEnabled,
+                            ),
+                            onTap: _openManageSubscriptions,
+                          ),
+                        );
+                      })
+                      .toList(growable: false),
                 ),
               ),
           ],
@@ -267,10 +275,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       return;
     }
 
-    await ref.read(budgetControllerProvider).saveBudget(
-          category: result.category,
-          monthlyLimit: result.amount,
-        );
+    await ref
+        .read(budgetControllerProvider)
+        .saveBudget(category: result.category, monthlyLimit: result.amount);
 
     if (!mounted) {
       return;
@@ -293,16 +300,11 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Future<void> _openTransactionComposer(
-    String category,
-    TransactionType type,
-  ) {
+  Future<void> _openTransactionComposer(String category, TransactionType type) {
     return Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => AddExpenseScreen(
-          initialCategory: category,
-          initialType: type,
-        ),
+        builder: (_) =>
+            AddExpenseScreen(initialCategory: category, initialType: type),
       ),
     );
   }
@@ -505,11 +507,7 @@ class _AddCategoryCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(22),
         child: const Center(
-          child: Icon(
-            Icons.add_rounded,
-            color: Color(0xFF6F829D),
-            size: 40,
-          ),
+          child: Icon(Icons.add_rounded, color: Color(0xFF6F829D), size: 40),
         ),
       ),
     );

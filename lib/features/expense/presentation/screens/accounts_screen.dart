@@ -12,11 +12,11 @@ import '../widgets/amount_visibility.dart';
 
 class AccountsScreen extends ConsumerWidget {
   AccountsScreen({super.key})
-      : _currency = NumberFormat.currency(
-          locale: 'en_IN',
-          symbol: '₹',
-          decimalDigits: 0,
-        );
+    : _currency = NumberFormat.currency(
+        locale: 'en_IN',
+        symbol: '₹',
+        decimalDigits: 0,
+      );
 
   final NumberFormat _currency;
 
@@ -144,26 +144,28 @@ class AccountsScreen extends ConsumerWidget {
                       onCreate: () => _openAccountEditor(context, ref),
                     )
                   : ListView(
-                      children: accounts.map((account) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _AccountCard(
-                            account: account,
-                            balanceText: maskAmount(
-                              _currency.format(account.balance.abs()),
-                              masked: privacyModeEnabled,
-                            ),
-                            isNegative: account.balance < 0,
-                            onTap: () => _openAccountEditor(
-                              context,
-                              ref,
-                              account: account,
-                            ),
-                            onDelete: () =>
-                                _deleteAccount(context, ref, account.id),
-                          ),
-                        );
-                      }).toList(growable: false),
+                      children: accounts
+                          .map((account) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _AccountCard(
+                                account: account,
+                                balanceText: maskAmount(
+                                  _currency.format(account.balance.abs()),
+                                  masked: privacyModeEnabled,
+                                ),
+                                isNegative: account.balance < 0,
+                                onTap: () => _openAccountEditor(
+                                  context,
+                                  ref,
+                                  account: account,
+                                ),
+                                onDelete: () =>
+                                    _deleteAccount(context, ref, account.id),
+                              ),
+                            );
+                          })
+                          .toList(growable: false),
                     ),
             ),
           ],
@@ -182,7 +184,9 @@ class AccountsScreen extends ConsumerWidget {
       return;
     }
 
-    await ref.read(accountControllerProvider).saveAccount(
+    await ref
+        .read(accountControllerProvider)
+        .saveAccount(
           id: result.id,
           name: result.name,
           iconKey: result.iconKey,
@@ -213,17 +217,14 @@ class AccountsScreen extends ConsumerWidget {
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Account removed.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Account removed.')));
   }
 }
 
 class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({
-    required this.label,
-    required this.value,
-  });
+  const _SummaryChip({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -342,14 +343,8 @@ class _AccountCard extends StatelessWidget {
                   }
                 },
                 itemBuilder: (context) => const <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    child: Text('Edit'),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Text('Delete'),
-                  ),
+                  PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+                  PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
                 ],
               ),
             ],

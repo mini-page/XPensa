@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasource/budget_local_datasource.dart';
@@ -24,8 +26,8 @@ final budgetRepositoryProvider = Provider<BudgetRepository>((ref) {
 
 final budgetTargetsProvider =
     AsyncNotifierProvider<BudgetTargetsNotifier, Map<String, double>>(
-  BudgetTargetsNotifier.new,
-);
+      BudgetTargetsNotifier.new,
+    );
 
 final budgetControllerProvider = Provider<BudgetController>((ref) {
   return BudgetController(ref);
@@ -43,7 +45,13 @@ class BudgetTargetsNotifier extends AsyncNotifier<Map<String, double>> {
         merged[budget.category] = budget.monthlyLimit;
       }
       return merged;
-    } catch (_) {
+    } catch (e, stackTrace) {
+      dev.log(
+        'Failed to fetch or merge budgets',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'BudgetTargetsNotifier',
+      );
       return <String, double>{...defaultBudgetTargets};
     }
   }
@@ -59,10 +67,7 @@ class BudgetTargetsNotifier extends AsyncNotifier<Map<String, double>> {
       await _repository.saveBudget(
         BudgetModel(category: category, monthlyLimit: monthlyLimit),
       );
-      return <String, double>{
-        ...currentBudgets,
-        category: monthlyLimit,
-      };
+      return <String, double>{...currentBudgets, category: monthlyLimit};
     });
   }
 }
@@ -76,9 +81,8 @@ class BudgetController {
     required String category,
     required double monthlyLimit,
   }) async {
-    await _ref.read(budgetTargetsProvider.notifier).saveBudget(
-          category: category,
-          monthlyLimit: monthlyLimit,
-        );
+    await _ref
+        .read(budgetTargetsProvider.notifier)
+        .saveBudget(category: category, monthlyLimit: monthlyLimit);
   }
 }

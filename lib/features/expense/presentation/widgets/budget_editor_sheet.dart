@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'expense_category.dart';
 
 class BudgetFormResult {
-  const BudgetFormResult({
-    required this.category,
-    required this.amount,
-  });
+  const BudgetFormResult({required this.category, required this.amount});
 
   final String category;
   final double amount;
@@ -85,10 +82,7 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
             const Center(
               child: SizedBox(
                 width: 46,
-                child: Divider(
-                  thickness: 4,
-                  color: Color(0xFFD5DDEA),
-                ),
+                child: Divider(thickness: 4, color: Color(0xFFD5DDEA)),
               ),
             ),
             const SizedBox(height: 18),
@@ -113,12 +107,14 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
             DropdownButtonFormField<String>(
               initialValue: _selectedCategory,
               decoration: _inputDecoration('Category'),
-              items: widget.categories.map((category) {
-                return DropdownMenuItem<String>(
-                  value: category.name,
-                  child: Text(category.name),
-                );
-              }).toList(growable: false),
+              items: widget.categories
+                  .map((category) {
+                    return DropdownMenuItem<String>(
+                      value: category.name,
+                      child: Text(category.name),
+                    );
+                  })
+                  .toList(growable: false),
               onChanged: (value) {
                 if (value == null) {
                   return;
@@ -131,11 +127,12 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
             const SizedBox(height: 14),
             TextField(
               controller: _amountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: _inputDecoration('Monthly limit').copyWith(
-                prefixText: '₹ ',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
+              decoration: _inputDecoration(
+                'Monthly limit',
+              ).copyWith(prefixText: '₹ '),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -182,11 +179,8 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
       return;
     }
 
-    Navigator.of(context).pop(
-      BudgetFormResult(
-        category: _selectedCategory,
-        amount: amount,
-      ),
-    );
+    Navigator.of(
+      context,
+    ).pop(BudgetFormResult(category: _selectedCategory, amount: amount));
   }
 }

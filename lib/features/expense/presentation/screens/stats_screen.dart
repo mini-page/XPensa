@@ -9,12 +9,12 @@ import '../widgets/expense_category.dart';
 
 class StatsScreen extends ConsumerWidget {
   StatsScreen({super.key})
-      : _monthLabel = DateFormat('MMMM\nyyyy'),
-        _currencyFormat = NumberFormat.currency(
-          locale: 'en_IN',
-          symbol: '₹',
-          decimalDigits: 0,
-        );
+    : _monthLabel = DateFormat('MMMM\nyyyy'),
+      _currencyFormat = NumberFormat.currency(
+        locale: 'en_IN',
+        symbol: '₹',
+        decimalDigits: 0,
+      );
 
   final DateFormat _monthLabel;
   final NumberFormat _currencyFormat;
@@ -48,19 +48,21 @@ class StatsScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Money\nFlow',
-                        style:
-                            Theme.of(context).textTheme.displaySmall?.copyWith(
-                                  height: 1,
-                                  fontWeight: FontWeight.w900,
-                                  color: const Color(0xFF141E35),
-                                ),
+                        style: Theme.of(context).textTheme.displaySmall
+                            ?.copyWith(
+                              height: 1,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF141E35),
+                            ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
@@ -234,8 +236,9 @@ class StatsScreen extends ConsumerWidget {
               title: 'Income Breakdown',
               emptyMessage:
                   'No income yet. Add income to understand where money is coming from.',
-              entries:
-                  stats.incomeCategoryTotals.entries.toList(growable: false),
+              entries: stats.incomeCategoryTotals.entries.toList(
+                growable: false,
+              ),
               privacyModeEnabled: privacyModeEnabled,
               currencyFormat: _currencyFormat,
               income: true,
@@ -381,10 +384,7 @@ class _BreakdownCard extends StatelessWidget {
                           color: category.color.withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(
-                          category.icon,
-                          color: category.color,
-                        ),
+                        child: Icon(category.icon, color: category.color),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
