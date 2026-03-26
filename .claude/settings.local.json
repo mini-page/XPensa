@@ -8,7 +8,11 @@
       "Bash(git tag:*)",
       "Bash(git push:*)",
       "Bash(flutter build:*)",
-      "Bash(gh release:*)"
+      "Bash(gh release:*)",
+      "Read(//c/Users/umang/.config/superpowers/worktrees/XPensa/feat/ui-navigation-redesign/**)",
+      "Bash(flutter pub:*)",
+      "Bash(git worktree:*)",
+      "Bash(git branch:*)"
     ]
   }
 }

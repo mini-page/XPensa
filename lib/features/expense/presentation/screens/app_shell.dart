@@ -94,6 +94,13 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
         ],
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: PowerPill(
+          onTap: _handleFabPressed,
+          onLongPress: _showPowerMenu,
+        ),
+      ),
       bottomNavigationBar: _CustomFloatingNavBar(
         selectedIndex: _selectedIndex,
         onTap: (index) {
@@ -101,8 +108,6 @@ class _AppShellState extends ConsumerState<AppShell> {
             _selectedIndex = index;
           });
         },
-        onPowerPillTap: _handleFabPressed,
-        onPowerPillLongPress: _showPowerMenu,
       ),
     );
   }
@@ -156,20 +161,16 @@ class _CustomFloatingNavBar extends StatelessWidget {
   const _CustomFloatingNavBar({
     required this.selectedIndex,
     required this.onTap,
-    required this.onPowerPillTap,
-    required this.onPowerPillLongPress,
   });
 
   final int selectedIndex;
   final ValueChanged<int> onTap;
-  final VoidCallback onPowerPillTap;
-  final VoidCallback onPowerPillLongPress;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 80, 16),
         child: Container(
           height: 64,
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -195,15 +196,11 @@ class _CustomFloatingNavBar extends StatelessWidget {
                 onTap: () => onTap(0),
               ),
               _NavBarItem(
-                label: 'Analysis',
+                label: 'Charts',
                 icon: Icons.pie_chart_outline_rounded,
                 activeIcon: Icons.pie_chart_rounded,
                 isSelected: selectedIndex == 1,
                 onTap: () => onTap(1),
-              ),
-              PowerPill(
-                onTap: onPowerPillTap,
-                onLongPress: onPowerPillLongPress,
               ),
               _NavBarItem(
                 label: 'Category',
@@ -213,7 +210,7 @@ class _CustomFloatingNavBar extends StatelessWidget {
                 onTap: () => onTap(2),
               ),
               _NavBarItem(
-                label: 'Accounts',
+                label: 'Account',
                 icon: Icons.account_balance_wallet_outlined,
                 activeIcon: Icons.account_balance_wallet_rounded,
                 isSelected: selectedIndex == 3,
@@ -267,12 +264,17 @@ class _NavBarItem extends StatelessWidget {
             ),
             if (isSelected) ...<Widget>[
               const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
             ],
