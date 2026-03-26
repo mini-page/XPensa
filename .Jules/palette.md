@@ -1,0 +1,1 @@
+## 26-03-2026 - [Add semantics to QuickActionBar] **Learning:** [Custom action bar items without explicit button roles are not properly announced by TalkBack/VoiceOver] **Action:** [Always wrap interactive components like InkWell in Semantics(button: true) and provide an accurate label when using non-standard widgets like custom action items]

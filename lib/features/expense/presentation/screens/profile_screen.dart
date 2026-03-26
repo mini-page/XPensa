@@ -142,28 +142,33 @@ class ProfileScreen extends ConsumerWidget {
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
-                    children: const <_ThemeChoice>[
-                      _ThemeChoice(label: 'Light', keyValue: 'light'),
-                      _ThemeChoice(label: 'Dark', keyValue: 'dark'),
-                      _ThemeChoice(label: 'System', keyValue: 'system'),
-                    ].map((choice) {
-                      final isSelected =
-                          _matchesTheme(themeMode, choice.keyValue);
-                      return ChoiceChip(
-                        label: Text(choice.label),
-                        selected: isSelected,
-                        onSelected: (_) =>
-                            controller.setThemeMode(choice.keyValue),
-                        selectedColor: const Color(0xFF0A6BE8),
-                        backgroundColor: const Color(0xFFF1F5FB),
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : const Color(0xFF42526B),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      );
-                    }).toList(growable: false),
+                    children:
+                        const <_ThemeChoice>[
+                              _ThemeChoice(label: 'Light', keyValue: 'light'),
+                              _ThemeChoice(label: 'Dark', keyValue: 'dark'),
+                              _ThemeChoice(label: 'System', keyValue: 'system'),
+                            ]
+                            .map((choice) {
+                              final isSelected = _matchesTheme(
+                                themeMode,
+                                choice.keyValue,
+                              );
+                              return ChoiceChip(
+                                label: Text(choice.label),
+                                selected: isSelected,
+                                onSelected: (_) =>
+                                    controller.setThemeMode(choice.keyValue),
+                                selectedColor: const Color(0xFF0A6BE8),
+                                backgroundColor: const Color(0xFFF1F5FB),
+                                labelStyle: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF42526B),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              );
+                            })
+                            .toList(growable: false),
                   ),
                 ],
               ),
@@ -186,14 +191,15 @@ class ProfileScreen extends ConsumerWidget {
                 const _StatusChip(label: 'Quick Add Active'),
                 const _StatusChip(label: 'Stats Active'),
                 _StatusChip(
-                    label: smartReminders ? 'Reminders On' : 'Reminders Off'),
+                  label: smartReminders ? 'Reminders On' : 'Reminders Off',
+                ),
                 _StatusChip(label: privacyMode ? 'Privacy On' : 'Privacy Off'),
                 _StatusChip(
                   label: themeMode == ThemeMode.dark
                       ? 'Dark Theme'
                       : themeMode == ThemeMode.system
-                          ? 'System Theme'
-                          : 'Light Theme',
+                      ? 'System Theme'
+                      : 'Light Theme',
                 ),
                 if (preferences == null)
                   const _StatusChip(label: 'Loading Preferences'),
@@ -218,10 +224,7 @@ class ProfileScreen extends ConsumerWidget {
 }
 
 class _ThemeChoice {
-  const _ThemeChoice({
-    required this.label,
-    required this.keyValue,
-  });
+  const _ThemeChoice({required this.label, required this.keyValue});
 
   final String label;
   final String keyValue;
@@ -330,10 +333,7 @@ class _PreferenceToggleTile extends StatelessWidget {
               ],
             ),
           ),
-          Switch.adaptive(
-            value: value,
-            onChanged: enabled ? onChanged : null,
-          ),
+          Switch.adaptive(value: value, onChanged: enabled ? onChanged : null),
         ],
       ),
     );

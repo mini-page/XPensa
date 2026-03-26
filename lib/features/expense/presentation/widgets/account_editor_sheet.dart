@@ -78,10 +78,7 @@ class _AccountEditorSheetState extends State<_AccountEditorSheet> {
             const Center(
               child: SizedBox(
                 width: 46,
-                child: Divider(
-                  thickness: 4,
-                  color: Color(0xFFD5DDEA),
-                ),
+                child: Divider(thickness: 4, color: Color(0xFFD5DDEA)),
               ),
             ),
             const SizedBox(height: 18),
@@ -111,9 +108,12 @@ class _AccountEditorSheetState extends State<_AccountEditorSheet> {
             TextField(
               controller: _balanceController,
               keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true, signed: true),
-              decoration: _inputDecoration('Current balance')
-                  .copyWith(prefixText: '₹ '),
+                decimal: true,
+                signed: true,
+              ),
+              decoration: _inputDecoration(
+                'Current balance',
+              ).copyWith(prefixText: '₹ '),
             ),
             const SizedBox(height: 18),
             const Text(
@@ -127,23 +127,27 @@ class _AccountEditorSheetState extends State<_AccountEditorSheet> {
             Wrap(
               spacing: 10,
               runSpacing: 10,
-              children: accountIconOptions.map((option) {
-                final isSelected = option.key == _iconKey;
-                return ChoiceChip(
-                  label: Icon(
-                    option.icon,
-                    color: isSelected ? Colors.white : const Color(0xFF0A6BE8),
-                  ),
-                  selected: isSelected,
-                  selectedColor: const Color(0xFF0A6BE8),
-                  backgroundColor: const Color(0xFFF1F5FB),
-                  onSelected: (_) {
-                    setState(() {
-                      _iconKey = option.key;
-                    });
-                  },
-                );
-              }).toList(growable: false),
+              children: accountIconOptions
+                  .map((option) {
+                    final isSelected = option.key == _iconKey;
+                    return ChoiceChip(
+                      label: Icon(
+                        option.icon,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF0A6BE8),
+                      ),
+                      selected: isSelected,
+                      selectedColor: const Color(0xFF0A6BE8),
+                      backgroundColor: const Color(0xFFF1F5FB),
+                      onSelected: (_) {
+                        setState(() {
+                          _iconKey = option.key;
+                        });
+                      },
+                    );
+                  })
+                  .toList(growable: false),
             ),
             const SizedBox(height: 22),
             SizedBox(
@@ -188,7 +192,8 @@ class _AccountEditorSheetState extends State<_AccountEditorSheet> {
     if (name.isEmpty || balance == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Enter a valid account name and balance.')),
+          content: Text('Enter a valid account name and balance.'),
+        ),
       );
       return;
     }

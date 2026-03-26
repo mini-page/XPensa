@@ -43,9 +43,9 @@ class PlaceholderScreen extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF141E35),
-                      ),
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF141E35),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
