@@ -14,6 +14,7 @@ import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
 import 'add_expense_screen.dart';
 import 'records_history_screen.dart';
+import 'transaction_search_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -73,6 +74,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             stats: stats,
             currencyFormat: currencyFormat,
             privacyModeEnabled: privacyModeEnabled,
+            onMenuPressed: () => Scaffold.of(context).openDrawer(),
+            onSearchPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const TransactionSearchScreen(),
+                ),
+              );
+            },
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
@@ -321,11 +330,15 @@ class _Header extends StatelessWidget {
     required this.stats,
     required this.currencyFormat,
     required this.privacyModeEnabled,
+    required this.onMenuPressed,
+    required this.onSearchPressed,
   });
 
   final ExpenseStats stats;
   final NumberFormat currencyFormat;
   final bool privacyModeEnabled;
+  final VoidCallback onMenuPressed;
+  final VoidCallback onSearchPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -336,7 +349,7 @@ class _Header extends StatelessWidget {
       masked: privacyModeEnabled,
     );
     return Container(
-      padding: EdgeInsets.fromLTRB(22, topPadding + 14, 22, 28),
+      padding: EdgeInsets.fromLTRB(16, topPadding + 8, 16, 28),
       decoration: const BoxDecoration(
         color: AppColors.primaryBlue,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(44)),
@@ -345,25 +358,33 @@ class _Header extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
+              IconButton(
+                onPressed: onMenuPressed,
+                icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(
                   AppAssets.logo,
-                  width: 32,
-                  height: 32,
+                  width: 28,
+                  height: 28,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 10),
               Text(
                 'XPensa',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.tune_rounded, color: Colors.white, size: 28),
+              IconButton(
+                onPressed: onSearchPressed,
+                icon: const Icon(Icons.search_rounded, color: Colors.white, size: 28),
+              ),
             ],
           ),
           const SizedBox(height: 30),
