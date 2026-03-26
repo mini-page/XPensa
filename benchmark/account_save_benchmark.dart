@@ -46,8 +46,9 @@ void main() async {
 
   print('---');
   if (bulkWatch.elapsedMilliseconds > 0) {
-     final improvement = sequentialWatch.elapsedMilliseconds / bulkWatch.elapsedMilliseconds;
-     print('Improvement: ${improvement.toStringAsFixed(2)}x faster');
+    final improvement =
+        sequentialWatch.elapsedMilliseconds / bulkWatch.elapsedMilliseconds;
+    print('Improvement: ${improvement.toStringAsFixed(2)}x faster');
   }
 
   // Cleanup
