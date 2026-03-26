@@ -20,19 +20,23 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _pages = <Widget>[
-    const HomeScreen(),
-    StatsScreen(),
-    const CategoriesScreen(),
-    AccountsScreen(),
-    const ProfileScreen(),
-  ];
+  List<Widget> _buildPages() {
+    return [
+      const HomeScreen(),
+      StatsScreen(),
+      const CategoriesScreen(),
+      const AccountsScreen(),
+      const ProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = _buildPages();
+
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(index: _selectedIndex, children: _pages),
+      body: IndexedStack(index: _selectedIndex, children: pages),
       floatingActionButton: _selectedIndex == 4
           ? null
           : Padding(

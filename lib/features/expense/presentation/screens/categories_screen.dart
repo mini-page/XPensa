@@ -3,17 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/expense_model.dart';
-import '../../data/models/recurring_subscription_model.dart';
 import '../provider/budget_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
-import '../provider/recurring_subscription_providers.dart';
 import '../widgets/amount_visibility.dart';
 import '../widgets/budget_editor_sheet.dart';
 import '../widgets/expense_category.dart';
-import '../widgets/subscription_icons.dart';
 import 'add_expense_screen.dart';
-import 'manage_subscriptions_screen.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
@@ -29,7 +25,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   Widget build(BuildContext context) {
     final stats = ref.watch(statsProvider);
     final budgetState = ref.watch(budgetTargetsProvider);
-    final subscriptionState = ref.watch(recurringSubscriptionListProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
     final currency = NumberFormat.currency(
       locale: 'en_IN',
@@ -37,8 +32,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       decimalDigits: 0,
     );
     final budgets = budgetState.value ?? defaultBudgetTargets;
-    final subscriptions =
-        subscriptionState.value ?? const <RecurringSubscriptionModel>[];
+
     final categoryCards = _showIncome
         ? incomeCategories
               .map(
@@ -69,6 +63,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 ),
               )
               .toList(growable: false);
+
     final topAmount = _showIncome
         ? stats.monthIncomeTotal
         : stats.monthNetTotal;
@@ -205,55 +200,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            Row(
-              children: <Widget>[
-                const Text(
-                  'RECURRING SUBS',
-                  style: TextStyle(
-                    color: Color(0xFF0A6BE8),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.3,
-                  ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: _openManageSubscriptions,
-                  child: const Text('Manage'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            if (subscriptionState.isLoading && subscriptions.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (subscriptions.isEmpty)
-              const _EmptySubscriptionsCard()
-            else
-              SizedBox(
-                height: 170,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: subscriptions
-                      .map((subscription) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 14),
-                          child: _SubscriptionCard(
-                            subscription: subscription,
-                            amount: maskAmount(
-                              currency.format(subscription.amount),
-                              masked: privacyModeEnabled,
-                            ),
-                            onTap: _openManageSubscriptions,
-                          ),
-                        );
-                      })
-                      .toList(growable: false),
-                ),
-              ),
           ],
         ),
       ),
@@ -288,14 +234,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         content: Text(
           '${result.category} budget updated to ₹${result.amount.toStringAsFixed(0)}.',
         ),
-      ),
-    );
-  }
-
-  Future<void> _openManageSubscriptions() {
-    return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const ManageSubscriptionsScreen(),
       ),
     );
   }
@@ -508,117 +446,6 @@ class _AddCategoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         child: const Center(
           child: Icon(Icons.add_rounded, color: Color(0xFF6F829D), size: 40),
-        ),
-      ),
-    );
-  }
-}
-
-class _SubscriptionCard extends StatelessWidget {
-  const _SubscriptionCard({
-    required this.subscription,
-    required this.amount,
-    required this.onTap,
-  });
-
-  final RecurringSubscriptionModel subscription;
-  final String amount;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(28),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(28),
-        child: Container(
-          width: 168,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x1209386D),
-                blurRadius: 22,
-                offset: Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F6FB),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  resolveSubscriptionIcon(subscription.iconKey),
-                  color: const Color(0xFF8BA0C0),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                subscription.name,
-                style: const TextStyle(
-                  color: Color(0xFF13213B),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${subscription.isActive ? '' : 'Paused • '}$amount/mo',
-                style: const TextStyle(
-                  color: Color(0xFF94A4BE),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                'NEXT: ${DateFormat('d MMM').format(subscription.nextBillDate).toUpperCase()}',
-                style: const TextStyle(
-                  color: Color(0xFF0A6BE8),
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptySubscriptionsCard extends StatelessWidget {
-  const _EmptySubscriptionsCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x1209386D),
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: const Text(
-        'No subscriptions yet. Use Manage to create your recurring bills.',
-        style: TextStyle(
-          color: Color(0xFF6E7F9C),
-          fontWeight: FontWeight.w600,
-          height: 1.5,
         ),
       ),
     );

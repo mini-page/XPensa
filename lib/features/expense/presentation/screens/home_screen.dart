@@ -8,11 +8,9 @@ import '../provider/account_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
 import '../widgets/amount_visibility.dart';
-import '../widgets/expense_category.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
 import 'add_expense_screen.dart';
-import 'manage_subscriptions_screen.dart';
 import 'records_history_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -76,11 +74,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _FeatureRow(
-                  onSplitTap: () => _openSplitBillSheet(context),
-                  onRecurringTap: () => _openSubscriptionsScreen(context),
-                ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 8),
                 QuickActionBar(
                   actions: const <QuickActionItem>[
                     QuickActionItem(label: 'SMS', icon: Icons.sms_outlined),
@@ -88,7 +82,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       label: 'VOICE',
                       icon: Icons.mic_none_rounded,
                     ),
-                    QuickActionItem(label: 'SPLIT', icon: Icons.group_outlined),
                     QuickActionItem(label: 'SMART', icon: Icons.bolt_outlined),
                     QuickActionItem(
                       label: 'MANUAL',
@@ -102,10 +95,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         context,
                         initialDate: _selectedDate,
                       );
-                      return;
-                    }
-                    if (action.label == 'SPLIT') {
-                      _openSplitBillSheet(context);
                       return;
                     }
                     _showSoonMessage(context, action.label);
@@ -132,23 +121,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         })
                         .toList(growable: false),
                   ),
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: expenseCategories
-                      .map((category) {
-                        return _CategoryTile(
-                          category: category,
-                          onTap: () => _openAddExpenseScreen(
-                            context,
-                            initialCategory: category.name,
-                            initialDate: _selectedDate,
-                          ),
-                        );
-                      })
-                      .toList(growable: false),
                 ),
                 const SizedBox(height: 30),
                 Row(
@@ -270,26 +242,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _openRecordsHistoryScreen(BuildContext context) {
     return Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => const RecordsHistoryScreen()),
-    );
-  }
-
-  Future<void> _openSubscriptionsScreen(BuildContext context) {
-    return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const ManageSubscriptionsScreen(),
-      ),
-    );
-  }
-
-  Future<void> _openSplitBillSheet(BuildContext context) {
-    return showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      builder: (_) => const _SplitBillSheet(),
     );
   }
 
@@ -472,189 +424,6 @@ class _MetricColumn extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({required this.onSplitTap, required this.onRecurringTap});
-
-  final VoidCallback onSplitTap;
-  final VoidCallback onRecurringTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: _FeatureCard(
-            title: 'Split Bills',
-            subtitle: 'SPLITWISE',
-            icon: Icons.group_outlined,
-            onTap: onSplitTap,
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: _FeatureCard(
-            title: 'Recurring',
-            subtitle: 'MANAGE SUBS',
-            icon: Icons.sync_alt_rounded,
-            onTap: onRecurringTap,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(28),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(28),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF5FF),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(icon, color: const Color(0xFF0A6BE8)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Color(0xFF13213B),
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Color(0xFF9AA8BE),
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AmountChip extends StatelessWidget {
-  const _AmountChip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: 92,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x1209386D),
-                blurRadius: 18,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF13213B),
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryTile extends StatelessWidget {
-  const _CategoryTile({required this.category, required this.onTap});
-
-  final ExpenseCategory category;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFEFF3FA),
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: SizedBox(
-          width: 96,
-          height: 118,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(category.icon, color: category.color, size: 28),
-              const SizedBox(height: 10),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    category.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF97A7C1),
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -895,6 +664,47 @@ class _EmptyCard extends StatelessWidget {
   }
 }
 
+class _AmountChip extends StatelessWidget {
+  const _AmountChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 92,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const <BoxShadow>[
+              BoxShadow(
+                color: Color(0x1209386D),
+                blurRadius: 18,
+                offset: Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF13213B),
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 String _formatSignedCurrency(
   double amount,
   NumberFormat currencyFormat, {
@@ -910,224 +720,4 @@ String _formatSignedCurrency(
   );
   final prefix = amount > 0 ? '+' : '-';
   return '$prefix$absolute';
-}
-
-class _SplitBillSheet extends StatefulWidget {
-  const _SplitBillSheet();
-
-  @override
-  State<_SplitBillSheet> createState() => _SplitBillSheetState();
-}
-
-class _SplitBillSheetState extends State<_SplitBillSheet> {
-  final TextEditingController _amountController = TextEditingController(
-    text: '0',
-  );
-  int _peopleCount = 2;
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final currency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
-    final totalAmount = double.tryParse(_amountController.text) ?? 0;
-    final perPerson = _peopleCount <= 0 ? 0 : totalAmount / _peopleCount;
-
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          12,
-          20,
-          20 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Center(
-              child: Container(
-                width: 44,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD6DFEB),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'Split Bill',
-              style: TextStyle(
-                color: Color(0xFF152039),
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Calculate a fair share before you save the final transaction.',
-              style: TextStyle(
-                color: Color(0xFF8EA0BC),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 18),
-            TextField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                labelText: 'Total amount',
-                prefixText: '₹ ',
-                filled: true,
-                fillColor: const Color(0xFFF6F8FC),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(22),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF6F8FC),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Row(
-                children: <Widget>[
-                  const Expanded(
-                    child: Text(
-                      'People',
-                      style: TextStyle(
-                        color: Color(0xFF152039),
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  _StepperButton(
-                    icon: Icons.remove_rounded,
-                    onTap: _peopleCount > 2
-                        ? () => setState(() => _peopleCount -= 1)
-                        : null,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Text(
-                      '$_peopleCount',
-                      style: const TextStyle(
-                        color: Color(0xFF152039),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  _StepperButton(
-                    icon: Icons.add_rounded,
-                    onTap: () => setState(() => _peopleCount += 1),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: <double>[200, 500, 1000, 2000]
-                  .map((amount) {
-                    return ActionChip(
-                      label: Text(currency.format(amount)),
-                      backgroundColor: const Color(0xFFEFF5FF),
-                      labelStyle: const TextStyle(
-                        color: Color(0xFF0A6BE8),
-                        fontWeight: FontWeight.w800,
-                      ),
-                      onPressed: () {
-                        _amountController.text = amount.toStringAsFixed(0);
-                        setState(() {});
-                      },
-                    );
-                  })
-                  .toList(growable: false),
-            ),
-            const SizedBox(height: 18),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: <Color>[Color(0xFF0A6BE8), Color(0xFF56A0FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(26),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                    'Per person',
-                    style: TextStyle(
-                      color: Color(0xCCFFFFFF),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    currency.format(perPerson),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StepperButton extends StatelessWidget {
-  const _StepperButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: onTap == null ? const Color(0xFFF1F4F8) : const Color(0xFFE8F1FF),
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 34,
-          height: 34,
-          child: Icon(
-            icon,
-            color: onTap == null
-                ? const Color(0xFFAAB7CB)
-                : const Color(0xFF0A6BE8),
-            size: 18,
-          ),
-        ),
-      ),
-    );
-  }
 }
