@@ -57,13 +57,29 @@ class _SubscriptionEditorSheetState extends State<_SubscriptionEditorSheet> {
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController(
+      text: widget.subscription?.name ?? '',
+    );
+    _amountController = TextEditingController(
+      text: widget.subscription?.amount.toStringAsFixed(0) ?? '',
+    );
+    _noteController = TextEditingController(
+      text: widget.subscription?.note ?? '',
+    );
+    _amountController = TextEditingController(
+      text: widget.subscription?.amount.toStringAsFixed(0) ?? '',
+    );
+    _noteController = TextEditingController(
+      text: widget.subscription?.note ?? '',
+    );
     _nameController =
         TextEditingController(text: widget.subscription?.name ?? '');
     _amountController = TextEditingController(
       text: widget.subscription?.amount.toStringAsFixed(0) ?? '',
     );
-    _noteController =
-        TextEditingController(text: widget.subscription?.note ?? '');
+    _noteController = TextEditingController(
+      text: widget.subscription?.note ?? '',
+    );
     _nextBillDate = widget.subscription?.nextBillDate ?? DateTime.now();
     _iconKey =
         widget.subscription?.iconKey ?? subscriptionIconOptions.first.key;
@@ -127,6 +143,9 @@ class _SubscriptionEditorSheetState extends State<_SubscriptionEditorSheet> {
             const SizedBox(height: 14),
             TextField(
               controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: _inputDecoration('Amount').copyWith(prefixText: '₹ '),
@@ -142,8 +161,10 @@ class _SubscriptionEditorSheetState extends State<_SubscriptionEditorSheet> {
               borderRadius: BorderRadius.circular(18),
               child: Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F7FB),
                   borderRadius: BorderRadius.circular(18),
@@ -175,19 +196,23 @@ class _SubscriptionEditorSheetState extends State<_SubscriptionEditorSheet> {
             Wrap(
               spacing: 10,
               runSpacing: 10,
-              children: subscriptionIconOptions.map((option) {
-                final isSelected = option.key == _iconKey;
-                return ChoiceChip(
-                  label: Icon(
-                    option.icon,
-                    color: isSelected ? Colors.white : const Color(0xFF0A6BE8),
-                  ),
-                  selected: isSelected,
-                  selectedColor: const Color(0xFF0A6BE8),
-                  backgroundColor: const Color(0xFFF1F5FB),
-                  onSelected: (_) => setState(() => _iconKey = option.key),
-                );
-              }).toList(growable: false),
+              children: subscriptionIconOptions
+                  .map((option) {
+                    final isSelected = option.key == _iconKey;
+                    return ChoiceChip(
+                      label: Icon(
+                        option.icon,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF0A6BE8),
+                      ),
+                      selected: isSelected,
+                      selectedColor: const Color(0xFF0A6BE8),
+                      backgroundColor: const Color(0xFFF1F5FB),
+                      onSelected: (_) => setState(() => _iconKey = option.key),
+                    );
+                  })
+                  .toList(growable: false),
             ),
             const SizedBox(height: 16),
             SwitchListTile.adaptive(

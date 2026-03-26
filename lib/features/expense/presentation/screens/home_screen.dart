@@ -42,16 +42,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.watch(accountListProvider).valueOrNull ?? const <AccountModel>[];
     final stats = ref.watch(statsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
-    final currencyFormat =
-        NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final currencyFormat = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    );
     final visibleDates = List<DateTime>.generate(
       7,
       (index) => _windowStart.add(Duration(days: index)),
     );
-    final selectedExpenses = expenses
-        .where((expense) => _isSameLocalDay(expense.date, _selectedDate))
-        .toList(growable: false)
-      ..sort((left, right) => right.date.compareTo(left.date));
+    final selectedExpenses =
+        expenses
+            .where((expense) => _isSameLocalDay(expense.date, _selectedDate))
+            .toList(growable: false)
+          ..sort((left, right) => right.date.compareTo(left.date));
     final selectedTotal = selectedExpenses.fold<double>(
       0,
       (sum, expense) => sum + expense.signedAmount,
@@ -84,14 +88,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       label: 'VOICE',
                       icon: Icons.mic_none_rounded,
                     ),
-                    QuickActionItem(
-                      label: 'SPLIT',
-                      icon: Icons.group_outlined,
-                    ),
-                    QuickActionItem(
-                      label: 'SMART',
-                      icon: Icons.bolt_outlined,
-                    ),
+                    QuickActionItem(label: 'SPLIT', icon: Icons.group_outlined),
+                    QuickActionItem(label: 'SMART', icon: Icons.bolt_outlined),
                     QuickActionItem(
                       label: 'MANUAL',
                       icon: Icons.add_rounded,
@@ -118,35 +116,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   height: 72,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: <double>[50, 100, 200, 500, 1000].map((amount) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: _AmountChip(
-                          label: currencyFormat.format(amount),
-                          onTap: () => _openAddExpenseScreen(
-                            context,
-                            initialAmount: amount,
-                            initialDate: _selectedDate,
-                          ),
-                        ),
-                      );
-                    }).toList(growable: false),
+                    children: <double>[50, 100, 200, 500, 1000]
+                        .map((amount) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: _AmountChip(
+                              label: currencyFormat.format(amount),
+                              onTap: () => _openAddExpenseScreen(
+                                context,
+                                initialAmount: amount,
+                                initialDate: _selectedDate,
+                              ),
+                            ),
+                          );
+                        })
+                        .toList(growable: false),
                   ),
                 ),
                 const SizedBox(height: 18),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
-                  children: expenseCategories.map((category) {
-                    return _CategoryTile(
-                      category: category,
-                      onTap: () => _openAddExpenseScreen(
-                        context,
-                        initialCategory: category.name,
-                        initialDate: _selectedDate,
-                      ),
-                    );
-                  }).toList(growable: false),
+                  children: expenseCategories
+                      .map((category) {
+                        return _CategoryTile(
+                          category: category,
+                          onTap: () => _openAddExpenseScreen(
+                            context,
+                            initialCategory: category.name,
+                            initialDate: _selectedDate,
+                          ),
+                        );
+                      })
+                      .toList(growable: false),
                 ),
                 const SizedBox(height: 30),
                 Row(
@@ -267,9 +269,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _openRecordsHistoryScreen(BuildContext context) {
     return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const RecordsHistoryScreen(),
-      ),
+      MaterialPageRoute<void>(builder: (_) => const RecordsHistoryScreen()),
     );
   }
 
@@ -400,10 +400,10 @@ class _Header extends StatelessWidget {
               Text(
                 'XPensa',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  color: Colors.white,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const Spacer(),
               const Icon(Icons.tune_rounded, color: Colors.white, size: 28),
@@ -445,10 +445,7 @@ class _Header extends StatelessWidget {
 }
 
 class _MetricColumn extends StatelessWidget {
-  const _MetricColumn({
-    required this.label,
-    required this.value,
-  });
+  const _MetricColumn({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -480,10 +477,7 @@ class _MetricColumn extends StatelessWidget {
 }
 
 class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({
-    required this.onSplitTap,
-    required this.onRecurringTap,
-  });
+  const _FeatureRow({required this.onSplitTap, required this.onRecurringTap});
 
   final VoidCallback onSplitTap;
   final VoidCallback onRecurringTap;
@@ -580,10 +574,7 @@ class _FeatureCard extends StatelessWidget {
 }
 
 class _AmountChip extends StatelessWidget {
-  const _AmountChip({
-    required this.label,
-    required this.onTap,
-  });
+  const _AmountChip({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
@@ -624,10 +615,7 @@ class _AmountChip extends StatelessWidget {
 }
 
 class _CategoryTile extends StatelessWidget {
-  const _CategoryTile({
-    required this.category,
-    required this.onTap,
-  });
+  const _CategoryTile({required this.category, required this.onTap});
 
   final ExpenseCategory category;
   final VoidCallback onTap;
@@ -722,32 +710,30 @@ class _DateStripCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _DateNavButton(
-                icon: Icons.arrow_back_rounded,
-                onTap: onPrevious,
-              ),
+              _DateNavButton(icon: Icons.arrow_back_rounded, onTap: onPrevious),
               const SizedBox(width: 8),
-              _DateNavButton(
-                icon: Icons.arrow_forward_rounded,
-                onTap: onNext,
-              ),
+              _DateNavButton(icon: Icons.arrow_forward_rounded, onTap: onNext),
             ],
           ),
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: visibleDates.map((date) {
-              final isSelected = DateUtils.isSameDay(date, selectedDate);
-              return Expanded(
-                child: _DayPill(
-                  label:
-                      weekdayFormat.format(date).substring(0, 1).toUpperCase(),
-                  day: date.day.toString().padLeft(2, '0'),
-                  isSelected: isSelected,
-                  onTap: () => onDateSelected(date),
-                ),
-              );
-            }).toList(growable: false),
+            children: visibleDates
+                .map((date) {
+                  final isSelected = DateUtils.isSameDay(date, selectedDate);
+                  return Expanded(
+                    child: _DayPill(
+                      label: weekdayFormat
+                          .format(date)
+                          .substring(0, 1)
+                          .toUpperCase(),
+                      day: date.day.toString().padLeft(2, '0'),
+                      isSelected: isSelected,
+                      onTap: () => onDateSelected(date),
+                    ),
+                  );
+                })
+                .toList(growable: false),
           ),
           const SizedBox(height: 16),
           Container(
@@ -793,10 +779,7 @@ class _DateStripCard extends StatelessWidget {
 }
 
 class _DateNavButton extends StatelessWidget {
-  const _DateNavButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _DateNavButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -873,10 +856,7 @@ class _DayPill extends StatelessWidget {
 }
 
 class _EmptyCard extends StatelessWidget {
-  const _EmptyCard({
-    required this.title,
-    required this.message,
-  });
+  const _EmptyCard({required this.title, required this.message});
 
   final String title;
   final String message;
@@ -940,8 +920,9 @@ class _SplitBillSheet extends StatefulWidget {
 }
 
 class _SplitBillSheetState extends State<_SplitBillSheet> {
-  final TextEditingController _amountController =
-      TextEditingController(text: '0');
+  final TextEditingController _amountController = TextEditingController(
+    text: '0',
+  );
   int _peopleCount = 2;
 
   @override
@@ -1063,20 +1044,22 @@ class _SplitBillSheetState extends State<_SplitBillSheet> {
             Wrap(
               spacing: 10,
               runSpacing: 10,
-              children: <double>[200, 500, 1000, 2000].map((amount) {
-                return ActionChip(
-                  label: Text(currency.format(amount)),
-                  backgroundColor: const Color(0xFFEFF5FF),
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF0A6BE8),
-                    fontWeight: FontWeight.w800,
-                  ),
-                  onPressed: () {
-                    _amountController.text = amount.toStringAsFixed(0);
-                    setState(() {});
-                  },
-                );
-              }).toList(growable: false),
+              children: <double>[200, 500, 1000, 2000]
+                  .map((amount) {
+                    return ActionChip(
+                      label: Text(currency.format(amount)),
+                      backgroundColor: const Color(0xFFEFF5FF),
+                      labelStyle: const TextStyle(
+                        color: Color(0xFF0A6BE8),
+                        fontWeight: FontWeight.w800,
+                      ),
+                      onPressed: () {
+                        _amountController.text = amount.toStringAsFixed(0);
+                        setState(() {});
+                      },
+                    );
+                  })
+                  .toList(growable: false),
             ),
             const SizedBox(height: 18),
             Container(
@@ -1120,10 +1103,7 @@ class _SplitBillSheetState extends State<_SplitBillSheet> {
 }
 
 class _StepperButton extends StatelessWidget {
-  const _StepperButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _StepperButton({required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback? onTap;

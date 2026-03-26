@@ -1,3 +1,6 @@
+import 'dart:developer' as dev;
+import 'dart:math';
+
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -116,22 +119,42 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
     final id = reader.readString();
     final amount = reader.readDouble();
     final category = reader.readString();
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(reader.readInt(), isUtc: true);
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      reader.readInt(),
+      isUtc: true,
+    );
     final note = reader.readString();
 
     String? accountId;
     try {
       final storedAccountId = reader.readString();
       accountId = storedAccountId.isEmpty ? null : storedAccountId;
-    } catch (_) {
+    } catch (e, stackTrace) {
+      dev.log(
+        'Failed to parse accountId from storage',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'ExpenseModelAdapter',
+        'Error reading accountId from hive',
+        error: e,
+        stackTrace: stackTrace,
+      );
       accountId = null;
     }
 
     TransactionType type;
     try {
       type = TransactionTypeCodec.fromStorageValue(reader.readString());
-    } catch (_) {
+    } catch (e, stackTrace) {
+      dev.log(
+        'Failed to parse TransactionType from storage',
+        error: e,
+        stackTrace: stackTrace,
+        name: 'ExpenseModelAdapter',
+        'Error reading TransactionType from hive',
+        error: e,
+        stackTrace: stackTrace,
+      );
       type = TransactionType.expense;
     }
 

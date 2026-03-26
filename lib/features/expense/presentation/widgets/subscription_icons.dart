@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 
 class SubscriptionIconOption {
-  const SubscriptionIconOption({
-    required this.key,
-    required this.icon,
-  });
+  const SubscriptionIconOption({required this.key, required this.icon});
 
   final String key;
   final IconData icon;
 }
 
-const List<SubscriptionIconOption> subscriptionIconOptions =
-    <SubscriptionIconOption>[
+const List<SubscriptionIconOption>
+subscriptionIconOptions = <SubscriptionIconOption>[
   SubscriptionIconOption(key: 'tv', icon: Icons.tv_rounded),
   SubscriptionIconOption(key: 'music', icon: Icons.music_note_rounded),
   SubscriptionIconOption(key: 'video', icon: Icons.play_circle_outline_rounded),

@@ -44,7 +44,8 @@ abstract final class HiveBootstrap {
     }
     if (!Hive.isBoxOpen(PreferencesLocalDatasource.boxName)) {
       await Hive.openBox<AppPreferencesModel>(
-          PreferencesLocalDatasource.boxName);
+        PreferencesLocalDatasource.boxName,
+      );
     }
     if (!Hive.isBoxOpen(RecurringSubscriptionLocalDatasource.boxName)) {
       await Hive.openBox<RecurringSubscriptionModel>(
