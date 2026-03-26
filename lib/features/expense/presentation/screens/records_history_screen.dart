@@ -96,7 +96,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _formatSignedAmount(
+                            formatSignedAmount(
                               filteredTotal,
                               currency,
                               masked: privacyModeEnabled,
@@ -421,19 +421,6 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
         ),
       ),
     );
-  }
-
-  String _formatSignedAmount(
-    double amount,
-    NumberFormat currency, {
-    required bool masked,
-  }) {
-    if (amount == 0) {
-      return maskAmount(currency.format(0), masked: masked);
-    }
-
-    final absolute = maskAmount(currency.format(amount.abs()), masked: masked);
-    return '${amount > 0 ? '+' : '-'}$absolute';
   }
 }
 

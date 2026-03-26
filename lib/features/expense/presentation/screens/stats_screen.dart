@@ -84,7 +84,7 @@ class StatsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${_formatSignedAmount(stats.monthNetTotal, masked: privacyModeEnabled)} net',
+                        '${formatSignedAmount(stats.monthNetTotal, _currencyFormat, masked: privacyModeEnabled)} net',
                         style: const TextStyle(
                           color: Color(0xFF152039),
                           fontWeight: FontWeight.w900,
@@ -201,8 +201,9 @@ class StatsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          _formatSignedAmount(
+                          formatSignedAmount(
                             stats.monthNetTotal,
+                            _currencyFormat,
                             masked: privacyModeEnabled,
                           ),
                           style: TextStyle(
@@ -246,17 +247,6 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  String _formatSignedAmount(double amount, {required bool masked}) {
-    if (amount == 0) {
-      return maskAmount(_currencyFormat.format(0), masked: masked);
-    }
-
-    final absolute = maskAmount(
-      _currencyFormat.format(amount.abs()),
-      masked: masked,
-    );
-    return '${amount > 0 ? '+' : '-'}$absolute';
-  }
 }
 
 class _MetricTile extends StatelessWidget {

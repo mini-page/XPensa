@@ -85,7 +85,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  _formatSignedAmount(
+                  formatSignedAmount(
                     topAmount,
                     currency,
                     masked: privacyModeEnabled,
@@ -643,17 +643,4 @@ class _CategoryGridData {
   final double amount;
   final double budget;
   final VoidCallback onTap;
-}
-
-String _formatSignedAmount(
-  double amount,
-  NumberFormat currency, {
-  required bool masked,
-}) {
-  if (amount == 0) {
-    return maskAmount(currency.format(0), masked: masked);
-  }
-
-  final value = maskAmount(currency.format(amount.abs()), masked: masked);
-  return '${amount > 0 ? '+' : '-'}$value';
 }
