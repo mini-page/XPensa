@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../provider/account_providers.dart';
 import '../widgets/account_editor_sheet.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/power_pill_menu.dart';
 import 'accounts_screen.dart';
 import 'add_expense_screen.dart';
 import 'categories_screen.dart';
@@ -21,6 +22,31 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  OverlayEntry? _menuOverlay;
+
+  void _showPowerMenu() {
+    _menuOverlay = OverlayEntry(
+      builder: (context) => PowerPillMenu(
+        onVoice: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Voice input arriving soon.')),
+        ),
+        onSplit: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Split bill tool arriving soon.')),
+        ),
+        onScanner: () {
+          // Task 7 will implement the scanner
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Scanner arriving soon.')),
+          );
+        },
+        onClose: () {
+          _menuOverlay?.remove();
+          _menuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(_menuOverlay!);
+  }
 
   List<Widget> _buildPages() {
     return [
@@ -40,26 +66,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       extendBody: true,
       drawer: const AppDrawer(),
       body: IndexedStack(index: _selectedIndex, children: pages),
-      floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 80),
-              child: SizedBox(
-                width: 72,
-                height: 72,
-                child: FloatingActionButton(
-                  onPressed: _handleFabPressed,
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  elevation: 8,
-                  shape: const CircleBorder(),
-                  child: Icon(
-                    _selectedIndex == 3
-                        ? Icons.add_card_rounded
-                        : Icons.add_rounded,
-                    size: 32,
-                  ),
-                ),
-              ),
-            ),
       bottomNavigationBar: _CustomFloatingNavBar(
         selectedIndex: _selectedIndex,
         onTap: (index) {
@@ -67,6 +73,8 @@ class _AppShellState extends ConsumerState<AppShell> {
             _selectedIndex = index;
           });
         },
+        onPowerPillTap: _handleFabPressed,
+        onPowerPillLongPress: _showPowerMenu,
       ),
     );
   }
@@ -120,19 +128,23 @@ class _CustomFloatingNavBar extends StatelessWidget {
   const _CustomFloatingNavBar({
     required this.selectedIndex,
     required this.onTap,
+    required this.onPowerPillTap,
+    required this.onPowerPillLongPress,
   });
 
   final int selectedIndex;
   final ValueChanged<int> onTap;
+  final VoidCallback onPowerPillTap;
+  final VoidCallback onPowerPillLongPress;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Container(
           height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(99),
@@ -160,6 +172,10 @@ class _CustomFloatingNavBar extends StatelessWidget {
                 activeIcon: Icons.pie_chart_rounded,
                 isSelected: selectedIndex == 1,
                 onTap: () => onTap(1),
+              ),
+              PowerPill(
+                onTap: onPowerPillTap,
+                onLongPress: onPowerPillLongPress,
               ),
               _NavBarItem(
                 label: 'Category',
