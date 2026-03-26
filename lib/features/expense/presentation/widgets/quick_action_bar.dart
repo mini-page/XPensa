@@ -13,11 +13,7 @@ class QuickActionItem {
 }
 
 class QuickActionBar extends StatelessWidget {
-  const QuickActionBar({
-    super.key,
-    required this.actions,
-    required this.onTap,
-  });
+  const QuickActionBar({super.key, required this.actions, required this.onTap});
 
   final List<QuickActionItem> actions;
   final ValueChanged<QuickActionItem> onTap;
@@ -39,29 +35,65 @@ class QuickActionBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: actions
+            .map((action) {
+              final color = action.isHighlighted
+                  ? const Color(0xFF0A6BE8)
+                  : const Color(0xFF8EA0BF);
+              return InkWell(
+                onTap: () => onTap(action),
+                borderRadius: BorderRadius.circular(18),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(action.icon, color: color, size: 23),
+                      const SizedBox(height: 6),
+                      Text(
+                        action.label,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            })
+            .toList(growable: false),
         children: actions.map((action) {
           final color = action.isHighlighted
               ? const Color(0xFF0A6BE8)
               : const Color(0xFF8EA0BF);
-          return InkWell(
-            onTap: () => onTap(action),
-            borderRadius: BorderRadius.circular(18),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(action.icon, color: color, size: 23),
-                  const SizedBox(height: 6),
-                  Text(
-                    action.label,
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
+          return Semantics(
+            button: true,
+            label: action.label,
+            child: InkWell(
+              onTap: () => onTap(action),
+              borderRadius: BorderRadius.circular(18),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(action.icon, color: color, size: 23),
+                    const SizedBox(height: 6),
+                    Text(
+                      action.label,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

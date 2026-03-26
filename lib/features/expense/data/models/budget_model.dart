@@ -1,13 +1,13 @@
 import 'package:hive/hive.dart';
 
 class BudgetModel {
-  BudgetModel({
-    required this.category,
-    required this.monthlyLimit,
-  }) {
+  BudgetModel({required this.category, required this.monthlyLimit}) {
     if (category.trim().isEmpty) {
       throw ArgumentError.value(
-          category, 'category', 'Budget category cannot be empty.');
+        category,
+        'category',
+        'Budget category cannot be empty.',
+      );
     }
     if (monthlyLimit < 0) {
       throw ArgumentError.value(

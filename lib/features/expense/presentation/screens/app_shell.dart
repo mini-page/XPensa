@@ -67,11 +67,9 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Future<void> _openAddExpenseScreen() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const AddExpenseScreen(),
-      ),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const AddExpenseScreen()));
   }
 
   Future<void> _handleFabPressed() async {
@@ -93,7 +91,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       return;
     }
 
-    await ref.read(accountControllerProvider).saveAccount(
+    await ref
+        .read(accountControllerProvider)
+        .saveAccount(
           name: result.name,
           iconKey: result.iconKey,
           balance: result.balance,
@@ -103,9 +103,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${result.name} created.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('${result.name} created.')));
   }
 }
 

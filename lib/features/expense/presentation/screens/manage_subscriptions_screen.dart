@@ -49,6 +49,34 @@ class ManageSubscriptionsScreen extends ConsumerWidget {
                   message: 'The recurring list is unavailable right now.',
                 )
               : subscriptionState.isLoading && subscriptions.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : subscriptions.isEmpty
+              ? const _SubscriptionStateCard(
+                  title: 'No recurring subscriptions',
+                  message:
+                      'Create the first subscription to keep upcoming bills visible.',
+                )
+              : ListView(
+                  children: subscriptions
+                      .map((subscription) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: _SubscriptionTile(
+                            subscription: subscription,
+                            amountText: currency.format(subscription.amount),
+                            onTap: () => _openEditor(
+                              context,
+                              ref,
+                              subscription: subscription,
+                            ),
+                            onDelete: () => ref
+                                .read(recurringSubscriptionControllerProvider)
+                                .deleteSubscription(subscription.id),
+                          ),
+                        );
+                      })
+                      .toList(growable: false),
+                ),
                   ? const Center(child: CircularProgressIndicator())
                   : subscriptions.isEmpty
                       ? const _SubscriptionStateCard(
@@ -96,7 +124,9 @@ class ManageSubscriptionsScreen extends ConsumerWidget {
       return;
     }
 
-    await ref.read(recurringSubscriptionControllerProvider).saveSubscription(
+    await ref
+        .read(recurringSubscriptionControllerProvider)
+        .saveSubscription(
           id: result.id,
           name: result.name,
           amount: result.amount,
@@ -235,6 +265,15 @@ class _SubscriptionTile extends StatelessWidget {
                         },
                         itemBuilder: (context) =>
                             const <PopupMenuEntry<String>>[
+                              PopupMenuItem<String>(
+                                value: 'edit',
+                                child: Text('Edit'),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
                           PopupMenuItem<String>(
                             value: 'edit',
                             child: Text('Edit'),
@@ -258,10 +297,7 @@ class _SubscriptionTile extends StatelessWidget {
 }
 
 class _SubscriptionStateCard extends StatelessWidget {
-  const _SubscriptionStateCard({
-    required this.title,
-    required this.message,
-  });
+  const _SubscriptionStateCard({required this.title, required this.message});
 
   final String title;
   final String message;

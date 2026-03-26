@@ -49,7 +49,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     super.initState();
     final now = DateTime.now();
     final seedDate = widget.initialDate ?? now;
-    final shouldInjectCurrentTime = widget.initialDate != null &&
+    final shouldInjectCurrentTime =
+        widget.initialDate != null &&
         seedDate.hour == 0 &&
         seedDate.minute == 0 &&
         seedDate.second == 0 &&
@@ -98,8 +99,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     if (!categories.any((category) => category.name == _selectedCategory)) {
       _selectedCategory = categories.first.name;
     }
-    final selectedCategory =
-        resolveCategory(_selectedCategory, income: _selectedType.isIncome);
+    final selectedCategory = resolveCategory(
+      _selectedCategory,
+      income: _selectedType.isIncome,
+    );
     final selectedAccount = _resolveSelectedAccount(accounts);
     final amount = double.tryParse(_amountText) ?? 0;
     final amountLabel = amount <= 0 ? '₹0' : _formatAmount(amount);
@@ -230,8 +233,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     iconColor: const Color(0xFF0A6BE8),
                     label: selectedAccount?.name ?? 'No account',
                     background: const Color(0xFFEFF5FF),
-                    onTap:
-                        accounts.isEmpty ? null : () => _pickAccount(accounts),
+                    onTap: accounts.isEmpty
+                        ? null
+                        : () => _pickAccount(accounts),
                   ),
                 ],
               ),
@@ -257,10 +261,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     '.',
                     '0',
                   ])
-                    _KeypadButton(
-                      label: key,
-                      onTap: () => _appendValue(key),
-                    ),
+                    _KeypadButton(label: key, onTap: () => _appendValue(key)),
                   _KeypadButton(
                     label: '✓',
                     isPrimary: true,
@@ -559,7 +560,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     }
 
     if (widget.isEditing) {
-      await ref.read(expenseControllerProvider).updateExpense(
+      await ref
+          .read(expenseControllerProvider)
+          .updateExpense(
             id: widget.expenseId!,
             amount: amount,
             category: _selectedCategory,
@@ -569,7 +572,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             type: _selectedType,
           );
     } else {
-      await ref.read(expenseControllerProvider).addExpense(
+      await ref
+          .read(expenseControllerProvider)
+          .addExpense(
             amount: amount,
             category: _selectedCategory,
             date: _selectedDate,
@@ -604,11 +609,7 @@ class _TopCircleButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 42,
-          height: 42,
-          child: Icon(icon, color: color),
-        ),
+        child: SizedBox(width: 42, height: 42, child: Icon(icon, color: color)),
       ),
     );
   }
@@ -638,8 +639,9 @@ class _ModeTab extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color:
-                isSelected ? const Color(0xFF111A33) : const Color(0xFFA6B2C7),
+            color: isSelected
+                ? const Color(0xFF111A33)
+                : const Color(0xFFA6B2C7),
             fontWeight: FontWeight.w800,
           ),
         ),

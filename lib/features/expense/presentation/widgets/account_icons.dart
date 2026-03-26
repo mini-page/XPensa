@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AccountIconOption {
-  const AccountIconOption({
-    required this.key,
-    required this.icon,
-  });
+  const AccountIconOption({required this.key, required this.icon});
 
   final String key;
   final IconData icon;

@@ -13,13 +13,14 @@ class TransactionCard extends StatelessWidget {
     this.onEdit,
     this.accountLabel,
     this.maskAmounts = false,
-  })  : _currencyFormat = NumberFormat.currency(
-          locale: 'en_IN',
-          symbol: '₹',
-          decimalDigits:
-              expense.amount.truncateToDouble() == expense.amount ? 0 : 2,
-        ),
-        _timeFormat = DateFormat('HH:mm');
+  }) : _currencyFormat = NumberFormat.currency(
+         locale: 'en_IN',
+         symbol: '₹',
+         decimalDigits: expense.amount.truncateToDouble() == expense.amount
+             ? 0
+             : 2,
+       ),
+       _timeFormat = DateFormat('HH:mm');
 
   final ExpenseModel expense;
   final VoidCallback onDelete;
@@ -31,16 +32,19 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final category =
-        resolveCategory(expense.category, income: expense.isIncome);
+    final category = resolveCategory(
+      expense.category,
+      income: expense.isIncome,
+    );
     final signedPrefix = expense.isIncome ? '+' : '-';
-    final amountColor =
-        expense.isIncome ? const Color(0xFF1DAA63) : const Color(0xFFFF446D);
+    final amountColor = expense.isIncome
+        ? const Color(0xFF1DAA63)
+        : const Color(0xFFFF446D);
     final sourceLabel = accountLabel?.trim().isNotEmpty ?? false
         ? accountLabel!
         : expense.accountId == null
-            ? 'No Account'
-            : 'Archived Account';
+        ? 'No Account'
+        : 'Archived Account';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
