@@ -99,18 +99,22 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            formatSignedAmount(
-                              filteredTotal,
-                              currency,
-                              masked: privacyModeEnabled,
-                            ),
-                            style: TextStyle(
-                              color: filteredTotal >= 0
-                                  ? const Color(0xFF1DAA63)
-                                  : const Color(0xFFFF446D),
-                              fontSize: 28,
-                              fontWeight: FontWeight.w900,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              formatSignedAmount(
+                                filteredTotal,
+                                currency,
+                                masked: privacyModeEnabled,
+                              ),
+                              style: TextStyle(
+                                color: filteredTotal >= 0
+                                    ? const Color(0xFF1DAA63)
+                                    : const Color(0xFFFF446D),
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
                         ],

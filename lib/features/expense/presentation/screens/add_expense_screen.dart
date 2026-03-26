@@ -160,17 +160,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Flexible(
-                    child: Text(
-                      amountLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: _selectedType.isIncome
-                            ? const Color(0xFF1DAA63)
-                            : const Color(0xFF111A33),
-                        fontSize: 52,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1.5,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        amountLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: _selectedType.isIncome
+                              ? const Color(0xFF1DAA63)
+                              : const Color(0xFF111A33),
+                          fontSize: 52,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1.5,
+                        ),
                       ),
                     ),
                   ),

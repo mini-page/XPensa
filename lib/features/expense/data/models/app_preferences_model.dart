@@ -49,12 +49,31 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
 
   @override
   AppPreferencesModel read(BinaryReader reader) {
+    final themeModeKey = reader.readString();
+    final privacyModeEnabled = reader.readBool();
+    final smartRemindersEnabled = reader.readBool();
+
+    // Migration: Check if more data exists for new fields
+    String locale = AppPreferencesModel.defaults.locale;
+    String currencySymbol = AppPreferencesModel.defaults.currencySymbol;
+
+    try {
+      if (reader.availableBytes > 0) {
+        locale = reader.readString();
+      }
+      if (reader.availableBytes > 0) {
+        currencySymbol = reader.readString();
+      }
+    } catch (_) {
+      // Fallback to defaults if reading fails
+    }
+
     return AppPreferencesModel(
-      themeModeKey: reader.readString(),
-      privacyModeEnabled: reader.readBool(),
-      smartRemindersEnabled: reader.readBool(),
-      locale: reader.readString(),
-      currencySymbol: reader.readString(),
+      themeModeKey: themeModeKey,
+      privacyModeEnabled: privacyModeEnabled,
+      smartRemindersEnabled: smartRemindersEnabled,
+      locale: locale,
+      currencySymbol: currencySymbol,
     );
   }
 

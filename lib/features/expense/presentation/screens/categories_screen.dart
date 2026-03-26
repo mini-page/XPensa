@@ -88,16 +88,22 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                   size: 28,
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  formatSignedAmount(
-                    topAmount,
-                    currency,
-                    masked: privacyModeEnabled,
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFF152039),
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      formatSignedAmount(
+                        topAmount,
+                        currency,
+                        masked: privacyModeEnabled,
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF152039),
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -382,24 +388,32 @@ class _GridCategoryCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    amount,
-                    style: const TextStyle(
-                      color: Color(0xFF0A6BE8),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      amount,
+                      style: const TextStyle(
+                        color: Color(0xFF0A6BE8),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                   if (detail != null) ...<Widget>[
                     const SizedBox(height: 2),
-                    Text(
-                      detail!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF6C7D99),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        detail!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF6C7D99),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],

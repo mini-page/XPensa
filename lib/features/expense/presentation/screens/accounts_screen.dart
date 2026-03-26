@@ -106,15 +106,19 @@ class _AccountsTabView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                maskAmount(
-                  currency.format(summary.totalBalance),
-                  masked: privacyModeEnabled,
-                ),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 34,
-                  fontWeight: FontWeight.w900,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  maskAmount(
+                    currency.format(summary.totalBalance),
+                    masked: privacyModeEnabled,
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -359,12 +363,16 @@ class _SummaryChip extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],
@@ -426,12 +434,16 @@ class _AccountCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Balance: ${isNegative ? '-' : ''}$balanceText',
-                      style: TextStyle(
-                        color: isNegative ? const Color(0xFFFF446D) : const Color(0xFF0A6BE8),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Balance: ${isNegative ? '-' : ''}$balanceText',
+                        style: TextStyle(
+                          color: isNegative ? const Color(0xFFFF446D) : const Color(0xFF0A6BE8),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ],

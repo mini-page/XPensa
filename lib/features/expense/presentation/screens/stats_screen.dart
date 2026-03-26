@@ -64,6 +64,7 @@ class StatsScreen extends ConsumerWidget {
                     horizontal: 16,
                     vertical: 14,
                   ),
+                  constraints: const BoxConstraints(maxWidth: 160),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
@@ -77,6 +78,7 @@ class StatsScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
                         _monthLabel.format(DateTime.now()).toUpperCase(),
@@ -86,12 +88,16 @@ class StatsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '${formatSignedAmount(stats.monthNetTotal, currencyFormat, masked: privacyModeEnabled)} net',
-                        style: const TextStyle(
-                          color: Color(0xFF152039),
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '${formatSignedAmount(stats.monthNetTotal, currencyFormat, masked: privacyModeEnabled)} net',
+                          style: const TextStyle(
+                            color: Color(0xFF152039),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
                     ],
@@ -203,18 +209,22 @@ class StatsScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          formatSignedAmount(
-                            stats.monthNetTotal,
-                            currencyFormat,
-                            masked: privacyModeEnabled,
-                          ),
-                          style: TextStyle(
-                            color: stats.monthNetTotal >= 0
-                                ? const Color(0xFF1DAA63)
-                                : const Color(0xFFFF446D),
-                            fontSize: 38,
-                            fontWeight: FontWeight.w900,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            formatSignedAmount(
+                              stats.monthNetTotal,
+                              currencyFormat,
+                              masked: privacyModeEnabled,
+                            ),
+                            style: TextStyle(
+                              color: stats.monthNetTotal >= 0
+                                  ? const Color(0xFF1DAA63)
+                                  : const Color(0xFFFF446D),
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                         ),
                       ],
@@ -284,12 +294,16 @@ class _MetricTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF152039),
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Color(0xFF152039),
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],

@@ -365,12 +365,15 @@ class _Header extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 30),
-          Text(
-            'All Accounts - $netTotal',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 25,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'All Accounts - $netTotal',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -418,12 +421,15 @@ class _MetricColumn extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 24,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 24,
+            ),
           ),
         ),
       ],
@@ -534,11 +540,16 @@ class _DateStripCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  selectedTotalText,
-                  style: const TextStyle(
-                    color: Color(0xFF152039),
-                    fontWeight: FontWeight.w900,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      selectedTotalText,
+                      style: const TextStyle(
+                        color: Color(0xFF152039),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -694,12 +705,18 @@ class _AmountChip extends StatelessWidget {
               ),
             ],
           ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF13213B),
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF13213B),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
             ),
           ),
         ),
