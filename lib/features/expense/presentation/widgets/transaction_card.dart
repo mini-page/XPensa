@@ -55,11 +55,15 @@ class TransactionCard extends ConsumerWidget {
       child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(26),
-        child: InkWell(
-          onTap: onEdit,
-          borderRadius: BorderRadius.circular(26),
-          child: Container(
-            padding: const EdgeInsets.all(16),
+        child: Semantics(
+          button: true,
+          label: 'Transaction: ${expense.note.isEmpty ? category.name : expense.note}, Amount: $signedPrefix${maskAmount(currencyFormat.format(expense.amount), masked: maskAmounts)}',
+          hint: 'Double tap to edit',
+          child: InkWell(
+            onTap: onEdit,
+            borderRadius: BorderRadius.circular(26),
+            child: Container(
+              padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(26),
               boxShadow: const <BoxShadow>[
@@ -134,6 +138,7 @@ class TransactionCard extends ConsumerWidget {
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_horiz_rounded),
+                      tooltip: 'Transaction options',
                       color: Colors.white,
                       iconColor: AppColors.textMuted,
                       onSelected: (value) {
@@ -160,6 +165,7 @@ class TransactionCard extends ConsumerWidget {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
