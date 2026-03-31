@@ -39,41 +39,39 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
     final categoryCards = _showIncome
         ? incomeCategories
-              .map(
-                (category) => _CategoryGridData(
-                  title: category.name,
-                  icon: category.icon,
-                  tone: category.color,
-                  amount: stats.incomeCategoryTotals[category.name] ?? 0,
-                  onTap: () => _openTransactionComposer(
-                    category.name,
-                    TransactionType.income,
-                  ),
+            .map(
+              (category) => _CategoryGridData(
+                title: category.name,
+                icon: category.icon,
+                tone: category.color,
+                amount: stats.incomeCategoryTotals[category.name] ?? 0,
+                onTap: () => _openTransactionComposer(
+                  category.name,
+                  TransactionType.income,
                 ),
-              )
-              .toList(growable: false)
+              ),
+            )
+            .toList(growable: false)
         : expenseCategories
-              .map(
-                (category) => _CategoryGridData(
-                  title: category.name,
-                  icon: category.icon,
-                  tone: category.color,
-                  amount: stats.categoryTotals[category.name] ?? 0,
-                  budget: budgets[category.name] ?? 0,
-                  onTap: () => _openBudgetEditor(
-                    categoryName: category.name,
-                    currentBudget: budgets[category.name] ?? 0,
-                  ),
+            .map(
+              (category) => _CategoryGridData(
+                title: category.name,
+                icon: category.icon,
+                tone: category.color,
+                amount: stats.categoryTotals[category.name] ?? 0,
+                budget: budgets[category.name] ?? 0,
+                onTap: () => _openBudgetEditor(
+                  categoryName: category.name,
+                  currentBudget: budgets[category.name] ?? 0,
                 ),
-              )
-              .toList(growable: false);
+              ),
+            )
+            .toList(growable: false);
 
-    final topAmount = _showIncome
-        ? stats.monthIncomeTotal
-        : stats.monthNetTotal;
-    final topLabel = _showIncome
-        ? 'Income captured this month'
-        : 'Current net flow';
+    final topAmount =
+        _showIncome ? stats.monthIncomeTotal : stats.monthNetTotal;
+    final topLabel =
+        _showIncome ? 'Income captured this month' : 'Current net flow';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -137,14 +135,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 FilledButton(
                   onPressed: _showIncome
                       ? () => _openTransactionComposer(
-                          incomeCategories.first.name,
-                          TransactionType.income,
-                        )
+                            incomeCategories.first.name,
+                            TransactionType.income,
+                          )
                       : () => _openBudgetEditor(
-                          categoryName: expenseCategories.first.name,
-                          currentBudget:
-                              budgets[expenseCategories.first.name] ?? 0,
-                        ),
+                            categoryName: expenseCategories.first.name,
+                            currentBudget:
+                                budgets[expenseCategories.first.name] ?? 0,
+                          ),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     shape: RoundedRectangleBorder(
@@ -199,14 +197,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 _AddCategoryCard(
                   onTap: _showIncome
                       ? () => _openTransactionComposer(
-                          incomeCategories.first.name,
-                          TransactionType.income,
-                        )
+                            incomeCategories.first.name,
+                            TransactionType.income,
+                          )
                       : () => _openBudgetEditor(
-                          categoryName: expenseCategories.first.name,
-                          currentBudget:
-                              budgets[expenseCategories.first.name] ?? 0,
-                        ),
+                            categoryName: expenseCategories.first.name,
+                            currentBudget:
+                                budgets[expenseCategories.first.name] ?? 0,
+                          ),
                 ),
               ],
             ),
@@ -358,91 +356,95 @@ class _GridCategoryCard extends StatelessWidget {
     return Material(
       color: tone.withOpacity(0.18),
       borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: Stack(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: tone.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(12),
+      child: Semantics(
+        button: true,
+        label: 'Category details for $title',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          child: Stack(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: tone.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 22),
                     ),
-                    child: Icon(icon, color: Colors.white, size: 22),
-                  ),
-                  const Spacer(),
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF16233C),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      amount,
+                    const Spacer(),
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Color(0xFF0A6BE8),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
+                        color: Color(0xFF16233C),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
                       ),
                     ),
-                  ),
-                  if (detail != null) ...<Widget>[
                     const SizedBox(height: 2),
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        detail!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        amount,
                         style: const TextStyle(
-                          color: Color(0xFF6C7D99),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
+                          color: Color(0xFF0A6BE8),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
                         ),
                       ),
                     ),
+                    if (detail != null) ...<Widget>[
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          detail!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF6C7D99),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ),
-            Positioned(
-              top: 6,
-              right: 2,
-              child: PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert_rounded,
-                  color: tone.withOpacity(0.7),
-                  size: 20,
                 ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                color: Colors.white,
-                onSelected: (_) => onTap(),
-                itemBuilder: (context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: 'primary',
-                    child: Text(actionLabel),
-                  ),
-                ],
               ),
-            ),
-          ],
+              Positioned(
+                top: 6,
+                right: 2,
+                child: PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: tone.withOpacity(0.7),
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  color: Colors.white,
+                  onSelected: (_) => onTap(),
+                  itemBuilder: (context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'primary',
+                      child: Text(actionLabel),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -459,11 +461,19 @@ class _AddCategoryCard extends StatelessWidget {
     return Material(
       color: const Color(0xFFD8DFE9),
       borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: const Center(
-          child: Icon(Icons.add_rounded, color: AppColors.textMuted, size: 40),
+      child: Semantics(
+        button: true,
+        label: 'Add Category',
+        child: Tooltip(
+          message: 'Add new category',
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(22),
+            child: const Center(
+              child:
+                  Icon(Icons.add_rounded, color: AppColors.textMuted, size: 40),
+            ),
+          ),
         ),
       ),
     );

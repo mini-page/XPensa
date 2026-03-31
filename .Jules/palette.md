@@ -1,1 +1,3 @@
 ## 26-03-2026 - [Add semantics to QuickActionBar] **Learning:** [Custom action bar items without explicit button roles are not properly announced by TalkBack/VoiceOver] **Action:** [Always wrap interactive components like InkWell in Semantics(button: true) and provide an accurate label when using non-standard widgets like custom action items]
+
+## 26-03-2026 - [Add semantics to GridCategoryCard and AddCategoryCard] **Learning:** [Custom grid cards and action cards built with InkWell are not properly announced by screen readers as interactive buttons, reducing accessibility] **Action:** [Always wrap custom interactive cards (like InkWell without a built-in semantic role) in Semantics(button: true) and provide descriptive labels and Tooltips for clear intent]
