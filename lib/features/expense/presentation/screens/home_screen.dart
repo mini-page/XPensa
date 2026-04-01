@@ -55,11 +55,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       7,
       (index) => _windowStart.add(Duration(days: index)),
     );
-    final selectedExpenses =
-        expenses
-            .where((expense) => _isSameLocalDay(expense.date, _selectedDate))
-            .toList(growable: false)
-          ..sort((left, right) => right.date.compareTo(left.date));
+    final selectedExpenses = expenses
+        .where((expense) => _isSameLocalDay(expense.date, _selectedDate))
+        .toList(growable: false)
+      ..sort((left, right) => right.date.compareTo(left.date));
     final selectedTotal = selectedExpenses.fold<double>(
       0,
       (sum, expense) => sum + expense.signedAmount,
@@ -119,21 +118,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   height: 72,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: <double>[50, 100, 200, 500, 1000]
-                        .map((amount) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: _AmountChip(
-                              label: currencyFormat.format(amount),
-                              onTap: () => _openAddExpenseScreen(
-                                context,
-                                initialAmount: amount,
-                                initialDate: _selectedDate,
-                              ),
-                            ),
-                          );
-                        })
-                        .toList(growable: false),
+                    children: <double>[50, 100, 200, 500, 1000].map((amount) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: _AmountChip(
+                          label: currencyFormat.format(amount),
+                          onTap: () => _openAddExpenseScreen(
+                            context,
+                            initialAmount: amount,
+                            initialDate: _selectedDate,
+                          ),
+                        ),
+                      );
+                    }).toList(growable: false),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -360,7 +357,9 @@ class _Header extends StatelessWidget {
             children: <Widget>[
               IconButton(
                 onPressed: onMenuPressed,
-                icon: const Icon(Icons.menu_rounded, color: Colors.white, size: 28),
+                icon: const Icon(Icons.menu_rounded,
+                    color: Colors.white, size: 28),
+                tooltip: 'Open menu',
               ),
               const SizedBox(width: 8),
               ClipRRect(
@@ -375,15 +374,17 @@ class _Header extends StatelessWidget {
               Text(
                 'XPensa',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w800,
-                ),
+                      color: Colors.white,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
               const Spacer(),
               IconButton(
                 onPressed: onSearchPressed,
-                icon: const Icon(Icons.search_rounded, color: Colors.white, size: 28),
+                icon: const Icon(Icons.search_rounded,
+                    color: Colors.white, size: 28),
+                tooltip: 'Search transactions',
               ),
             ],
           ),
@@ -511,30 +512,32 @@ class _DateStripCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _DateNavButton(icon: Icons.arrow_back_rounded, onTap: onPrevious),
+              _DateNavButton(
+                  icon: Icons.arrow_back_rounded,
+                  tooltip: 'Previous week',
+                  onTap: onPrevious),
               const SizedBox(width: 8),
-              _DateNavButton(icon: Icons.arrow_forward_rounded, onTap: onNext),
+              _DateNavButton(
+                  icon: Icons.arrow_forward_rounded,
+                  tooltip: 'Next week',
+                  onTap: onNext),
             ],
           ),
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: visibleDates
-                .map((date) {
-                  final isSelected = DateUtils.isSameDay(date, selectedDate);
-                  return Expanded(
-                    child: _DayPill(
-                      label: weekdayFormat
-                          .format(date)
-                          .substring(0, 1)
-                          .toUpperCase(),
-                      day: date.day.toString().padLeft(2, '0'),
-                      isSelected: isSelected,
-                      onTap: () => onDateSelected(date),
-                    ),
-                  );
-                })
-                .toList(growable: false),
+            children: visibleDates.map((date) {
+              final isSelected = DateUtils.isSameDay(date, selectedDate);
+              return Expanded(
+                child: _DayPill(
+                  label:
+                      weekdayFormat.format(date).substring(0, 1).toUpperCase(),
+                  day: date.day.toString().padLeft(2, '0'),
+                  isSelected: isSelected,
+                  onTap: () => onDateSelected(date),
+                ),
+              );
+            }).toList(growable: false),
           ),
           const SizedBox(height: 16),
           Container(
@@ -585,9 +588,11 @@ class _DateStripCard extends StatelessWidget {
 }
 
 class _DateNavButton extends StatelessWidget {
-  const _DateNavButton({required this.icon, required this.onTap});
+  const _DateNavButton(
+      {required this.icon, required this.tooltip, required this.onTap});
 
   final IconData icon;
+  final String tooltip;
   final VoidCallback onTap;
 
   @override
@@ -595,13 +600,20 @@ class _DateNavButton extends StatelessWidget {
     return Material(
       color: const Color(0xFFF5F7FB),
       shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Icon(icon, size: 18, color: AppColors.textMuted),
+      child: Tooltip(
+        message: tooltip,
+        child: Semantics(
+          button: true,
+          label: tooltip,
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Icon(icon, size: 18, color: AppColors.textMuted),
+            ),
+          ),
         ),
       ),
     );
@@ -623,38 +635,43 @@ class _DayPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD6F57C) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: <Widget>[
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? const Color(0xFF253411)
-                    : const Color(0xFF96A2B8),
-                fontWeight: FontWeight.w800,
+    return Semantics(
+      button: true,
+      label: '$label $day',
+      selected: isSelected,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFD6F57C) : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            children: <Widget>[
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected
+                      ? const Color(0xFF253411)
+                      : const Color(0xFF96A2B8),
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              day,
-              style: TextStyle(
-                color: isSelected
-                    ? const Color(0xFF253411)
-                    : AppColors.textDark,
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
+              const SizedBox(height: 8),
+              Text(
+                day,
+                style: TextStyle(
+                  color:
+                      isSelected ? const Color(0xFF253411) : AppColors.textDark,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -709,35 +726,39 @@ class _AmountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
+    return Semantics(
+      button: true,
+      label: 'Quick add $label',
+      child: Material(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: 92,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x1209386D),
-                blurRadius: 18,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 92,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const <BoxShadow>[
+                BoxShadow(
+                  color: Color(0x1209386D),
+                  blurRadius: 18,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textDark,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                  ),
                 ),
               ),
             ),

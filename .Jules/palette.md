@@ -3,3 +3,5 @@
 
 ## 26-03-2026 - [Add semantics to GridCategoryCard and AddCategoryCard] **Learning:** [Custom grid cards and action cards built with InkWell are not properly announced by screen readers as interactive buttons, reducing accessibility] **Action:** [Always wrap custom interactive cards (like InkWell without a built-in semantic role) in Semantics(button: true) and provide descriptive labels and Tooltips for clear intent]
 ## 29-05-2024 - [Add semantics and tooltips to icon-only buttons] **Learning:** [Custom icon-only buttons lack screen reader context and visual clarity on hover] **Action:** [Wrap interactive components like InkWell in Semantics(button: true, label: tooltip) and Tooltip(message: tooltip) when creating custom icon-only buttons]
+
+## 01-04-2026 - [Semantics for Custom Buttons] **Learning:** GestureDetector and InkWell do not inherently provide button roles or context to screen readers, making them difficult to use for accessibility. **Action:** Always wrap interactive custom components (like InkWell/GestureDetector) with Semantics(button: true) and provide descriptive labels.
