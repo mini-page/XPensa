@@ -27,7 +27,9 @@ final expenseControllerProvider = Provider<ExpenseController>((ref) {
   return ExpenseController(ref);
 });
 
-final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
+  SearchQueryNotifier.new,
+);
 
 class SearchQueryNotifier extends Notifier<String> {
   @override
@@ -218,9 +220,10 @@ class ExpenseController {
 
   Future<ExpenseModel?> _findExpenseById(String id) async {
     final currentExpenses = _ref.read(expenseListProvider).value;
-    final cachedExpense = currentExpenses
-        ?.where((expense) => expense.id == id)
-        .firstOrNull;
+    final cachedExpense = currentExpenses?.cast<ExpenseModel?>().firstWhere(
+      (expense) => expense?.id == id,
+      orElse: () => null,
+    );
     if (cachedExpense != null) {
       return cachedExpense;
     }
@@ -261,8 +264,7 @@ class ExpenseStats {
     final monthExpenses = expenses
         .where((expense) {
           final localDate = expense.date.toLocal();
-          return localDate.year == now.year &&
-              localDate.month == now.month;
+          return localDate.year == now.year && localDate.month == now.month;
         })
         .toList(growable: false);
 
