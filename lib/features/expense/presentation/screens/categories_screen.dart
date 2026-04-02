@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/budget_providers.dart';
 import '../provider/expense_providers.dart';
@@ -237,12 +238,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${result.category} budget updated to ₹${result.amount.toStringAsFixed(0)}.',
-        ),
-      ),
+    context.showSnackBar(
+      '${result.category} budget updated to ₹${result.amount.toStringAsFixed(0)}.',
     );
   }
 

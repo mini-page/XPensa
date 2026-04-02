@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../provider/account_providers.dart';
 import '../widgets/account_editor_sheet.dart';
 import '../widgets/app_drawer.dart';
@@ -28,12 +29,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   void _showPowerMenu() {
     _menuOverlay = OverlayEntry(
       builder: (context) => PowerPillMenu(
-        onVoice: () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Voice input arriving soon.')),
-        ),
-        onSplit: () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Split bill tool arriving soon.')),
-        ),
+        onVoice: () => context.showSnackBar('Voice input arriving soon.'),
+        onSplit: () => context.showSnackBar('Split bill tool arriving soon.'),
         onScanner: () {
           _menuOverlay?.remove();
           _menuOverlay = null;
@@ -150,9 +147,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('${result.name} created.')));
+    context.showSnackBar('${result.name} created.');
   }
 }
 

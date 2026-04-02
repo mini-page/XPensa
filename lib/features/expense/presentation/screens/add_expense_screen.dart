@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
@@ -564,9 +565,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         ref.read(accountListProvider).value ?? const <AccountModel>[];
     final effectiveAccountId = _resolveSelectedAccount(accounts)?.id;
     if (amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid amount before saving.')),
-      );
+      context.showSnackBar('Enter a valid amount before saving.');
       return;
     }
 

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
@@ -257,12 +258,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showSoonMessage(BuildContext context, String label) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$label shortcuts arrive after the core expense flow is stable.',
-        ),
-      ),
+    context.showSnackBar(
+      '$label shortcuts arrive after the core expense flow is stable.',
     );
   }
 

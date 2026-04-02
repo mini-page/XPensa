@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/recurring_subscription_model.dart';
 import 'subscription_icons.dart';
 
@@ -266,11 +267,7 @@ class _SubscriptionEditorSheetState extends State<_SubscriptionEditorSheet> {
     final amount = double.tryParse(_amountController.text.trim());
 
     if (name.isEmpty || amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter a valid subscription name and amount.'),
-        ),
-      );
+      context.showSnackBar('Enter a valid subscription name and amount.');
       return;
     }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/account_model.dart';
 import 'account_icons.dart';
 
@@ -191,11 +192,7 @@ class _AccountEditorSheetState extends State<_AccountEditorSheet> {
     final balance = double.tryParse(_balanceController.text.trim());
 
     if (name.isEmpty || balance == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter a valid account name and balance.'),
-        ),
-      );
+      context.showSnackBar('Enter a valid account name and balance.');
       return;
     }
 

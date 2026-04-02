@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import 'expense_category.dart';
 
 class BudgetFormResult {
@@ -174,9 +175,7 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
   void _submit() {
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid budget amount.')),
-      );
+      context.showSnackBar('Enter a valid budget amount.');
       return;
     }
 

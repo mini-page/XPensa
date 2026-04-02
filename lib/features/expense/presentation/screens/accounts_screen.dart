@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/context_extensions.dart';
 import '../../data/models/account_model.dart';
 import '../provider/account_providers.dart';
 import '../provider/expense_providers.dart';
@@ -245,12 +246,8 @@ class _SliverAccountsTabView extends ConsumerWidget {
 
     if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          account == null ? '${result.name} created.' : '${result.name} updated.',
-        ),
-      ),
+    context.showSnackBar(
+      account == null ? '${result.name} created.' : '${result.name} updated.',
     );
   }
 
@@ -261,8 +258,7 @@ class _SliverAccountsTabView extends ConsumerWidget {
   ) async {
     await ref.read(accountControllerProvider).deleteAccount(id);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Account removed.')));
+    context.showSnackBar('Account removed.');
   }
 }
 
