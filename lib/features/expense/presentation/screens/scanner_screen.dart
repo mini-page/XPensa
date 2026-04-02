@@ -27,7 +27,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
     for (final barcode in barcodes) {
       final String? rawValue = barcode.rawValue;
       if (rawValue != null) {
-        debugPrint('Barcode found! $rawValue');
         _parseAndNavigate(rawValue);
         break;
       }
@@ -60,10 +59,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     // Navigate to AddExpenseScreen with parsed data
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => AddExpenseScreen(
-          initialAmount: amount,
-          initialNote: note,
-        ),
+        builder: (_) =>
+            AddExpenseScreen(initialAmount: amount, initialNote: note),
       ),
     );
   }
@@ -78,10 +75,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       ),
       body: Stack(
         children: [
-          MobileScanner(
-            controller: controller,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: controller, onDetect: _onDetect),
           // Scanner Overlay
           Center(
             child: Container(
