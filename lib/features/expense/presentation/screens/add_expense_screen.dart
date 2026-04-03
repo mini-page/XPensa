@@ -124,6 +124,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   _TopCircleButton(
                     icon: Icons.close_rounded,
                     onTap: () => Navigator.of(context).pop(),
+                    tooltip: 'Close',
                   ),
                   const Spacer(),
                   Container(
@@ -152,6 +153,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     icon: Icons.calendar_month_rounded,
                     color: const Color(0xFF45D19A),
                     onTap: _pickDate,
+                    tooltip: 'Select date',
                   ),
                 ],
               ),
@@ -182,6 +184,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   _TopCircleButton(
                     icon: Icons.backspace_outlined,
                     onTap: _backspace,
+                    tooltip: 'Backspace',
                   ),
                 ],
               ),
@@ -597,11 +600,13 @@ class _TopCircleButton extends StatelessWidget {
   const _TopCircleButton({
     required this.icon,
     required this.onTap,
+    required this.tooltip,
     this.color = const Color(0xFF8B99B0),
   });
 
   final IconData icon;
   final VoidCallback onTap;
+  final String tooltip;
   final Color color;
 
   @override

@@ -123,6 +123,12 @@
   },
   "hotPaths": [
     {
+      "path": "lib\\features\\expense\\presentation\\screens\\add_expense_screen.dart",
+      "accessCount": 12,
+      "lastAccessed": 1775226942053,
+      "type": "file"
+    },
+    {
       "path": "lib\\features\\expense\\presentation\\screens\\categories_screen.dart",
       "accessCount": 7,
       "lastAccessed": 1775223588964,
@@ -138,12 +144,6 @@
       "path": "lib\\features\\expense\\presentation\\screens\\home_screen.dart",
       "accessCount": 6,
       "lastAccessed": 1775222962439,
-      "type": "file"
-    },
-    {
-      "path": "lib\\features\\expense\\presentation\\screens\\add_expense_screen.dart",
-      "accessCount": 6,
-      "lastAccessed": 1775223592271,
       "type": "file"
     },
     {
@@ -165,9 +165,21 @@
       "type": "file"
     },
     {
+      "path": "android\\gradle.properties",
+      "accessCount": 2,
+      "lastAccessed": 1775224830746,
+      "type": "file"
+    },
+    {
       "path": ".planning\\plans\\2026-04-03-ui-integration.md",
       "accessCount": 1,
       "lastAccessed": 1775222808653,
+      "type": "file"
+    },
+    {
+      "path": "android\\local.properties",
+      "accessCount": 1,
+      "lastAccessed": 1775224792609,
       "type": "file"
     }
   ],
