@@ -111,6 +111,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       badgeLabel: 'Soon',
                     ),
                     QuickActionItem(
+                      label: 'SCANNER',
+                      icon: Icons.qr_code_scanner_rounded,
+                      isEnabled: false,
+                      badgeLabel: 'Soon',
+                    ),
+                    QuickActionItem(
                       label: 'MANUAL',
                       icon: Icons.add_rounded,
                       isHighlighted: true,
