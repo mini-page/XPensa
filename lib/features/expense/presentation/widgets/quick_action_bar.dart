@@ -40,9 +40,11 @@ class QuickActionBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: actions.map((action) {
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: actions.map((action) {
           final baseColor = action.isHighlighted
               ? AppColors.primaryBlue
               : AppColors.textMuted;
