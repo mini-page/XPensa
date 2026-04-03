@@ -69,7 +69,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         ],
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 78),
+        padding: const EdgeInsets.only(bottom: 18),
         child: PowerPill(
           onTap: _handleFabPressed,
         ),
