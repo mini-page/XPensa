@@ -176,6 +176,7 @@ class _SliverAccountsTabView extends ConsumerWidget {
                   IconButton.filled(
                     onPressed: () => _openAccountEditor(context, ref),
                     icon: const Icon(Icons.add_rounded),
+                    tooltip: 'Add new account',
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                     ),

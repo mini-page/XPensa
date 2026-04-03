@@ -55,6 +55,7 @@ class RecurringToolView extends ConsumerWidget {
             IconButton.filled(
               onPressed: () => _openEditor(context, ref),
               icon: const Icon(Icons.add_rounded),
+              tooltip: 'Add new subscription',
               style: IconButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
               ),

@@ -209,6 +209,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                               setState(() {});
                             },
                             icon: const Icon(Icons.close_rounded),
+                            tooltip: 'Clear note',
                           ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 16),
