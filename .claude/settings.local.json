@@ -16,7 +16,9 @@
       "Bash(npm install:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(flutter:*)",
+      "WebSearch"
     ]
   }
 }

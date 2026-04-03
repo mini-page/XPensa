@@ -123,6 +123,18 @@
   },
   "hotPaths": [
     {
+      "path": "index.html",
+      "accessCount": 56,
+      "lastAccessed": 1775241174840,
+      "type": "file"
+    },
+    {
+      "path": "lib\\features\\expense\\presentation\\provider\\preferences_providers.dart",
+      "accessCount": 14,
+      "lastAccessed": 1775236233253,
+      "type": "file"
+    },
+    {
       "path": "lib\\features\\expense\\presentation\\screens\\add_expense_screen.dart",
       "accessCount": 12,
       "lastAccessed": 1775226942053,
@@ -138,12 +150,6 @@
       "path": "lib\\features\\expense\\presentation\\screens\\home_screen.dart",
       "accessCount": 9,
       "lastAccessed": 1775230474018,
-      "type": "file"
-    },
-    {
-      "path": "lib\\features\\expense\\presentation\\provider\\preferences_providers.dart",
-      "accessCount": 8,
-      "lastAccessed": 1775233342944,
       "type": "file"
     },
     {
@@ -165,15 +171,21 @@
       "type": "file"
     },
     {
+      "path": "pubspec.yaml",
+      "accessCount": 6,
+      "lastAccessed": 1775235360855,
+      "type": "file"
+    },
+    {
       "path": "lib\\features\\expense\\presentation\\widgets\\quick_action_bar.dart",
       "accessCount": 5,
       "lastAccessed": 1775230664037,
       "type": "file"
     },
     {
-      "path": "pubspec.yaml",
+      "path": "lib\\features\\expense\\presentation\\screens\\settings_screen.dart",
       "accessCount": 5,
-      "lastAccessed": 1775233565119,
+      "lastAccessed": 1775233951806,
       "type": "file"
     },
     {
@@ -186,12 +198,6 @@
       "path": "lib\\features\\expense\\presentation\\widgets\\power_pill_menu.dart",
       "accessCount": 4,
       "lastAccessed": 1775230526631,
-      "type": "file"
-    },
-    {
-      "path": "lib\\features\\expense\\presentation\\screens\\settings_screen.dart",
-      "accessCount": 4,
-      "lastAccessed": 1775233568217,
       "type": "file"
     },
     {
@@ -222,6 +228,24 @@
       "path": "lib\\features\\expense\\presentation\\provider\\backup_providers.dart",
       "accessCount": 2,
       "lastAccessed": 1775233567033,
+      "type": "file"
+    },
+    {
+      "path": "android\\app\\src\\main\\AndroidManifest.xml",
+      "accessCount": 2,
+      "lastAccessed": 1775233914380,
+      "type": "file"
+    },
+    {
+      "path": "docs\\plans\\2026-04-03-feature-cards-redesign-plan.md",
+      "accessCount": 2,
+      "lastAccessed": 1775235302019,
+      "type": "file"
+    },
+    {
+      "path": "docs\\plans\\2026-04-03-hero-section-enhancement-plan.md",
+      "accessCount": 2,
+      "lastAccessed": 1775240933685,
       "type": "file"
     },
     {
@@ -294,6 +318,36 @@
       "path": "lib\\core\\utils\\context_extensions.dart",
       "accessCount": 1,
       "lastAccessed": 1775233544245,
+      "type": "file"
+    },
+    {
+      "path": "frontend_analysis.md",
+      "accessCount": 1,
+      "lastAccessed": 1775234660814,
+      "type": "file"
+    },
+    {
+      "path": "docs\\plans\\2026-04-03-feature-cards-redesign.md",
+      "accessCount": 1,
+      "lastAccessed": 1775235126705,
+      "type": "file"
+    },
+    {
+      "path": "docs\\plans\\2026-04-03-ui-ux-polish-fixes-plan.md",
+      "accessCount": 1,
+      "lastAccessed": 1775238079078,
+      "type": "file"
+    },
+    {
+      "path": "NEW_SESSION_PLAN.md",
+      "accessCount": 1,
+      "lastAccessed": 1775238493614,
+      "type": "file"
+    },
+    {
+      "path": "docs\\plans\\2026-04-03-hero-section-enhancement-design.md",
+      "accessCount": 1,
+      "lastAccessed": 1775240859055,
       "type": "file"
     }
   ],

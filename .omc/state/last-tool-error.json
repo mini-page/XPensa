@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"flutter pub get && flutter analyze && flutter test\",\"description\":\"Final verification of the settings and backup system\"}",
-  "error": "Exit code 1\nResolving dependencies...\nDownloading packages...\n  _fe_analyzer_shared 93.0.0 (98.0.0 available)\n  analyzer 10.0.1 (12.0.0 available)\n  archive 3.6.1 (4.0.9 available)\n  file_picker 8.3.7 (10.3.10 available)\n  flutter_native_splash 2.4.4 (2.4.7 available)\n  image 4.3.0 (4.8.0 available)\n  meta 1.17.0 (1.18.2 available)\n  path 1.9.1 (from transitive dependency to direct dependency)\n  permission_handler 11.4.0 (12.0.1 available)\n  permission_handler_android 12.1.0 (13.0.1 available)\n ...",
-  "timestamp": "2026-04-03T16:26:56.520Z",
-  "retry_count": 1
-}

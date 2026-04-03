@@ -200,9 +200,9 @@ class AppPreferencesController {
       'xpensa-periodic-backup-task',
       tag: backupTaskTag,
       frequency: duration,
-      existingWorkPolicy: ExistingWorkPolicy.replace,
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
       constraints: Constraints(
-        networkType: NetworkType.not_required,
+        networkType: NetworkType.notRequired,
         requiresStorageNotLow: true,
       ),
     );
