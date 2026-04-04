@@ -43,6 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final expenses = expenseState.value ?? const <ExpenseModel>[];
     final accounts =
         ref.watch(accountListProvider).value ?? const <AccountModel>[];
+    final accountsMap = {for (final a in accounts) a.id: a};
     final accountMap = {for (final account in accounts) account.id: account};
     final stats = ref.watch(statsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
@@ -220,6 +221,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ...selectedExpenses.map((expense) {
                     return TransactionCard(
                       expense: expense,
+                      accountLabel: _accountLabelFor(expense, accountsMap),
                       accountLabel: _accountLabelFor(expense, accountMap),
                       maskAmounts: privacyModeEnabled,
                       onEdit: () => _openEditExpenseScreen(context, expense),
@@ -319,12 +321,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   String? _accountLabelFor(
     ExpenseModel expense,
+    Map<String, AccountModel> accountsMap,
     Map<String, AccountModel> accountMap,
   ) {
     if (expense.accountId == null) {
       return null;
     }
 
+    final account = accountsMap[expense.accountId];
+    if (account != null) {
+      return account.name;
+    }
+
+    return 'Archived Account';
     return accountMap[expense.accountId]?.name ?? 'Archived Account';
   }
 
