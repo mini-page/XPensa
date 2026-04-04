@@ -42,27 +42,45 @@ void main() {
     return 'Archived Account';
   }
 
+  String? accountLabelForMap(
+    ExpenseModel expense,
+    Map<String, String> accountMap,
+  ) {
+    final accountId = expense.accountId;
+    if (accountId == null) {
+      return null;
+    }
+    return accountMap[accountId] ?? 'Archived Account';
+  }
+
+  int labelChecksum(String? label) => label?.length ?? 0;
+
   // Linear benchmark
+  var linearChecksum = 0;
   final swLinear = Stopwatch()..start();
   for (int i = 0; i < 1000; i++) {
     for (final expense in expenses) {
-      accountLabelForLinear(expense, accounts);
+      linearChecksum += labelChecksum(accountLabelForLinear(expense, accounts));
     }
   }
   swLinear.stop();
-  print('Linear search (1000 iterations): ${swLinear.elapsedMilliseconds} ms');
+  print(
+    'Linear search (1000 iterations): ${swLinear.elapsedMilliseconds} ms '
+    '(checksum: $linearChecksum)',
+  );
 
   // Map benchmark
+  var mapChecksum = 0;
   final swMap = Stopwatch()..start();
   for (int i = 0; i < 1000; i++) {
     final accountMap = {for (var a in accounts) a.id: a.name};
     for (final expense in expenses) {
-      final accountId = expense.accountId;
-      if (accountId == null) continue;
-      final name = accountMap[accountId];
-      // fallback to 'Archived Account' if name == null
+      mapChecksum += labelChecksum(accountLabelForMap(expense, accountMap));
     }
   }
   swMap.stop();
-  print('Map lookup (1000 iterations): ${swMap.elapsedMilliseconds} ms');
+  print(
+    'Map lookup (1000 iterations): ${swMap.elapsedMilliseconds} ms '
+    '(checksum: $mapChecksum)',
+  );
 }
