@@ -40,7 +40,10 @@ XPensa/
 │   │           ├── screens/                # Full-page screens
 │   │           └── widgets/                # Reusable UI components
 │   ├── routes/
-│   │   └── app_routes.dart                 # ← Centralised navigation helpers
+│   │   └── app_routes.dart                 # Centralised navigation helpers
+│   ├── shared/
+│   │   └── widgets/
+│   │       └── floating_nav_bar.dart       # FloatingNavBar + NavBarItem (extracted from AppShell)
 │   └── main.dart
 ├── pubspec.yaml
 ├── analysis_options.yaml
@@ -137,6 +140,11 @@ XPensa/
 |------|---------|
 | `lib/routes/app_routes.dart` | `AppRoutes` – static navigation helpers for every pushed screen |
 
+### Shared Widgets (`lib/shared/widgets/`)
+| File | Role |
+|------|------|
+| `floating_nav_bar.dart` | `FloatingNavBar` – pill-shaped bottom nav; `NavBarItem` – single animated tab |
+
 ---
 
 ## 3. Navigation Map
@@ -211,13 +219,18 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
 - Hive for local persistence with adapter registration in `HiveBootstrap`
 - Centralised colours, spacing, radii in `core/theme/`
 - Centralised navigation via `lib/routes/app_routes.dart`
-- Barrel `index.dart` exports added to `screens/`, `widgets/`, `provider/`, `models/`, `theme/`, `utils/`
+- Barrel `index.dart` exports added to **all** directories:
+  - `screens/`, `widgets/`, `provider/`, `models/`
+  - `datasource/`, `data/repositories/`, `domain/repositories/`
+  - `theme/`, `utils/`, `constants/`
+  - `routes/`, `shared/widgets/`
+- `FloatingNavBar` + `NavBarItem` extracted from `app_shell.dart` → `lib/shared/widgets/floating_nav_bar.dart`
+- `lib/shared/widgets/` directory created for cross-feature UI components
 
 ### Recommended Next Steps
 1. **Split large screens** – extract sub-widgets out of `home_screen.dart`, `add_expense_screen.dart`, `records_history_screen.dart` (each >700 lines)
 2. **Separate features** – move `accounts`, `analytics` (stats), `settings`, `categories` into their own feature folders under `/lib/features/`
-3. **Extract `_CustomFloatingNavBar`** from `app_shell.dart` into `shared/widgets/`
-4. **Organise assets** – create `/assets/images/`, `/assets/icons/`, `/assets/fonts/` subdirectories
+3. **Organise assets** – create `/assets/images/`, `/assets/icons/`, `/assets/fonts/` subdirectories; update `pubspec.yaml` and `AppAssets` paths
 
 ---
 
@@ -241,7 +254,7 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
         /repositories
       /presentation
         /provider
-        /screens   ← all 13 screens + app_shell mixed
+        /screens   ← all 13 screens + app_shell + _FloatingNavBar mixed (263 lines)
         /widgets   ← all 14 widgets mixed
 ```
 
@@ -251,31 +264,39 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
   main.dart
   /core
     /constants
-      index.dart ← barrel export
+      index.dart
     /theme
       app_colors.dart
       app_tokens.dart
-      index.dart  ← barrel export
+      index.dart
     /utils
-      index.dart  ← barrel export
+      index.dart
   /features
     /expense
       /data
         /datasource
+          index.dart
         /models
-          index.dart ← barrel export
+          index.dart
         /repositories
+          index.dart
       /domain
         /repositories
+          index.dart
       /presentation
         /provider
-          index.dart ← barrel export
+          index.dart
         /screens
-          index.dart ← barrel export
+          index.dart    ← app_shell now 127 lines (clean shell only)
         /widgets
-          index.dart ← barrel export
+          index.dart
   /routes
-    app_routes.dart ← centralised navigation
+    app_routes.dart
+    index.dart
+  /shared
+    /widgets
+      floating_nav_bar.dart   ← FloatingNavBar + NavBarItem (extracted)
+      index.dart
 ```
 
 ---
@@ -286,4 +307,6 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
 |------|--------|----------------|
 | 2026-04-04 | Created `memory.md` | `memory.md` |
 | 2026-04-04 | Created `lib/routes/app_routes.dart` – centralised navigation helpers | `app_routes.dart`, `app_shell.dart`, `home_screen.dart`, `records_history_screen.dart`, `transaction_search_screen.dart`, `categories_screen.dart`, `app_drawer.dart`, `scanner_screen.dart` |
-| 2026-04-04 | Added barrel `index.dart` exports | `screens/index.dart`, `widgets/index.dart`, `provider/index.dart`, `models/index.dart`, `theme/index.dart`, `utils/index.dart`, `constants/index.dart` |
+| 2026-04-04 | Added barrel `index.dart` exports (screens, widgets, provider, models, theme, utils, constants) | 7 files |
+| 2026-04-04 | Extracted `FloatingNavBar` + `NavBarItem` from `app_shell.dart` → `lib/shared/widgets/floating_nav_bar.dart`; `app_shell.dart` reduced from 263 to 127 lines | `app_shell.dart`, `floating_nav_bar.dart` |
+| 2026-04-04 | Added barrel `index.dart` exports for remaining directories (datasource, data/repositories, domain/repositories, routes, shared/widgets) | 5 files |
