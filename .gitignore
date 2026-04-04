@@ -56,3 +56,17 @@ web/
 windows/
 macos/
 linux/
+
+# ==============================
+# AI agent artifacts (Jules, Claude, etc.)
+# ==============================
+.Jules/
+.claude/
+.omc/
+.planning/
+
+# ==============================
+# Local dev / scratch files
+# ==============================
+benchmark/
+public_assets/
