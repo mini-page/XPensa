@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_tokens.dart';
 import '../../../../routes/app_routes.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
-import '../widgets/amount_visibility.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/ui_feedback.dart';
+import 'home/home_date_strip.dart';
+import 'home/home_header.dart';
+import 'home/home_misc_widgets.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -42,7 +42,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final accounts =
         ref.watch(accountListProvider).value ?? const <AccountModel>[];
     final accountsMap = {for (final a in accounts) a.id: a};
-    final accountMap = {for (final account in accounts) account.id: account};
     final stats = ref.watch(statsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
     final locale = ref.watch(localeProvider);
@@ -72,7 +71,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _Header(
+          HomeHeader(
             stats: stats,
             currencyFormat: currencyFormat,
             privacyModeEnabled: privacyModeEnabled,
@@ -135,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         .map((amount) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 12),
-                            child: _AmountChip(
+                            child: HomeAmountChip(
                               label: currencyFormat.format(amount),
                               onTap: () => _openAddExpenseScreen(
                                 context,
@@ -168,10 +167,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _DateStripCard(
+                HomeDateStrip(
                   visibleDates: visibleDates,
                   selectedDate: _selectedDate,
-                  selectedTotalText: _formatSignedCurrency(
+                  selectedTotalText: formatSignedCurrencyForHome(
                     selectedTotal,
                     currencyFormat,
                     masked: privacyModeEnabled,
@@ -187,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const SizedBox(height: 18),
                 if (expenseState.hasError)
-                  const _EmptyCard(
+                  const HomeEmptyCard(
                     title: 'Storage unavailable',
                     message: 'The expense list could not be loaded right now.',
                   )
@@ -199,13 +198,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   )
                 else if (expenses.isEmpty)
-                  const _EmptyCard(
+                  const HomeEmptyCard(
                     title: 'No expenses yet',
                     message:
                         'Tap the blue add button or choose a quick amount to record your first transaction.',
                   )
                 else if (selectedExpenses.isEmpty)
-                  _EmptyCard(
+                  HomeEmptyCard(
                     title: _emptyTitleFor(_selectedDate),
                     message: _emptyMessageFor(_selectedDate),
                   )
@@ -214,7 +213,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     return TransactionCard(
                       expense: expense,
                       accountLabel: _accountLabelFor(expense, accountsMap),
-                      accountLabel: _accountLabelFor(expense, accountMap),
                       maskAmounts: privacyModeEnabled,
                       onEdit: () => _openEditExpenseScreen(context, expense),
                       onDelete: () => _confirmDeleteExpense(expense),
@@ -306,19 +304,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _accountLabelFor(
     ExpenseModel expense,
     Map<String, AccountModel> accountsMap,
-    Map<String, AccountModel> accountMap,
   ) {
     if (expense.accountId == null) {
       return null;
     }
 
-    final account = accountsMap[expense.accountId];
-    if (account != null) {
-      return account.name;
-    }
-
-    return 'Archived Account';
-    return accountMap[expense.accountId]?.name ?? 'Archived Account';
+    return accountsMap[expense.accountId]?.name ?? 'Archived Account';
   }
 
   Future<void> _confirmDeleteExpense(ExpenseModel expense) async {
@@ -343,468 +334,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Transaction removed.')));
   }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({
-    required this.stats,
-    required this.currencyFormat,
-    required this.privacyModeEnabled,
-    required this.onMenuPressed,
-    required this.onSearchPressed,
-  });
-
-  final ExpenseStats stats;
-  final NumberFormat currencyFormat;
-  final bool privacyModeEnabled;
-  final VoidCallback onMenuPressed;
-  final VoidCallback onSearchPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    final netTotal = _formatSignedCurrency(
-      stats.monthNetTotal,
-      currencyFormat,
-      masked: privacyModeEnabled,
-    );
-    return Container(
-      padding: EdgeInsets.fromLTRB(16, topPadding + 8, 16, 28),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryBlue,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(44)),
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton(
-                onPressed: onMenuPressed,
-                icon: const Icon(
-                  Icons.menu_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(AppAssets.logo, width: 28, height: 28),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'XPensa',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: onSearchPressed,
-                icon: const Icon(
-                  Icons.search_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              'All Accounts - $netTotal',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 25,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              _MetricColumn(
-                label: 'EXPENSE SO FAR',
-                value: maskAmount(
-                  currencyFormat.format(stats.monthTotal),
-                  masked: privacyModeEnabled,
-                ),
-              ),
-              _MetricColumn(
-                label: 'INCOME SO FAR',
-                value: maskAmount(
-                  currencyFormat.format(stats.monthIncomeTotal),
-                  masked: privacyModeEnabled,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricColumn extends StatelessWidget {
-  const _MetricColumn({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.overlayWhiteMedium,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 24,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DateStripCard extends StatelessWidget {
-  const _DateStripCard({
-    required this.visibleDates,
-    required this.selectedDate,
-    required this.selectedTotalText,
-    required this.transactionCount,
-    required this.onDateSelected,
-    required this.onPrevious,
-    required this.onNext,
-  });
-
-  final List<DateTime> visibleDates;
-  final DateTime selectedDate;
-  final String selectedTotalText;
-  final int transactionCount;
-  final ValueChanged<DateTime> onDateSelected;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    final monthFormat = DateFormat('MMMM yyyy');
-    final weekdayFormat = DateFormat('E');
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  monthFormat.format(selectedDate),
-                  style: const TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              _DateNavButton(
-                icon: Icons.arrow_back_rounded,
-                tooltip: 'Previous week',
-                onTap: onPrevious,
-              ),
-              const SizedBox(width: 8),
-              _DateNavButton(
-                icon: Icons.arrow_forward_rounded,
-                tooltip: 'Next week',
-                onTap: onNext,
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: visibleDates
-                .map((date) {
-                  final isSelected = DateUtils.isSameDay(date, selectedDate);
-                  return Expanded(
-                    child: _DayPill(
-                      label: weekdayFormat
-                          .format(date)
-                          .substring(0, 1)
-                          .toUpperCase(),
-                      day: date.day.toString().padLeft(2, '0'),
-                      isSelected: isSelected,
-                      onTap: () => onDateSelected(date),
-                    ),
-                  );
-                })
-                .toList(growable: false),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadii.lg),
-            ),
-            child: Row(
-              children: <Widget>[
-                const Expanded(
-                  child: Text(
-                    'Selected day',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Text(
-                  '$transactionCount txns',
-                  style: const TextStyle(
-                    color: AppColors.textTertiary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      selectedTotalText,
-                      style: const TextStyle(
-                        color: AppColors.textDark,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DateNavButton extends StatelessWidget {
-  const _DateNavButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: tooltip,
-      child: Tooltip(
-        message: tooltip,
-        child: Material(
-          color: AppColors.surfaceMuted,
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: onTap,
-            customBorder: const CircleBorder(),
-            child: SizedBox(
-              width: kMinInteractiveDimension,
-              height: kMinInteractiveDimension,
-              child: Icon(icon, size: 18, color: AppColors.textMuted),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DayPill extends StatelessWidget {
-  const _DayPill({
-    required this.label,
-    required this.day,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final String day;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.accentLime : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadii.lg),
-        ),
-        child: Column(
-          children: <Widget>[
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? AppColors.accentLimeDark
-                    : AppColors.textMuted,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              day,
-              style: TextStyle(
-                color: isSelected
-                    ? AppColors.accentLimeDark
-                    : AppColors.textDark,
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyCard extends StatelessWidget {
-  const _EmptyCard({required this.title, required this.message});
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textDark,
-              fontWeight: FontWeight.w900,
-              fontSize: 18,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              height: 1.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AmountChip extends StatelessWidget {
-  const _AmountChip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: 92,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x1209386D),
-                blurRadius: 18,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-String _formatSignedCurrency(
-  double amount,
-  NumberFormat currencyFormat, {
-  required bool masked,
-}) {
-  if (amount == 0) {
-    return maskAmount(currencyFormat.format(0), masked: masked);
-  }
-
-  final absolute = maskAmount(
-    currencyFormat.format(amount.abs()),
-    masked: masked,
-  );
-  final prefix = amount > 0 ? '+' : '-';
-  return '$prefix$absolute';
 }
