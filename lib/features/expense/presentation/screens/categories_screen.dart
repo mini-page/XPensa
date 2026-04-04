@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import 'categories/categories_widgets.dart';
 import '../../../../routes/app_routes.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/budget_providers.dart';
@@ -40,7 +41,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     final categoryCards = _showIncome
         ? incomeCategories
             .map(
-              (category) => _CategoryGridData(
+              (category) => CategoryGridData(
                 title: category.name,
                 icon: category.icon,
                 tone: category.color,
@@ -54,7 +55,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             .toList(growable: false)
         : expenseCategories
             .map(
-              (category) => _CategoryGridData(
+              (category) => CategoryGridData(
                 title: category.name,
                 icon: category.icon,
                 tone: category.color,
@@ -120,7 +121,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: _PillSwitch(
+                  child: CategoriesPillSwitch(
                     leftLabel: 'Expenses',
                     rightLabel: 'Incomes',
                     isRightSelected: _showIncome,
@@ -184,7 +185,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                   final detailText = !_showIncome && entry.budget > 0
                       ? 'Budget ${maskAmount(currency.format(entry.budget), masked: privacyModeEnabled)}'
                       : null;
-                  return _GridCategoryCard(
+                  return CategoryGridCard(
                     title: entry.title,
                     icon: entry.icon,
                     tone: entry.tone,
@@ -194,7 +195,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                     onTap: entry.onTap,
                   );
                 }),
-                _AddCategoryCard(
+                AddCategoryCard(
                   onTap: _showIncome
                       ? () => _openTransactionComposer(
                             incomeCategories.first.name,
@@ -253,238 +254,4 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       initialType: type,
     );
   }
-}
-
-class _PillSwitch extends StatelessWidget {
-  const _PillSwitch({
-    required this.leftLabel,
-    required this.rightLabel,
-    required this.isRightSelected,
-    required this.onChanged,
-  });
-
-  final String leftLabel;
-  final String rightLabel;
-  final bool isRightSelected;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: <Widget>[
-          _SwitchOption(
-            label: leftLabel,
-            isSelected: !isRightSelected,
-            onTap: () => onChanged(false),
-          ),
-          _SwitchOption(
-            label: rightLabel,
-            isSelected: isRightSelected,
-            onTap: () => onChanged(true),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SwitchOption extends StatelessWidget {
-  const _SwitchOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryBlue : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textMuted,
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GridCategoryCard extends StatelessWidget {
-  const _GridCategoryCard({
-    required this.title,
-    required this.icon,
-    required this.tone,
-    required this.amount,
-    required this.actionLabel,
-    required this.onTap,
-    this.detail,
-  });
-
-  final String title;
-  final IconData icon;
-  final Color tone;
-  final String amount;
-  final String? detail;
-  final String actionLabel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: tone.withValues(alpha: 0.18),
-      borderRadius: BorderRadius.circular(22),
-      child: Semantics(
-        button: true,
-        label: 'Category details for $title',
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(22),
-          child: Stack(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: tone.withValues(alpha: 0.55),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(icon, color: Colors.white, size: 22),
-                    ),
-                    const Spacer(),
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF16233C),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        amount,
-                        style: const TextStyle(
-                          color: Color(0xFF0A6BE8),
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                    if (detail != null) ...<Widget>[
-                      const SizedBox(height: 2),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          detail!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF6C7D99),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Positioned(
-                top: 6,
-                right: 2,
-                child: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert_rounded,
-                    color: tone.withValues(alpha: 0.7),
-                    size: 20,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  color: Colors.white,
-                  onSelected: (_) => onTap(),
-                  itemBuilder: (context) => <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
-                      value: 'primary',
-                      child: Text(actionLabel),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AddCategoryCard extends StatelessWidget {
-  const _AddCategoryCard({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFD8DFE9),
-      borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: const Center(
-          child: Icon(Icons.add_rounded, color: AppColors.textMuted, size: 40),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryGridData {
-  const _CategoryGridData({
-    required this.title,
-    required this.icon,
-    required this.tone,
-    required this.amount,
-    required this.onTap,
-    this.budget = 0,
-  });
-
-  final String title;
-  final IconData icon;
-  final Color tone;
-  final double amount;
-  final double budget;
-  final VoidCallback onTap;
 }

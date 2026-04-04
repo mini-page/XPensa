@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import 'settings/settings_widgets.dart';
 import '../../../../core/utils/context_extensions.dart';
 import '../provider/backup_providers.dart';
 import '../provider/preferences_providers.dart';
@@ -51,8 +52,8 @@ class SettingsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _SectionHeader(title: 'General'),
-            _SettingsCard(
+            const SettingsSectionHeader(title: 'General'),
+            SettingsCard(
               children: [
                 _buildThemeTile(context, themeMode, controller),
                 _buildLanguageTile(context, locale, controller),
@@ -60,8 +61,8 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const _SectionHeader(title: 'Security & Privacy'),
-            _SettingsCard(
+            const SettingsSectionHeader(title: 'Security & Privacy'),
+            SettingsCard(
               children: [
                 _buildToggleTile(
                   icon: Icons.security_outlined,
@@ -80,8 +81,8 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const _SectionHeader(title: 'Data Management'),
-            _SettingsCard(
+            const SettingsSectionHeader(title: 'Data Management'),
+            SettingsCard(
               children: [
                 _buildActionTile(
                   icon: Icons.cloud_upload_outlined,
@@ -159,7 +160,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ],
                 ListTile(
-                  leading: const _TileIcon(icon: Icons.update_rounded),
+                  leading: const SettingsTileIcon(icon: Icons.update_rounded),
                   title: const Text(
                     'Last Backup',
                     style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -172,8 +173,8 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-            const _SectionHeader(title: 'About'),
-            _SettingsCard(
+            const SettingsSectionHeader(title: 'About'),
+            SettingsCard(
               children: [
                 _buildActionTile(
                   icon: Icons.info_outline_rounded,
@@ -222,7 +223,7 @@ class SettingsScreen extends ConsumerWidget {
     required List<DropdownMenuItem<String>> items,
   }) {
     return ListTile(
-      leading: _TileIcon(icon: icon),
+      leading: SettingsTileIcon(icon: icon),
       title: Text(
         title,
         style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -246,7 +247,7 @@ class SettingsScreen extends ConsumerWidget {
     AppPreferencesController controller,
   ) {
     return ListTile(
-      leading: const _TileIcon(icon: Icons.palette_outlined),
+      leading: const SettingsTileIcon(icon: Icons.palette_outlined),
       title: const Text(
         'Appearance',
         style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -274,7 +275,7 @@ class SettingsScreen extends ConsumerWidget {
     AppPreferencesController controller,
   ) {
     return ListTile(
-      leading: const _TileIcon(icon: Icons.language_rounded),
+      leading: const SettingsTileIcon(icon: Icons.language_rounded),
       title: const Text(
         'Language',
         style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -302,7 +303,7 @@ class SettingsScreen extends ConsumerWidget {
     AppPreferencesController controller,
   ) {
     return ListTile(
-      leading: const _TileIcon(icon: Icons.payments_outlined),
+      leading: const SettingsTileIcon(icon: Icons.payments_outlined),
       title: const Text(
         'Currency',
         style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -333,7 +334,7 @@ class SettingsScreen extends ConsumerWidget {
     required ValueChanged<bool> onChanged,
   }) {
     return ListTile(
-      leading: _TileIcon(icon: icon),
+      leading: SettingsTileIcon(icon: icon),
       title: Text(
         title,
         style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -357,7 +358,7 @@ class SettingsScreen extends ConsumerWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: _TileIcon(icon: icon),
+      leading: SettingsTileIcon(icon: icon),
       title: Text(
         title,
         style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
@@ -370,77 +371,3 @@ class SettingsScreen extends ConsumerWidget {
       onTap: onTap,
     );
   }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
-      child: Text(
-        title.toUpperCase(),
-        style: const TextStyle(
-          color: AppColors.primaryBlue,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsCard extends StatelessWidget {
-  final List<Widget> children;
-  const _SettingsCard({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: children.map((child) {
-          final index = children.indexOf(child);
-          final isLast = index == children.length - 1;
-          if (isLast) return child;
-          return Column(
-            children: [
-              child,
-              const Divider(height: 1, indent: 70, endIndent: 20),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _TileIcon extends StatelessWidget {
-  final IconData icon;
-  const _TileIcon({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.lightBlueBg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Icon(icon, color: AppColors.primaryBlue, size: 22),
-    );
-  }
-}
