@@ -332,20 +332,25 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
       case RecordsFilter.today:
         startBoundLocal = todayLocal;
         endBoundLocal = todayLocal.add(const Duration(days: 1));
+        break;
       case RecordsFilter.week:
         startBoundLocal = todayLocal.subtract(
           Duration(days: nowLocal.weekday - 1),
         );
         endBoundLocal = todayLocal.add(const Duration(days: 1));
+        break;
       case RecordsFilter.month:
         startBoundLocal = DateTime(todayLocal.year, todayLocal.month, 1);
         endBoundLocal = DateTime(todayLocal.year, todayLocal.month + 1, 1);
+        break;
       case RecordsFilter.future:
         startBoundLocal = todayLocal.add(const Duration(days: 1));
         endBoundLocal = null;
+        break;
       case RecordsFilter.all:
         startBoundLocal = null;
         endBoundLocal = null;
+        break;
     }
 
     final startBoundUtc = startBoundLocal?.toUtc();
