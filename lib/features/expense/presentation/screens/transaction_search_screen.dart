@@ -34,6 +34,7 @@ class _TransactionSearchScreenState
     final filteredExpenses = ref.watch(filteredExpensesProvider);
     final accounts =
         ref.watch(accountListProvider).value ?? const <AccountModel>[];
+    final accountMap = {for (final account in accounts) account.id: account};
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
 
     return Scaffold(
@@ -74,7 +75,7 @@ class _TransactionSearchScreenState
                 final expense = filteredExpenses[index];
                 return TransactionCard(
                   expense: expense,
-                  accountLabel: _accountLabelFor(expense, accounts),
+                  accountLabel: _accountLabelFor(expense, accountMap),
                   maskAmounts: privacyModeEnabled,
                   onEdit: () => _openEditExpenseScreen(context, expense),
                   onDelete: () => _confirmDeleteExpense(expense),
@@ -109,16 +110,18 @@ class _TransactionSearchScreenState
     );
   }
 
-  String? _accountLabelFor(ExpenseModel expense, List<AccountModel> accounts) {
+  String? _accountLabelFor(
+    ExpenseModel expense,
+    Map<String, AccountModel> accountMap,
+  ) {
     if (expense.accountId == null) return null;
-    for (final account in accounts) {
-      if (account.id == expense.accountId) return account.name;
-    }
-    return 'Archived Account';
+    return accountMap[expense.accountId]?.name ?? 'Archived Account';
   }
 
   Future<void> _openEditExpenseScreen(
-      BuildContext context, ExpenseModel expense) {
+    BuildContext context,
+    ExpenseModel expense,
+  ) {
     return Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => AddExpenseScreen(
