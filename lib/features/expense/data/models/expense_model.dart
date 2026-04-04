@@ -1,9 +1,9 @@
 import 'dart:developer' as dev;
 
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
+const bool kDebugMode = !bool.fromEnvironment('dart.vm.product');
 enum TransactionType { expense, income }
 
 extension TransactionTypeCodec on TransactionType {
