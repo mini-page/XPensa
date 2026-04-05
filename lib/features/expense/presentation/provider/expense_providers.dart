@@ -274,11 +274,6 @@ class ExpenseStats {
         })
         .toList(growable: false);
 
-    final todayTransactions = monthExpenses
-        .where((expense) {
-          return expense.date.toLocal().day == now.day;
-        })
-        .toList(growable: false);
     final int currentYear = now.year;
     final int currentMonth = now.month;
     final int currentDay = now.day;

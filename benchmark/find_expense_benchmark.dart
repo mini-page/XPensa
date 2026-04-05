@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 class MockExpense {
   final String id;
   MockExpense(this.id);
@@ -24,24 +25,22 @@ void main() {
 
   final watch1 = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    final res = expenses.where((e) => e.id == targetId).firstOrNull;
+    expenses.where((e) => e.id == targetId).firstOrNull;
   }
   watch1.stop();
   print('where(...).firstOrNull: ${watch1.elapsedMilliseconds} ms');
 
   final watch2 = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    final res = expenses.cast<MockExpense?>().firstWhere((e) => e?.id == targetId, orElse: () => null);
+    expenses.cast<MockExpense?>().firstWhere((e) => e?.id == targetId, orElse: () => null);
   }
   watch2.stop();
   print('cast<T?>().firstWhere(..., orElse: () => null): ${watch2.elapsedMilliseconds} ms');
 
   final watch3 = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    MockExpense? found;
     for (final e in expenses) {
       if (e.id == targetId) {
-        found = e;
         break;
       }
     }

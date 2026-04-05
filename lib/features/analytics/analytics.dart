@@ -7,7 +7,6 @@
 /// (`statsProvider`, `filteredExpensesProvider`) because it is tightly coupled
 /// to the expense data model.  Future work: extract `StatsNotifier` into this
 /// feature's own provider.
-library analytics;
 
 // Presentation – screens
 export '../expense/presentation/screens/stats_screen.dart';

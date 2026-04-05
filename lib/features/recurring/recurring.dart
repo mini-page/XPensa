@@ -6,7 +6,6 @@
 /// The underlying data files (model, datasource, repository) live in
 /// `lib/features/expense/data/` because they share the same Hive instance.
 /// Migrate to `lib/features/recurring/data/` when the data layer is split.
-library recurring;
 
 // Presentation – widgets
 export '../expense/presentation/widgets/recurring_tool_view.dart';

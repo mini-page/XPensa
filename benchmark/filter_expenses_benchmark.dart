@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:math';
 
 // Standalone mockup to represent the domain without needing the entire Hive framework
@@ -41,14 +42,14 @@ void main() {
   print('Generated ${expenses.length} expenses.');
 
   // Constants to match the real screen state
-  const _allAccountsKey = '__all_accounts__';
-  final String _selectedAccountFilter = 'acc1';
-  final RecordsFilter _selectedFilter = RecordsFilter.week;
+  const allAccountsKey = '__all_accounts__';
+  final String selectedAccountFilter = 'acc1';
+  final RecordsFilter selectedFilter = RecordsFilter.week;
 
   // WARMUP
   for (var i = 0; i < 10; i++) {
-    _filterExpensesOriginal(expenses, _selectedFilter, _selectedAccountFilter, _allAccountsKey);
-    _filterExpensesOptimized(expenses, _selectedFilter, _selectedAccountFilter, _allAccountsKey);
+    _filterExpensesOriginal(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
+    _filterExpensesOptimized(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
 
   // BENCHMARK
@@ -57,14 +58,14 @@ void main() {
 
   final watchOriginal = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    _filterExpensesOriginal(expenses, _selectedFilter, _selectedAccountFilter, _allAccountsKey);
+    _filterExpensesOriginal(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
   watchOriginal.stop();
   print('Original approach: ${watchOriginal.elapsedMilliseconds} ms');
 
   final watchOptimized = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    _filterExpensesOptimized(expenses, _selectedFilter, _selectedAccountFilter, _allAccountsKey);
+    _filterExpensesOptimized(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
   watchOptimized.stop();
   print('Optimized approach: ${watchOptimized.elapsedMilliseconds} ms');
@@ -75,9 +76,9 @@ void main() {
 // ---------------------------------------------------------
 List<MockExpenseModel> _filterExpensesOriginal(
   List<MockExpenseModel> expenses,
-  RecordsFilter _selectedFilter,
-  String _selectedAccountFilter,
-  String _allAccountsKey,
+  RecordsFilter selectedFilter,
+  String selectedAccountFilter,
+  String allAccountsKey,
 ) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
@@ -87,13 +88,13 @@ List<MockExpenseModel> _filterExpensesOriginal(
     final localDate = expense.date.toLocal();
     final dateOnly = DateTime(localDate.year, localDate.month, localDate.day);
     final matchesAccount =
-        _selectedAccountFilter == _allAccountsKey || expense.accountId == _selectedAccountFilter;
+        selectedAccountFilter == allAccountsKey || expense.accountId == selectedAccountFilter;
 
     if (!matchesAccount) {
       return false;
     }
 
-    switch (_selectedFilter) {
+    switch (selectedFilter) {
       case RecordsFilter.today:
         return dateOnly.year == today.year && dateOnly.month == today.month && dateOnly.day == today.day;
       case RecordsFilter.week:
@@ -114,9 +115,9 @@ List<MockExpenseModel> _filterExpensesOriginal(
 // ---------------------------------------------------------
 List<MockExpenseModel> _filterExpensesOptimized(
   List<MockExpenseModel> expenses,
-  RecordsFilter _selectedFilter,
-  String _selectedAccountFilter,
-  String _allAccountsKey,
+  RecordsFilter selectedFilter,
+  String selectedAccountFilter,
+  String allAccountsKey,
 ) {
   final nowLocal = DateTime.now();
   final todayLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
@@ -125,7 +126,7 @@ List<MockExpenseModel> _filterExpensesOptimized(
   DateTime? startBoundLocal;
   DateTime? endBoundLocal;
 
-  switch (_selectedFilter) {
+  switch (selectedFilter) {
     case RecordsFilter.today:
       startBoundLocal = todayLocal;
       endBoundLocal = todayLocal.add(const Duration(days: 1));
@@ -152,10 +153,10 @@ List<MockExpenseModel> _filterExpensesOptimized(
   final startBoundUtc = startBoundLocal?.toUtc();
   final endBoundUtc = endBoundLocal?.toUtc();
 
-  final filterByAccount = _selectedAccountFilter != _allAccountsKey;
+  final filterByAccount = selectedAccountFilter != allAccountsKey;
 
   return expenses.where((expense) {
-    if (filterByAccount && expense.accountId != _selectedAccountFilter) {
+    if (filterByAccount && expense.accountId != selectedAccountFilter) {
       return false;
     }
 

@@ -2,7 +2,6 @@
 ///
 /// Import this barrel to access all category and budget-related screens,
 /// widgets, and providers.
-library categories;
 
 // Presentation – screens
 export '../expense/presentation/screens/categories_screen.dart';

@@ -7,7 +7,6 @@
 /// `lib/features/expense/data/` because it is shared with the core expense
 /// feature. Migrate to `lib/features/accounts/data/` once the data layer is
 /// fully decoupled.
-library accounts;
 
 // Presentation – screens
 export '../expense/presentation/screens/accounts_screen.dart';

@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'package:xpensa/features/expense/presentation/provider/expense_providers.dart';
 import 'package:xpensa/features/expense/data/models/expense_model.dart';
 import 'package:uuid/uuid.dart';
