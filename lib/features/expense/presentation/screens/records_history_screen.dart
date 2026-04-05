@@ -5,17 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../routes/app_routes.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
-import '../widgets/amount_visibility.dart';
-import '../widgets/transaction_card.dart';
 import '../widgets/ui_feedback.dart';
-import 'add_expense_screen.dart';
+import 'records_history/records_cards.dart';
+import 'records_history/records_expense_list.dart';
+import 'records_history/records_filter.dart';
+import 'records_history/records_filter_bar.dart';
 
-enum RecordsFilter { all, today, week, month, future }
+export 'records_history/records_filter.dart';
 
 class RecordsHistoryScreen extends ConsumerStatefulWidget {
   const RecordsHistoryScreen({super.key});
@@ -37,13 +39,12 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
     final expenses = expenseState.value ?? const <ExpenseModel>[];
     final accounts = accountState.value ?? const <AccountModel>[];
-    final accountMap = {for (final account in accounts) account.id: account};
+    final accountMap = {for (final a in accounts) a.id: a};
     final filteredExpenses = _filterExpenses(expenses);
     final groupedExpenses = _groupExpenses(filteredExpenses);
 
     final locale = ref.watch(localeProvider);
     final symbol = ref.watch(currencySymbolProvider);
-
     final currency = NumberFormat.currency(
       locale: locale,
       symbol: symbol,
@@ -73,14 +74,14 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _SummaryCard(
+              RecordsSummaryCard(
                 filteredTotal: filteredTotal,
                 transactionCount: filteredExpenses.length,
                 currency: currency,
                 privacyModeEnabled: privacyModeEnabled,
               ),
               const SizedBox(height: 18),
-              _FilterChips(
+              RecordsFilterChips(
                 selectedFilter: _selectedFilter,
                 onFilterSelected: (filter) {
                   setState(() {
@@ -90,7 +91,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                 labelForFilter: _labelForFilter,
               ),
               const SizedBox(height: 14),
-              _AccountDropdown(
+              RecordsAccountDropdown(
                 accounts: accounts,
                 onAccountSelected: (value) {
                   setState(() {
@@ -98,106 +99,12 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                   });
                 },
                 allAccountsKey: _allAccountsKey,
-                accountFilterLabel: _accountFilterLabel(accounts),
-              SizedBox(
-                height: 42,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: RecordsFilter.values
-                      .map((filter) {
-                        final isSelected = _selectedFilter == filter;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ChoiceChip(
-                            label: Text(_labelForFilter(filter)),
-                            selected: isSelected,
-                            onSelected: (_) {
-                              setState(() {
-                                _selectedFilter = filter;
-                              });
-                            },
-                            selectedColor: AppColors.primaryBlue,
-                            backgroundColor: AppColors.lightBlueBg,
-                            labelStyle: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF48607E),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        );
-                      })
-                      .toList(growable: false),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: PopupMenuButton<String>(
-                  color: Colors.white,
-                  onSelected: (value) {
-                    setState(() {
-                      _selectedAccountFilter = value;
-                    });
-                  },
-                  itemBuilder: (context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: _allAccountsKey,
-                      child: Text('All accounts'),
-                    ),
-                    ...accounts.map((account) {
-                      return PopupMenuItem<String>(
-                        value: account.id,
-                        child: Text(account.name),
-                      );
-                    }),
-                  ],
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: const <BoxShadow>[
-                        BoxShadow(
-                          color: AppColors.cardShadow,
-                          blurRadius: 18,
-                          offset: Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 18,
-                          color: AppColors.primaryBlue,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _accountFilterLabel(accountMap),
-                          style: const TextStyle(
-                            color: AppColors.textDark,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textMuted,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                accountFilterLabel: _accountFilterLabel(accountMap),
               ),
               const SizedBox(height: 18),
               Expanded(
                 child: expenseState.hasError
-                    ? const _StateCard(
+                    ? const RecordsStateCard(
                         title: 'Unable to load records',
                         message:
                             'The transaction history is not available right now.',
@@ -205,11 +112,11 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                     : expenseState.isLoading && expenses.isEmpty
                     ? const Center(child: CircularProgressIndicator())
                     : filteredExpenses.isEmpty
-                    ? const _StateCard(
+                    ? const RecordsStateCard(
                         title: 'No matching transactions',
                         message: 'Try another filter or add a new expense.',
                       )
-                    : _ExpenseList(
+                    : RecordsExpenseList(
                         groupedExpenses: groupedExpenses,
                         accounts: accounts,
                         privacyModeEnabled: privacyModeEnabled,
@@ -219,52 +126,6 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
                             _openEditExpenseScreen(context, expense),
                         onDelete: (expense) =>
                             _confirmDeleteExpense(context, ref, expense),
-                    : ListView(
-                        children: groupedExpenses.entries
-                            .map((entry) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 18),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 10,
-                                      ),
-                                      child: Text(
-                                        _groupLabel(entry.key),
-                                        style: const TextStyle(
-                                          color: AppColors.primaryBlue,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                    ),
-                                    ...entry.value.map((expense) {
-                                      return TransactionCard(
-                                        expense: expense,
-                                        accountLabel: _accountLabelFor(
-                                          expense,
-                                          accounts,
-                                          accountMap,
-                                        ),
-                                        maskAmounts: privacyModeEnabled,
-                                        onEdit: () => _openEditExpenseScreen(
-                                          context,
-                                          expense,
-                                        ),
-                                        onDelete: () => _confirmDeleteExpense(
-                                          context,
-                                          ref,
-                                          expense,
-                                        ),
-                                      );
-                                    }),
-                                  ],
-                                ),
-                              );
-                            })
-                            .toList(growable: false),
                       ),
               ),
             ],
@@ -275,56 +136,6 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
   }
 
   List<ExpenseModel> _filterExpenses(List<ExpenseModel> expenses) {
-    final nowLocal = DateTime.now();
-    final todayLocal = DateUtils.dateOnly(nowLocal);
-
-    DateTime? startBoundLocal;
-    DateTime? endBoundLocal;
-
-    switch (_selectedFilter) {
-      case RecordsFilter.today:
-        startBoundLocal = todayLocal;
-        endBoundLocal = todayLocal.add(const Duration(days: 1));
-        break;
-      case RecordsFilter.week:
-        startBoundLocal = todayLocal.subtract(
-          Duration(days: nowLocal.weekday - 1),
-        );
-        endBoundLocal = todayLocal.add(const Duration(days: 1));
-        break;
-      case RecordsFilter.month:
-        startBoundLocal = DateTime(todayLocal.year, todayLocal.month, 1);
-        endBoundLocal = DateTime(todayLocal.year, todayLocal.month + 1, 1);
-        break;
-      case RecordsFilter.future:
-        startBoundLocal = todayLocal.add(const Duration(days: 1));
-        endBoundLocal = null;
-        break;
-      case RecordsFilter.all:
-        startBoundLocal = null;
-        endBoundLocal = null;
-        break;
-    }
-
-    final startBoundUtc = startBoundLocal?.toUtc();
-    final endBoundUtc = endBoundLocal?.toUtc();
-
-    final filterByAccount = _selectedAccountFilter != _allAccountsKey;
-
-    return expenses
-        .where((expense) {
-          if (filterByAccount && expense.accountId != _selectedAccountFilter) {
-            return false;
-          }
-
-          if (startBoundUtc != null && expense.date.isBefore(startBoundUtc)) {
-            return false;
-          }
-          if (endBoundUtc != null && !expense.date.isBefore(endBoundUtc)) {
-            return false;
-          }
-
-          return true;
     final now = DateTime.now();
     final today = DateUtils.dateOnly(now);
     final weekStart = today.subtract(Duration(days: now.weekday - 1));
@@ -393,7 +204,6 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     if (_selectedAccountFilter == _allAccountsKey) {
       return 'All accounts';
     }
-
     return accountMap[_selectedAccountFilter]?.name ?? 'Archived account';
   }
 
@@ -409,33 +219,31 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     return DateFormat('EEE, d MMM yyyy').format(date);
   }
 
-  String? _accountLabelFor(
-    ExpenseModel expense,
-    Map<String, AccountModel> accountMap,
-  ) {
+  String? _accountLabelFor(ExpenseModel expense, List<AccountModel> accounts) {
     if (expense.accountId == null) {
       return null;
     }
-
-    return accountMap[expense.accountId]?.name ?? 'Archived Account';
+    for (final a in accounts) {
+      if (a.id == expense.accountId) {
+        return a.name;
+      }
+    }
+    return 'Archived Account';
   }
 
   Future<void> _openEditExpenseScreen(
     BuildContext context,
     ExpenseModel expense,
   ) {
-    return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => AddExpenseScreen(
-          expenseId: expense.id,
-          initialAmount: expense.amount,
-          initialCategory: expense.category,
-          initialDate: expense.date.toLocal(),
-          initialNote: expense.note,
-          initialAccountId: expense.accountId,
-          initialType: expense.type,
-        ),
-      ),
+    return AppRoutes.pushEditExpense(
+      context,
+      expenseId: expense.id,
+      initialAmount: expense.amount,
+      initialCategory: expense.category,
+      initialDate: expense.date.toLocal(),
+      initialNote: expense.note,
+      initialAccountId: expense.accountId,
+      initialType: expense.type,
     );
   }
 
@@ -464,326 +272,5 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Transaction removed.')));
-  }
-}
-
-class _ExpenseList extends StatelessWidget {
-  const _ExpenseList({
-    required this.groupedExpenses,
-    required this.accounts,
-    required this.privacyModeEnabled,
-    required this.groupLabel,
-    required this.accountLabelFor,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  final SplayTreeMap<DateTime, List<ExpenseModel>> groupedExpenses;
-  final List<AccountModel> accounts;
-  final bool privacyModeEnabled;
-  final String Function(DateTime) groupLabel;
-  final String? Function(ExpenseModel, List<AccountModel>) accountLabelFor;
-  final void Function(ExpenseModel) onEdit;
-  final void Function(ExpenseModel) onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: groupedExpenses.entries
-          .map((entry) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      groupLabel(entry.key),
-                      style: const TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  ...entry.value.map((expense) {
-                    return TransactionCard(
-                      expense: expense,
-                      accountLabel: accountLabelFor(expense, accounts),
-                      maskAmounts: privacyModeEnabled,
-                      onEdit: () => onEdit(expense),
-                      onDelete: () => onDelete(expense),
-                    );
-                  }),
-                ],
-              ),
-            );
-          })
-          .toList(growable: false),
-    );
-  }
-}
-
-class _AccountDropdown extends StatelessWidget {
-  const _AccountDropdown({
-    required this.accounts,
-    required this.onAccountSelected,
-    required this.allAccountsKey,
-    required this.accountFilterLabel,
-  });
-
-  final List<AccountModel> accounts;
-  final ValueChanged<String> onAccountSelected;
-  final String allAccountsKey;
-  final String accountFilterLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: PopupMenuButton<String>(
-        color: Colors.white,
-        onSelected: onAccountSelected,
-        itemBuilder: (context) => <PopupMenuEntry<String>>[
-          PopupMenuItem<String>(
-            value: allAccountsKey,
-            child: const Text('All accounts'),
-          ),
-          ...accounts.map((account) {
-            return PopupMenuItem<String>(
-              value: account.id,
-              child: Text(account.name),
-            );
-          }),
-        ],
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: AppColors.cardShadow,
-                blurRadius: 18,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 18,
-                color: AppColors.primaryBlue,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                accountFilterLabel,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textMuted,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterChips extends StatelessWidget {
-  const _FilterChips({
-    required this.selectedFilter,
-    required this.onFilterSelected,
-    required this.labelForFilter,
-  });
-
-  final RecordsFilter selectedFilter;
-  final ValueChanged<RecordsFilter> onFilterSelected;
-  final String Function(RecordsFilter) labelForFilter;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 42,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: RecordsFilter.values
-            .map((filter) {
-              final isSelected = selectedFilter == filter;
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: ChoiceChip(
-                  label: Text(labelForFilter(filter)),
-                  selected: isSelected,
-                  onSelected: (_) => onFilterSelected(filter),
-                  selectedColor: AppColors.primaryBlue,
-                  backgroundColor: AppColors.lightBlueBg,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF48607E),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              );
-            })
-            .toList(growable: false),
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.filteredTotal,
-    required this.transactionCount,
-    required this.currency,
-    required this.privacyModeEnabled,
-  });
-
-  final double filteredTotal;
-  final int transactionCount;
-  final NumberFormat currency;
-  final bool privacyModeEnabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x1209386D),
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text(
-                  'Filtered Net',
-                  style: TextStyle(
-                    color: Color(0xFF0A6BE8),
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    formatSignedAmount(
-                      filteredTotal,
-                      currency,
-                      masked: privacyModeEnabled,
-                    ),
-                    style: TextStyle(
-                      color: filteredTotal >= 0
-                          ? const Color(0xFF1DAA63)
-                          : const Color(0xFFFF446D),
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF5FF),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: <Widget>[
-                const Text(
-                  'TXNS',
-                  style: TextStyle(
-                    color: Color(0xFF7A8BA8),
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '$transactionCount',
-                  style: const TextStyle(
-                    color: Color(0xFF0A6BE8),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StateCard extends StatelessWidget {
-  const _StateCard({required this.title, required this.message});
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x1209386D),
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textDark,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontWeight: FontWeight.w600,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

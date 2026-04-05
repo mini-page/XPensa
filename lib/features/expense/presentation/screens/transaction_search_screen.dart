@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../routes/app_routes.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
@@ -9,7 +10,6 @@ import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/ui_feedback.dart';
-import 'add_expense_screen.dart';
 
 class TransactionSearchScreen extends ConsumerStatefulWidget {
   const TransactionSearchScreen({super.key});
@@ -122,18 +122,15 @@ class _TransactionSearchScreenState
     BuildContext context,
     ExpenseModel expense,
   ) {
-    return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => AddExpenseScreen(
-          expenseId: expense.id,
-          initialAmount: expense.amount,
-          initialCategory: expense.category,
-          initialDate: expense.date.toLocal(),
-          initialNote: expense.note,
-          initialAccountId: expense.accountId,
-          initialType: expense.type,
-        ),
-      ),
+    return AppRoutes.pushEditExpense(
+      context,
+      expenseId: expense.id,
+      initialAmount: expense.amount,
+      initialCategory: expense.category,
+      initialDate: expense.date.toLocal(),
+      initialNote: expense.note,
+      initialAccountId: expense.accountId,
+      initialType: expense.type,
     );
   }
 

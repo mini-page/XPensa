@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../screens/settings_screen.dart';
+import '../../../../routes/app_routes.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -30,9 +30,7 @@ class AppDrawer extends ConsumerWidget {
                   subtitle: 'Preferences & Backup',
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                    );
+                    AppRoutes.pushSettings(context);
                   },
                 ),
               ],

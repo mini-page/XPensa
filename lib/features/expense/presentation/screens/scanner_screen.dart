@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'add_expense_screen.dart';
+import '../../../../routes/app_routes.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -57,12 +57,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (!mounted) return;
 
     // Navigate to AddExpenseScreen with parsed data
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) =>
-            AddExpenseScreen(initialAmount: amount, initialNote: note),
-      ),
-    );
+    AppRoutes.replaceWithAddExpense(context, initialAmount: amount, initialNote: note);
   }
 
   @override

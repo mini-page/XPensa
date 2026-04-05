@@ -10,6 +10,7 @@ import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
 import '../widgets/account_icons.dart';
 import '../widgets/expense_category.dart';
+import 'add_expense/add_expense_widgets.dart';
 
 class AddExpenseScreen extends ConsumerStatefulWidget {
   const AddExpenseScreen({
@@ -121,7 +122,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  _TopCircleButton(
+                  AddExpenseTopButton(
                     icon: Icons.close_rounded,
                     onTap: () => Navigator.of(context).pop(),
                     tooltip: 'Close',
@@ -135,12 +136,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     ),
                     child: Row(
                       children: <Widget>[
-                        _ModeTab(
+                        AddExpenseModeTab(
                           label: 'Expense',
                           isSelected: _selectedType == TransactionType.expense,
                           onTap: () => _switchType(TransactionType.expense),
                         ),
-                        _ModeTab(
+                        AddExpenseModeTab(
                           label: 'Income',
                           isSelected: _selectedType == TransactionType.income,
                           onTap: () => _switchType(TransactionType.income),
@@ -149,7 +150,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     ),
                   ),
                   const Spacer(),
-                  _TopCircleButton(
+                  AddExpenseTopButton(
                     icon: Icons.calendar_month_rounded,
                     color: const Color(0xFF45D19A),
                     onTap: _pickDate,
@@ -181,7 +182,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  _TopCircleButton(
+                  AddExpenseTopButton(
                     icon: Icons.backspace_outlined,
                     onTap: _backspace,
                     tooltip: 'Backspace',
@@ -220,24 +221,24 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: <Widget>[
-                  _InfoCapsule(
+                  AddExpenseInfoCapsule(
                     icon: Icons.today_outlined,
                     label: DateFormat('EEE, d MMM').format(_selectedDate),
                     onTap: _pickDate,
                   ),
-                  _InfoCapsule(
+                  AddExpenseInfoCapsule(
                     icon: Icons.schedule_rounded,
                     label: DateFormat('HH:mm').format(_selectedDate),
                     onTap: _pickTime,
                   ),
-                  _SelectionCapsule(
+                  AddExpenseSelectionCapsule(
                     icon: selectedCategory.icon,
                     iconColor: selectedCategory.color,
                     label: selectedCategory.name,
                     background: selectedCategory.color.withValues(alpha: 0.13),
                     onTap: _pickCategory,
                   ),
-                  _SelectionCapsule(
+                  AddExpenseSelectionCapsule(
                     icon: selectedAccount == null
                         ? Icons.account_balance_wallet_outlined
                         : resolveAccountIcon(selectedAccount.iconKey),
@@ -271,8 +272,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     '.',
                     '0',
                   ])
-                    _KeypadButton(label: key, onTap: () => _appendValue(key)),
-                  _KeypadButton(
+                    AddExpenseKeypadButton(label: key, onTap: () => _appendValue(key)),
+                  AddExpenseKeypadButton(
                     label: '✓',
                     isPrimary: true,
                     onTap: _saveExpense,
@@ -594,204 +595,4 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     }
     Navigator.of(context).pop();
   }
-}
-
-class _TopCircleButton extends StatelessWidget {
-  const _TopCircleButton({
-    required this.icon,
-    required this.onTap,
-    required this.tooltip,
-    this.color = const Color(0xFF8B99B0),
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final String tooltip;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFF5F7FB),
-      shape: const CircleBorder(),
-      child: Tooltip(
-        message: tooltip,
-        child: Semantics(
-          button: true,
-          label: tooltip,
-          child: InkWell(
-            onTap: onTap,
-            customBorder: const CircleBorder(),
-            child: SizedBox(
-              width: 42,
-              height: 42,
-              child: Icon(icon, color: AppColors.textMuted),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeTab extends StatelessWidget {
-  const _ModeTab({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppColors.textDark : AppColors.textMuted,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoCapsule extends StatelessWidget {
-  const _InfoCapsule({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFF7F8FB),
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(icon, size: 18, color: AppColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SelectionCapsule extends StatelessWidget {
-  const _SelectionCapsule({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.background,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final Color background;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(icon, size: 16, color: iconColor),
-              const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 100),
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: iconColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _KeypadButton extends StatelessWidget {
-  const _KeypadButton({
-    required this.label,
-    required this.onTap,
-    this.isPrimary = false,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: isPrimary ? const Color(0xFF383838) : AppColors.surfaceLight,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isPrimary ? Colors.white : AppColors.textDark,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-extension on TransactionType {
-  bool get isIncome => this == TransactionType.income;
 }

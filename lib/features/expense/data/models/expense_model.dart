@@ -3,7 +3,7 @@ import 'dart:developer' as dev;
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
-const bool kDebugMode = !bool.fromEnvironment('dart.vm.product');
+const bool _kDebugMode = !bool.fromEnvironment('dart.vm.product');
 enum TransactionType { expense, income }
 
 extension TransactionTypeCodec on TransactionType {
@@ -130,7 +130,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       final storedAccountId = reader.readString();
       accountId = storedAccountId.isEmpty ? null : storedAccountId;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
+      if (_kDebugMode) {
         dev.log(
           'Failed to parse accountId from storage',
           error: e,
@@ -145,7 +145,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
     try {
       type = TransactionTypeCodec.fromStorageValue(reader.readString());
     } catch (e, stackTrace) {
-      if (kDebugMode) {
+      if (_kDebugMode) {
         dev.log(
           'Failed to parse TransactionType from storage',
           error: e,
