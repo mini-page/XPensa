@@ -461,11 +461,18 @@ class _AddCategoryCard extends StatelessWidget {
     return Material(
       color: const Color(0xFFD8DFE9),
       borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: const Center(
-          child: Icon(Icons.add_rounded, color: AppColors.textMuted, size: 40),
+      child: Semantics(
+        button: true,
+        label: 'Add new category',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          child: const Center(
+            child: Tooltip(
+              message: 'Add new category',
+              child: Icon(Icons.add_rounded, color: AppColors.textMuted, size: 40),
+            ),
+          ),
         ),
       ),
     );
