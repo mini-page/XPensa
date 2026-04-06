@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'core/theme/app_colors.dart';
+import 'core/theme/app_theme.dart';
 import 'core/utils/background_backup.dart';
 import 'core/utils/hive_bootstrap.dart';
 import 'features/expense/presentation/provider/preferences_providers.dart';
@@ -40,27 +40,8 @@ class XPensaApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'XPensa',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF3F7FC),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryBlue,
-          primary: AppColors.primaryBlue,
-          secondary: AppColors.danger,
-          surface: Colors.white,
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFF0E1626),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryBlueLight,
-          brightness: Brightness.dark,
-          primary: AppColors.primaryBlueLight,
-          secondary: const Color(0xFFFF6C89),
-          surface: const Color(0xFF182234),
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: themeMode,
       home: preferencesAsync.when(
         data: (_) =>

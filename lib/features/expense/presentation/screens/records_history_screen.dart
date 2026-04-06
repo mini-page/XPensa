@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_routes.dart';
@@ -43,13 +42,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     final filteredExpenses = _filterExpenses(expenses);
     final groupedExpenses = _groupExpenses(filteredExpenses);
 
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
-    final currency = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currency = ref.watch(currencyFormatProvider);
     final filteredTotal = filteredExpenses.fold<double>(
       0,
       (sum, expense) => sum + expense.signedAmount,

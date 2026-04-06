@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import 'stats/stats_widgets.dart';
@@ -17,14 +16,8 @@ class StatsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(statsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
 
-    final currencyFormat = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currencyFormat = ref.watch(currencyFormatProvider);
 
     return SafeArea(
       child: SingleChildScrollView(

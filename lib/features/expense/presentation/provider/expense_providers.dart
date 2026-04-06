@@ -267,13 +267,6 @@ class ExpenseStats {
 
   factory ExpenseStats.fromExpenses(List<ExpenseModel> expenses) {
     final now = DateTime.now();
-    final monthExpenses = expenses
-        .where((expense) {
-          final localDate = expense.date.toLocal();
-          return localDate.year == now.year && localDate.month == now.month;
-        })
-        .toList(growable: false);
-
     final int currentYear = now.year;
     final int currentMonth = now.month;
     final int currentDay = now.day;

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_tokens.dart';
+import '../../../../../shared/widgets/app_pill_switch.dart';
 import '../../../data/models/account_model.dart';
 import '../../provider/account_providers.dart';
 import '../../provider/expense_providers.dart';
@@ -33,82 +34,10 @@ class AccountsToolsTabView extends StatelessWidget {
 }
 
 /// Two-option pill toggle used for the Accounts / Tools tab.
-class AccountsPillSwitch extends StatelessWidget {
-  const AccountsPillSwitch({
-    super.key,
-    required this.leftLabel,
-    required this.rightLabel,
-    required this.isRightSelected,
-    required this.onChanged,
-  });
-
-  final String leftLabel;
-  final String rightLabel;
-  final bool isRightSelected;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: <Widget>[
-          _AccountsSwitchOption(
-            label: leftLabel,
-            isSelected: !isRightSelected,
-            onTap: () => onChanged(false),
-          ),
-          _AccountsSwitchOption(
-            label: rightLabel,
-            isSelected: isRightSelected,
-            onTap: () => onChanged(true),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AccountsSwitchOption extends StatelessWidget {
-  const _AccountsSwitchOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryBlue : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textMuted,
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+///
+/// Thin wrapper around the shared [AppPillSwitch] that preserves the
+/// existing call-site API.
+typedef AccountsPillSwitch = AppPillSwitch;
 
 /// A labelled summary chip shown in the net-worth hero card.
 class AccountsSummaryChip extends StatelessWidget {

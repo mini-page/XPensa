@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -19,14 +18,8 @@ class RecurringToolView extends ConsumerWidget {
     final subscriptionState = ref.watch(recurringSubscriptionListProvider);
     final subscriptions =
         subscriptionState.value ?? const <RecurringSubscriptionModel>[];
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
 
-    final currency = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currency = ref.watch(currencyFormatProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
