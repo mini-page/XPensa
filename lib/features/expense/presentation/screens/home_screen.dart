@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_routes.dart';
@@ -44,14 +43,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final accountsMap = {for (final a in accounts) a.id: a};
     final stats = ref.watch(statsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
 
-    final currencyFormat = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currencyFormat = ref.watch(currencyFormatProvider);
     final visibleDates = List<DateTime>.generate(
       7,
       (index) => _windowStart.add(Duration(days: index)),

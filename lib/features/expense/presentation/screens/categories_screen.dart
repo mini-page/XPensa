@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import 'categories/categories_widgets.dart';
@@ -28,14 +27,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     final stats = ref.watch(statsProvider);
     final budgetState = ref.watch(budgetTargetsProvider);
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
 
-    final currency = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currency = ref.watch(currencyFormatProvider);
     final budgets = budgetState.value ?? defaultBudgetTargets;
 
     final categoryCards = _showIncome

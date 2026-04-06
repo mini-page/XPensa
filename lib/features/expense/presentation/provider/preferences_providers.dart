@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../../data/datasource/preferences_local_datasource.dart';
@@ -48,6 +49,16 @@ final localeProvider = Provider<String>((ref) {
 final currencySymbolProvider = Provider<String>((ref) {
   return ref.watch(appPreferencesProvider).value?.currencySymbol ??
       AppPreferencesModel.defaults.currencySymbol;
+});
+
+/// A [NumberFormat] pre-configured with the user's locale and currency symbol,
+/// using 0 decimal digits. Use this for displaying whole-number currency amounts.
+final currencyFormatProvider = Provider<NumberFormat>((ref) {
+  return NumberFormat.currency(
+    locale: ref.watch(localeProvider),
+    symbol: ref.watch(currencySymbolProvider),
+    decimalDigits: 0,
+  );
 });
 
 final isOnboardingCompletedProvider = Provider<bool>((ref) {

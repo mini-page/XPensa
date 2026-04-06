@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import 'accounts/accounts_widgets.dart';
 import '../provider/preferences_providers.dart';
@@ -17,14 +16,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final locale = ref.watch(localeProvider);
-    final symbol = ref.watch(currencySymbolProvider);
-
-    final currency = NumberFormat.currency(
-      locale: locale,
-      symbol: symbol,
-      decimalDigits: 0,
-    );
+    final currency = ref.watch(currencyFormatProvider);
 
     return SafeArea(
       child: CustomScrollView(
