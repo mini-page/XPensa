@@ -24,6 +24,7 @@ XPensa/
 │   │   ├── constants/app_assets.dart       # Asset path constants
 │   │   ├── theme/app_colors.dart           # Brand + semantic colours
 │   │   ├── theme/app_tokens.dart           # Spacing, radii, text-styles
+│   │   ├── theme/app_theme.dart            # AppTheme.light() / AppTheme.dark() ThemeData factories
 │   │   └── utils/
 │   │       ├── background_backup.dart      # Workmanager callback dispatcher
 │   │       ├── context_extensions.dart     # BuildContext helpers
@@ -63,7 +64,9 @@ XPensa/
 │   │   └── app_routes.dart                 # Centralised navigation helpers
 │   ├── shared/
 │   │   └── widgets/
-│   │       └── floating_nav_bar.dart       # FloatingNavBar + NavBarItem (extracted from AppShell)
+│   │       ├── floating_nav_bar.dart       # FloatingNavBar + NavBarItem (extracted from AppShell)
+│   │       ├── placeholder_screen.dart     # Generic "coming soon" stub
+│   │       └── app_pill_switch.dart        # AppPillSwitch – shared two-option pill toggle
 │   └── main.dart
 ├── pubspec.yaml
 ├── analysis_options.yaml
@@ -255,9 +258,12 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
 - Assets organised: `assets/images/` for runtime images, `assets/icon/` for build icons
 
 - `PlaceholderScreen` promoted to `lib/shared/widgets/placeholder_screen.dart` (cross-feature empty-state UI)
+- `AppPillSwitch` created in `lib/shared/widgets/app_pill_switch.dart`; replaces duplicate `AccountsPillSwitch` / `CategoriesPillSwitch` (now `typedef` aliases)
+- `AppTheme.light()` / `AppTheme.dark()` centralised in `lib/core/theme/app_theme.dart`; `main.dart` uses `AppTheme` instead of inline `ThemeData`
 
 ### Recommended Next Steps (future sessions)
 1. **Physical feature migration** – move providers and data layer files into the new feature namespaces (`lib/features/accounts/`, etc.) once `flutter analyze` is available to validate import changes
+2. **`AppButton` widget** – abstract the repeated full-width `ElevatedButton` pattern (onboarding, editor sheets) into a shared `lib/shared/widgets/app_button.dart`
 
 ---
 
@@ -351,4 +357,5 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
 | 2026-04-04 | Created feature-namespace re-export barrels: `lib/features/accounts/accounts.dart`, `analytics/analytics.dart`, `settings/settings.dart`, `categories/categories.dart` | 4 new files |
 | 2026-04-04 | Created `lib/features/recurring/recurring.dart` re-export barrel (widgets, providers, model) | 1 new file |
 | 2026-04-04 | Created `lib/features/transactions/transactions.dart` re-export barrel (add-expense + records-history + search screens + providers + model) | 1 new file |
-| 2026-04-04 | Moved `PlaceholderScreen` → `lib/shared/widgets/placeholder_screen.dart`; removed from `screens/` barrel; added to `shared/widgets/index.dart` | 3 files changed |
+| 2026-04-06 | Created `lib/shared/widgets/app_pill_switch.dart` – unified `AppPillSwitch` widget replacing duplicate `AccountsPillSwitch` and `CategoriesPillSwitch`; both now resolved as `typedef` aliases | `app_pill_switch.dart`, `accounts_widgets.dart`, `categories_widgets.dart`, `shared/widgets/index.dart` |
+| 2026-04-06 | Created `lib/core/theme/app_theme.dart` – centralised `AppTheme.light()` / `AppTheme.dark()` factory replacing inline `ThemeData` in `main.dart`; `core/theme/index.dart` updated | `app_theme.dart`, `main.dart`, `core/theme/index.dart` |

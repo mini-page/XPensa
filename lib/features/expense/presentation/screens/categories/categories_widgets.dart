@@ -1,84 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../shared/widgets/app_pill_switch.dart';
 
 /// Two-option pill toggle for switching between expense/income categories.
-class CategoriesPillSwitch extends StatelessWidget {
-  const CategoriesPillSwitch({
-    super.key,
-    required this.leftLabel,
-    required this.rightLabel,
-    required this.isRightSelected,
-    required this.onChanged,
-  });
-
-  final String leftLabel;
-  final String rightLabel;
-  final bool isRightSelected;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: <Widget>[
-          _CategoriesSwitchOption(
-            label: leftLabel,
-            isSelected: !isRightSelected,
-            onTap: () => onChanged(false),
-          ),
-          _CategoriesSwitchOption(
-            label: rightLabel,
-            isSelected: isRightSelected,
-            onTap: () => onChanged(true),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoriesSwitchOption extends StatelessWidget {
-  const _CategoriesSwitchOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryBlue : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textMuted,
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+///
+/// Thin wrapper around the shared [AppPillSwitch] that preserves the
+/// existing call-site API.
+typedef CategoriesPillSwitch = AppPillSwitch;
 
 /// A single category grid cell showing spend amount and optional budget detail.
 class CategoryGridCard extends StatelessWidget {
