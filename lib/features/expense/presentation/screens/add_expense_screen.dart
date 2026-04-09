@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../shared/widgets/app_button.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
@@ -160,35 +161,23 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ],
               ),
               const SizedBox(height: 28),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        amountLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: _selectedType.isIncome
-                              ? AppColors.success
-                              : AppColors.textDark,
-                          fontSize: 52,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.5,
-                        ),
-                      ),
+              Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    amountLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _selectedType.isIncome
+                          ? AppColors.success
+                          : AppColors.textDark,
+                      fontSize: 52,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1.5,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  AddExpenseTopButton(
-                    icon: Icons.backspace_outlined,
-                    onTap: _backspace,
-                    tooltip: 'Backspace',
-                  ),
-                ],
+                ),
               ),
               const SizedBox(height: 14),
               Container(
@@ -251,7 +240,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.05,
+                childAspectRatio: 1.3,
                 children: <Widget>[
                   for (final key in <String>[
                     '1',
@@ -266,13 +255,21 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     '.',
                     '0',
                   ])
-                    AddExpenseKeypadButton(label: key, onTap: () => _appendValue(key)),
+                    AddExpenseKeypadButton(
+                      label: key,
+                      onTap: () => _appendValue(key),
+                    ),
                   AddExpenseKeypadButton(
-                    label: '✓',
-                    isPrimary: true,
-                    onTap: _saveExpense,
+                    label: '',
+                    isBackspace: true,
+                    onTap: _backspace,
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              AppButton(
+                label: 'Save',
+                onPressed: _saveExpense,
               ),
             ],
           ),

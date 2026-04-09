@@ -341,36 +341,44 @@ class _QuickBarSegment extends StatelessWidget {
   }
 }
 
-/// A single keypad button (digit, decimal point, or confirm).
+/// A single keypad button (digit, decimal point, or backspace).
 class AddExpenseKeypadButton extends StatelessWidget {
   const AddExpenseKeypadButton({
     super.key,
     required this.label,
     required this.onTap,
-    this.isPrimary = false,
+    this.isBackspace = false,
   });
 
   final String label;
   final VoidCallback onTap;
-  final bool isPrimary;
+
+  /// When true the button renders a backspace icon instead of [label].
+  final bool isBackspace;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isPrimary ? const Color(0xFF383838) : AppColors.surfaceLight,
+      color: AppColors.surfaceLight,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isPrimary ? Colors.white : AppColors.textDark,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          child: isBackspace
+              ? const Icon(
+                  Icons.backspace_outlined,
+                  color: AppColors.textDark,
+                  size: 26,
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
         ),
       ),
     );
