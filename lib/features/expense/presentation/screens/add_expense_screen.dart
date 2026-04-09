@@ -41,7 +41,8 @@ class AddExpenseScreen extends ConsumerStatefulWidget {
 class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   late final TextEditingController _noteController;
   late String _amountText;
-  late String _selectedCategory;
+  late String _selectedExpenseCategory;
+  late String _selectedIncomeCategory;
   late DateTime _selectedDate;
   late TransactionType _selectedType;
   String? _selectedAccountId;
@@ -67,8 +68,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     );
     _selectedType = widget.initialType;
     _amountText = widget.initialAmount?.toStringAsFixed(0) ?? '0';
-    _selectedCategory =
-        widget.initialCategory ?? _categoriesForType(_selectedType).first.name;
+    _selectedExpenseCategory = (_selectedType == TransactionType.expense
+            ? widget.initialCategory
+            : null) ??
+        expenseCategories.first.name;
+    _selectedIncomeCategory = (_selectedType == TransactionType.income
+            ? widget.initialCategory
+            : null) ??
+        incomeCategories.first.name;
     _selectedAccountId = widget.initialAccountId;
     _hasExplicitAccountChoice =
         widget.initialAccountId != null || widget.isEditing;
@@ -97,14 +104,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       });
     }
 
-    final categories = _categoriesForType(_selectedType);
-    if (!categories.any((category) => category.name == _selectedCategory)) {
-      _selectedCategory = categories.first.name;
-    }
-    final selectedCategory = resolveCategory(
-      _selectedCategory,
-      income: _selectedType.isIncome,
-    );
+    final selectedExpenseCat = resolveExpenseCategory(_selectedExpenseCategory);
+    final selectedIncomeCat = resolveIncomeCategory(_selectedIncomeCategory);
     final selectedAccount = _resolveSelectedAccount(accounts);
     final amount = double.tryParse(_amountText) ?? 0;
     final locale = ref.watch(localeProvider);
@@ -216,39 +217,32 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   AddExpenseInfoCapsule(
                     icon: Icons.today_outlined,
                     label: DateFormat('EEE, d MMM').format(_selectedDate),
                     onTap: _pickDate,
                   ),
+                  const SizedBox(width: 8),
                   AddExpenseInfoCapsule(
                     icon: Icons.schedule_rounded,
                     label: DateFormat('HH:mm').format(_selectedDate),
                     onTap: _pickTime,
                   ),
-                  AddExpenseSelectionCapsule(
-                    icon: selectedCategory.icon,
-                    iconColor: selectedCategory.color,
-                    label: selectedCategory.name,
-                    background: selectedCategory.color.withValues(alpha: 0.13),
-                    onTap: _pickCategory,
-                  ),
-                  AddExpenseSelectionCapsule(
-                    icon: selectedAccount == null
-                        ? Icons.account_balance_wallet_outlined
-                        : resolveAccountIcon(selectedAccount.iconKey),
-                    iconColor: AppColors.primaryBlue,
-                    label: selectedAccount?.name ?? 'No account',
-                    background: AppColors.lightBlueBg,
-                    onTap:
-                        accounts.isEmpty ? null : () => _pickAccount(accounts),
-                  ),
                 ],
+              ),
+              const SizedBox(height: 14),
+              AddExpenseQuickBar(
+                selectedAccount: selectedAccount,
+                expenseCategory: selectedExpenseCat,
+                incomeCategory: selectedIncomeCat,
+                selectedType: _selectedType,
+                onTapAccount: () => _pickAccount(accounts),
+                onTapExpenseCategory: _tapExpenseCategory,
+                onTapIncomeCategory: _tapIncomeCategory,
+                accountEnabled: accounts.isNotEmpty,
               ),
               const Spacer(),
               GridView.count(
@@ -285,10 +279,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         ),
       ),
     );
-  }
-
-  List<ExpenseCategory> _categoriesForType(TransactionType type) {
-    return type.isIncome ? incomeCategories : expenseCategories;
   }
 
   AccountModel? _resolveSelectedAccount(List<AccountModel> accounts) {
@@ -345,14 +335,26 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     if (_selectedType == type) {
       return;
     }
-    final categories = _categoriesForType(type);
     setState(() {
       _selectedType = type;
-      _selectedCategory = categories.first.name;
     });
   }
 
-  Future<void> _pickCategory() async {
+  Future<void> _tapExpenseCategory() async {
+    if (_selectedType != TransactionType.expense) {
+      setState(() => _selectedType = TransactionType.expense);
+    }
+    await _pickExpenseCategory();
+  }
+
+  Future<void> _tapIncomeCategory() async {
+    if (_selectedType != TransactionType.income) {
+      setState(() => _selectedType = TransactionType.income);
+    }
+    await _pickIncomeCategory();
+  }
+
+  Future<void> _pickExpenseCategory() async {
     final selected = await showModalBottomSheet<ExpenseCategory>(
       context: context,
       backgroundColor: Colors.white,
@@ -360,7 +362,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (context) {
-        final categories = _categoriesForType(_selectedType);
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -376,13 +377,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Align(
+                const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _selectedType.isIncome
-                        ? 'Select income category'
-                        : 'Select expense category',
-                    style: const TextStyle(
+                    'Select expense category',
+                    style: TextStyle(
                       color: Color(0xFF111A33),
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -390,7 +389,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                ...categories.map((category) {
+                ...expenseCategories.map((category) {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
@@ -401,7 +400,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       category.name,
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    trailing: category.name == _selectedCategory
+                    trailing: category.name == _selectedExpenseCategory
                         ? const Icon(
                             Icons.check_rounded,
                             color: Color(0xFF0A6BE8),
@@ -419,7 +418,74 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     if (selected == null) {
       return;
     }
-    setState(() => _selectedCategory = selected.name);
+    setState(() => _selectedExpenseCategory = selected.name);
+  }
+
+  Future<void> _pickIncomeCategory() async {
+    final selected = await showModalBottomSheet<ExpenseCategory>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD7DFEA),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Select income category',
+                    style: TextStyle(
+                      color: Color(0xFF111A33),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ...incomeCategories.map((category) {
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      backgroundColor: category.color.withValues(alpha: 0.15),
+                      child: Icon(category.icon, color: category.color),
+                    ),
+                    title: Text(
+                      category.name,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    trailing: category.name == _selectedIncomeCategory
+                        ? const Icon(
+                            Icons.check_rounded,
+                            color: Color(0xFF0A6BE8),
+                          )
+                        : null,
+                    onTap: () => Navigator.of(context).pop(category),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (selected == null) {
+      return;
+    }
+    setState(() => _selectedIncomeCategory = selected.name);
   }
 
   Future<void> _pickAccount(List<AccountModel> accounts) async {
@@ -574,7 +640,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       await ref.read(expenseControllerProvider).updateExpense(
             id: widget.expenseId!,
             amount: amount,
-            category: _selectedCategory,
+            category: _selectedType.isIncome
+                ? _selectedIncomeCategory
+                : _selectedExpenseCategory,
             date: _selectedDate,
             note: _noteController.text,
             accountId: effectiveAccountId,
@@ -583,7 +651,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     } else {
       await ref.read(expenseControllerProvider).addExpense(
             amount: amount,
-            category: _selectedCategory,
+            category: _selectedType.isIncome
+                ? _selectedIncomeCategory
+                : _selectedExpenseCategory,
             date: _selectedDate,
             note: _noteController.text,
             accountId: effectiveAccountId,
