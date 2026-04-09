@@ -114,6 +114,28 @@ class ExpenseController {
     _refreshState();
   }
 
+  Future<void> addTransfer({
+    required double amount,
+    required String fromAccountId,
+    required String toAccountId,
+    required DateTime date,
+    required String note,
+  }) async {
+    final transfer = ExpenseModel.create(
+      amount: amount,
+      category: 'Transfer',
+      date: date,
+      note: note.trim(),
+      accountId: fromAccountId,
+      toAccountId: toAccountId,
+      type: TransactionType.transfer,
+    );
+
+    await _applyBalanceAdjustments(nextExpense: transfer);
+    await _expenseRepository.saveExpense(transfer);
+    _refreshState();
+  }
+
   Future<void> updateExpense({
     required String id,
     required double amount,
@@ -171,26 +193,46 @@ class ExpenseController {
     };
     final pendingUpdates = <String, AccountModel>{};
 
-    if (previousExpense?.accountId case final String accountId) {
+    void adjustBalance(String accountId, double delta) {
       final account = pendingUpdates[accountId] ?? accountsById[accountId];
       if (account != null) {
-        final delta = previousExpense!.isIncome
-            ? -previousExpense.amount
-            : previousExpense.amount;
-        pendingUpdates[accountId] = account.copyWith(
-          balance: account.balance + delta,
+        pendingUpdates[accountId] =
+            account.copyWith(balance: account.balance + delta);
+      }
+    }
+
+    // Reverse the effect of the previous transaction.
+    if (previousExpense != null) {
+      if (previousExpense.type == TransactionType.transfer) {
+        if (previousExpense.accountId case final String fromId) {
+          adjustBalance(fromId, previousExpense.amount);
+        }
+        if (previousExpense.toAccountId case final String toId) {
+          adjustBalance(toId, -previousExpense.amount);
+        }
+      } else if (previousExpense.accountId case final String accountId) {
+        adjustBalance(
+          accountId,
+          previousExpense.isIncome
+              ? -previousExpense.amount
+              : previousExpense.amount,
         );
       }
     }
 
-    if (nextExpense?.accountId case final String accountId) {
-      final account = pendingUpdates[accountId] ?? accountsById[accountId];
-      if (account != null) {
-        final delta = nextExpense!.isIncome
-            ? nextExpense.amount
-            : -nextExpense.amount;
-        pendingUpdates[accountId] = account.copyWith(
-          balance: account.balance + delta,
+    // Apply the effect of the next (new/updated) transaction.
+    if (nextExpense != null) {
+      if (nextExpense.type == TransactionType.transfer) {
+        if (nextExpense.accountId case final String fromId) {
+          adjustBalance(fromId, -nextExpense.amount);
+        }
+        if (nextExpense.toAccountId case final String toId) {
+          adjustBalance(toId, nextExpense.amount);
+        }
+      } else if (nextExpense.accountId case final String accountId) {
+        adjustBalance(
+          accountId,
+          nextExpense.isIncome ? nextExpense.amount : -nextExpense.amount,
         );
       }
     }
@@ -282,6 +324,10 @@ class ExpenseStats {
     double todayIncomeTotal = 0;
 
     for (final expense in expenses) {
+      // Transfers are balance-neutral and excluded from income/expense stats.
+      if (expense.type == TransactionType.transfer) {
+        continue;
+      }
       final localDate = expense.date.toLocal();
       if (localDate.year == currentYear && localDate.month == currentMonth) {
         transactionCount++;

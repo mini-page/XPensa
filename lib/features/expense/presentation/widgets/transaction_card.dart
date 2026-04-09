@@ -41,8 +41,11 @@ class TransactionCard extends ConsumerWidget {
       expense.category,
       income: expense.isIncome,
     );
-    final signedPrefix = expense.isIncome ? '+' : '-';
-    final amountColor = expense.isIncome ? AppColors.success : AppColors.danger;
+    final isTransfer = expense.type == TransactionType.transfer;
+    final signedPrefix = isTransfer ? '↔' : (expense.isIncome ? '+' : '-');
+    final amountColor = isTransfer
+        ? AppColors.primaryBlue
+        : (expense.isIncome ? AppColors.success : AppColors.danger);
     final sourceLabel = accountLabel?.trim().isNotEmpty ?? false
         ? accountLabel!
         : expense.accountId == null

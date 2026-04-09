@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 const bool _kDebugMode = !bool.fromEnvironment('dart.vm.product');
-enum TransactionType { expense, income }
+enum TransactionType { expense, income, transfer }
 
 extension TransactionTypeCodec on TransactionType {
   String get storageValue {
@@ -13,6 +13,8 @@ extension TransactionTypeCodec on TransactionType {
         return 'expense';
       case TransactionType.income:
         return 'income';
+      case TransactionType.transfer:
+        return 'transfer';
     }
   }
 
@@ -20,6 +22,8 @@ extension TransactionTypeCodec on TransactionType {
     switch (value) {
       case 'income':
         return TransactionType.income;
+      case 'transfer':
+        return TransactionType.transfer;
       default:
         return TransactionType.expense;
     }
@@ -34,6 +38,7 @@ class ExpenseModel {
     required DateTime date,
     required this.note,
     this.accountId,
+    this.toAccountId,
     this.type = TransactionType.expense,
   }) : date = date.toUtc() {
     if (id.isEmpty) {
@@ -61,6 +66,7 @@ class ExpenseModel {
     required DateTime date,
     String note = '',
     String? accountId,
+    String? toAccountId,
     TransactionType type = TransactionType.expense,
   }) {
     return ExpenseModel(
@@ -70,6 +76,8 @@ class ExpenseModel {
       date: date,
       note: note.trim(),
       accountId: accountId?.trim().isEmpty ?? true ? null : accountId?.trim(),
+      toAccountId:
+          toAccountId?.trim().isEmpty ?? true ? null : toAccountId?.trim(),
       type: type,
     );
   }
@@ -80,11 +88,22 @@ class ExpenseModel {
   final DateTime date;
   final String note;
   final String? accountId;
+
+  /// Destination account for [TransactionType.transfer] records.
+  final String? toAccountId;
   final TransactionType type;
 
   bool get isIncome => type == TransactionType.income;
 
-  double get signedAmount => isIncome ? amount : -amount;
+  /// Returns a signed amount for balance calculations.
+  /// Transfers are balance-neutral at the record level (balance is adjusted
+  /// per-account inside [ExpenseController.addTransfer]), so they return 0.
+  double get signedAmount {
+    if (type == TransactionType.transfer) {
+      return 0;
+    }
+    return isIncome ? amount : -amount;
+  }
 
   ExpenseModel copyWith({
     String? id,
@@ -94,6 +113,8 @@ class ExpenseModel {
     String? note,
     String? accountId,
     bool clearAccountId = false,
+    String? toAccountId,
+    bool clearToAccountId = false,
     TransactionType? type,
   }) {
     return ExpenseModel(
@@ -103,6 +124,8 @@ class ExpenseModel {
       date: date ?? this.date,
       note: note ?? this.note,
       accountId: clearAccountId ? null : accountId ?? this.accountId,
+      toAccountId:
+          clearToAccountId ? null : toAccountId ?? this.toAccountId,
       type: type ?? this.type,
     );
   }
@@ -156,6 +179,14 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       type = TransactionType.expense;
     }
 
+    String? toAccountId;
+    try {
+      final stored = reader.readString();
+      toAccountId = stored.isEmpty ? null : stored;
+    } catch (_) {
+      toAccountId = null;
+    }
+
     return ExpenseModel(
       id: id,
       amount: amount,
@@ -163,6 +194,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       date: date,
       note: note,
       accountId: accountId,
+      toAccountId: toAccountId,
       type: type,
     );
   }
@@ -176,6 +208,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeInt(obj.date.millisecondsSinceEpoch)
       ..writeString(obj.note)
       ..writeString(obj.accountId ?? '')
-      ..writeString(obj.type.storageValue);
+      ..writeString(obj.type.storageValue)
+      ..writeString(obj.toAccountId ?? '');
   }
 }

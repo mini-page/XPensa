@@ -6,9 +6,10 @@ import '../../../data/models/expense_model.dart';
 import '../../widgets/account_icons.dart';
 import '../../widgets/expense_category.dart';
 
-/// Extension on [TransactionType] to check if it represents income.
+/// Extension on [TransactionType] for quick type checks.
 extension TransactionTypeX on TransactionType {
   bool get isIncome => this == TransactionType.income;
+  bool get isTransfer => this == TransactionType.transfer;
 }
 
 /// Small circular icon button used in the AddExpense top bar.
@@ -341,7 +342,141 @@ class _QuickBarSegment extends StatelessWidget {
   }
 }
 
-/// A single keypad button (digit, decimal point, or backspace).
+/// 2-segment bar for selecting source and destination accounts in Transfer mode.
+class AddExpenseTransferBar extends StatelessWidget {
+  const AddExpenseTransferBar({
+    super.key,
+    required this.fromAccount,
+    required this.toAccount,
+    required this.onTapFrom,
+    required this.onTapTo,
+    this.enabled = true,
+  });
+
+  final AccountModel? fromAccount;
+  final AccountModel? toAccount;
+  final VoidCallback onTapFrom;
+  final VoidCallback onTapTo;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE8EDF5), width: 1),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: _TransferAccountSegment(
+                icon: fromAccount == null
+                    ? Icons.account_balance_wallet_outlined
+                    : resolveAccountIcon(fromAccount!.iconKey),
+                label: 'From',
+                value: fromAccount?.name ?? 'No account',
+                onTap: enabled ? onTapFrom : null,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+              ),
+            ),
+            Container(
+              width: 36,
+              color: const Color(0xFFE8EDF5),
+              child: const Center(
+                child: Icon(
+                  Icons.sync_alt_rounded,
+                  color: AppColors.primaryBlue,
+                  size: 20,
+                ),
+              ),
+            ),
+            Expanded(
+              child: _TransferAccountSegment(
+                icon: toAccount == null
+                    ? Icons.account_balance_wallet_outlined
+                    : resolveAccountIcon(toAccount!.iconKey),
+                label: 'To',
+                value: toAccount?.name ?? 'No account',
+                onTap: enabled ? onTapTo : null,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransferAccountSegment extends StatelessWidget {
+  const _TransferAccountSegment({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+    this.borderRadius = BorderRadius.zero,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+  final BorderRadius borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: borderRadius,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: AppColors.lightBlueBg,
+              child: Icon(icon, color: AppColors.primaryBlue, size: 20),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textDark,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class AddExpenseKeypadButton extends StatelessWidget {
   const AddExpenseKeypadButton({
     super.key,
