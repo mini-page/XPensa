@@ -170,6 +170,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                                   Expanded(
                                     child: AddExpenseModeTab(
                                       label: 'Expense',
+                                      icon: Icons.arrow_outward_rounded,
+                                      activeColor: const Color(0xFFC23358),
+                                      inactiveColor: const Color(0xFFC23358),
                                       isSelected: _selectedType ==
                                           TransactionType.expense,
                                       onTap: () =>
@@ -179,6 +182,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                                   Expanded(
                                     child: AddExpenseModeTab(
                                       label: 'Income',
+                                      icon: Icons.arrow_downward_rounded,
+                                      activeColor: AppColors.success,
+                                      inactiveColor: AppColors.success,
                                       isSelected: _selectedType ==
                                           TransactionType.income,
                                       onTap: () =>
@@ -188,6 +194,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                                   Expanded(
                                     child: AddExpenseModeTab(
                                       label: 'Transfer',
+                                      icon: Icons.sync_alt_rounded,
+                                      activeColor: AppColors.primaryBlue,
+                                      inactiveColor: AppColors.primaryBlue,
                                       isSelected: _selectedType ==
                                           TransactionType.transfer,
                                       onTap: () =>
@@ -373,7 +382,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           Expanded(
                             child: AddExpenseInfoCapsule(
                               icon: Icons.schedule_rounded,
-                              label: DateFormat('HH:mm').format(_selectedDate),
+                              label: DateFormat('h:mm a').format(_selectedDate),
+                              centerContent: true,
                               onTap: _pickTime,
                             ),
                           ),

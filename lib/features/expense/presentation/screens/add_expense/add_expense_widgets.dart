@@ -47,11 +47,17 @@ class AddExpenseModeTab extends StatelessWidget {
   const AddExpenseModeTab({
     super.key,
     required this.label,
+    required this.icon,
+    required this.activeColor,
+    required this.inactiveColor,
     required this.isSelected,
     required this.onTap,
   });
 
   final String label;
+  final IconData icon;
+  final Color activeColor;
+  final Color inactiveColor;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -66,14 +72,36 @@ class AddExpenseModeTab extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: Center(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: isSelected ? AppColors.textDark : AppColors.textMuted,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
+            child: SizedBox(
+              height: 18,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: isSelected
+                    ? Text(
+                        label,
+                        key: ValueKey<String>(label),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: activeColor,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      )
+                    : Icon(
+                        icon,
+                        key: ValueKey<IconData>(icon),
+                        size: 18,
+                        color: inactiveColor,
+                      ),
               ),
             ),
           ),
@@ -89,11 +117,13 @@ class AddExpenseInfoCapsule extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.centerContent = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool centerContent;
 
   @override
   Widget build(BuildContext context) {
@@ -106,19 +136,33 @@ class AddExpenseInfoCapsule extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           child: Row(
+            mainAxisAlignment: centerContent
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
             children: <Widget>[
               Icon(icon, size: 18, color: AppColors.textMuted),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(
+              if (centerContent)
+                Text(
                   label,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.textDark,
                     fontWeight: FontWeight.w700,
                   ),
+                )
+              else
+                Expanded(
+                  child: Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textDark,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
