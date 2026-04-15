@@ -47,6 +47,7 @@ class HomeHeader extends StatelessWidget {
           Row(
             children: <Widget>[
               IconButton(
+                tooltip: 'Open menu',
                 onPressed: onMenuPressed,
                 icon: Container(
                   padding: const EdgeInsets.all(8),
@@ -76,6 +77,7 @@ class HomeHeader extends StatelessWidget {
               ),
               const Spacer(),
               IconButton(
+                tooltip: 'Search transactions',
                 onPressed: onSearchPressed,
                 icon: Container(
                   padding: const EdgeInsets.all(8),
@@ -93,6 +95,7 @@ class HomeHeader extends StatelessWidget {
               Stack(
                 children: [
                   IconButton(
+                    tooltip: 'Notifications',
                     onPressed: () {},
                     icon: Container(
                       padding: const EdgeInsets.all(8),
@@ -140,12 +143,19 @@ class HomeHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
-                onTap: onTogglePrivacy,
-                child: Icon(
-                  privacyModeEnabled ? Icons.visibility_off : Icons.visibility,
-                  color: AppColors.overlayWhiteMedium,
-                  size: 20,
+              Semantics(
+                button: true,
+                label: 'Toggle privacy mode',
+                child: GestureDetector(
+                  onTap: onTogglePrivacy,
+                  child: Tooltip(
+                    message: 'Toggle privacy mode',
+                    child: Icon(
+                      privacyModeEnabled ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.overlayWhiteMedium,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ),
             ],
