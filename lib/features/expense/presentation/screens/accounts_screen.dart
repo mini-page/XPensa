@@ -14,12 +14,12 @@ class AccountsScreen extends ConsumerWidget {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: ToolsTabHeader(),
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 120),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
                 child: ToolsTabView(),
               ),
             ),
