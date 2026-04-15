@@ -11,6 +11,8 @@ import '../../provider/preferences_providers.dart';
 import '../../widgets/recurring_tool_view.dart';
 import '../../widgets/split_bill_tool_view.dart';
 
+const _maxDisplayedFutureTransactions = 6;
+
 class ToolsTabHeader extends StatelessWidget {
   const ToolsTabHeader({super.key});
 
@@ -113,7 +115,7 @@ class FutureTransactionsToolView extends ConsumerWidget {
             ),
           )
         else
-          ...futureTransactions.take(6).map((expense) {
+          ...futureTransactions.take(_maxDisplayedFutureTransactions).map((expense) {
             final signedAmount =
                 expense.isIncome ? expense.amount : -expense.amount;
             return Padding(

@@ -12,7 +12,7 @@ class AccountsScreen extends ConsumerWidget {
       child: DefaultTabController(
         length: 3,
         child: Column(
-          children: const <Widget>[
+          children: <Widget>[
             Padding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: ToolsTabHeader(),
