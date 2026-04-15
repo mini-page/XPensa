@@ -6,6 +6,7 @@ import '../../../../routes/app_routes.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
+import '../provider/budget_providers.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
 import '../widgets/quick_action_bar.dart';
@@ -42,9 +43,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.watch(accountListProvider).value ?? const <AccountModel>[];
     final accountsMap = {for (final a in accounts) a.id: a};
     final stats = ref.watch(statsProvider);
+    final accountSummary = ref.watch(accountSummaryProvider);
+    final budgets = ref.watch(budgetTargetsProvider).value ?? defaultBudgetTargets;
     final privacyModeEnabled = ref.watch(privacyModeEnabledProvider);
 
     final currencyFormat = ref.watch(currencyFormatProvider);
+    final today = DateUtils.dateOnly(DateTime.now());
+    final isOnToday = DateUtils.isSameDay(_selectedDate, today);
     final visibleDates = List<DateTime>.generate(
       7,
       (index) => _windowStart.add(Duration(days: index)),
@@ -58,6 +63,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       (sum, expense) => sum + expense.signedAmount,
     );
 
+    // Locale-aware quick amounts (H4)
+    final locale = ref.watch(localeProvider);
+    final currencySymbol = ref.watch(currencySymbolProvider);
+    final quickAmounts = _localeQuickAmounts(locale);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 120),
       child: Column(
@@ -65,6 +75,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: <Widget>[
           HomeHeader(
             stats: stats,
+            accountSummary: accountSummary,
+            budgets: budgets,
             currencyFormat: currencyFormat,
             privacyModeEnabled: privacyModeEnabled,
             onMenuPressed: () => Scaffold.of(context).openDrawer(),
@@ -104,8 +116,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     QuickActionItem(
                       label: 'SCANNER',
                       icon: Icons.qr_code_scanner_rounded,
-                      isEnabled: false,
-                      badgeLabel: 'Soon',
+                      isEnabled: true,
                     ),
                     QuickActionItem(
                       label: 'MANUAL',
@@ -119,6 +130,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         context,
                         initialDate: _selectedDate,
                       );
+                    } else if (action.label == 'SCANNER') {
+                      AppRoutes.pushScanner(context);
                     }
                   },
                 ),
@@ -127,7 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   height: 72,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: <double>[50, 100, 200, 500, 1000].map((amount) {
+                    children: quickAmounts.map((amount) {
                       return Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: HomeAmountChip(
@@ -165,6 +178,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 HomeDateStrip(
                   visibleDates: visibleDates,
                   selectedDate: _selectedDate,
+                  isOnToday: isOnToday,
                   selectedTotalText: formatSignedCurrencyForHome(
                     selectedTotal,
                     currencyFormat,
@@ -178,6 +192,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   },
                   onPrevious: () => _shiftWindow(-7),
                   onNext: () => _shiftWindow(7),
+                  onJumpToToday: _jumpToToday,
                 ),
                 const SizedBox(height: 18),
                 if (expenseState.hasError)
@@ -261,6 +276,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _windowStart = _windowStart.add(Duration(days: days));
       _selectedDate = _selectedDate.add(Duration(days: days));
     });
+  }
+
+  void _jumpToToday() {
+    final today = DateUtils.dateOnly(DateTime.now());
+    setState(() {
+      _selectedDate = today;
+      _windowStart = today.subtract(const Duration(days: 3));
+    });
+  }
+
+  /// Returns locale-appropriate quick-add amounts (H4).
+  List<double> _localeQuickAmounts(String locale) {
+    if (locale.contains('IN') || locale.contains('hi')) {
+      return [50, 100, 250, 500, 1000];
+    }
+    if (locale.contains('JP') || locale.contains('ja')) {
+      return [100, 500, 1000, 5000, 10000];
+    }
+    if (locale.contains('AE') || locale.contains('ar')) {
+      return [5, 10, 25, 50, 100];
+    }
+    // US / EU / default
+    return [5, 10, 20, 50, 100];
   }
 
   bool _isSameLocalDay(DateTime expenseDate, DateTime targetDate) {
