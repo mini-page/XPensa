@@ -16,42 +16,52 @@ class AppTabItem {
 /// Each tab shows its [AppTabItem.icon] when inactive and animates to its
 /// [AppTabItem.label] text when selected (fade + scale).
 ///
-/// Tabs are laid out in a horizontally scrollable row so additional tabs can
-/// be added in the future without any layout changes at the call site.
+/// Set [scrollable] to `true` when there are more than 3–4 tabs so they can
+/// overflow horizontally (e.g. the Tools screen with 5 tabs).
 class AppTabSwitcher extends StatelessWidget {
   const AppTabSwitcher({
     super.key,
     required this.tabs,
     required this.selected,
     required this.onChanged,
+    this.scrollable = false,
   });
 
   final List<AppTabItem> tabs;
   final int selected;
   final ValueChanged<int> onChanged;
 
+  /// When `true` the tabs are laid out in a horizontally scrollable row
+  /// instead of expanded equal-width columns.
+  final bool scrollable;
+
   @override
   Widget build(BuildContext context) {
+    final row = Row(
+      mainAxisSize: scrollable ? MainAxisSize.min : MainAxisSize.max,
+      children: List.generate(tabs.length, (index) {
+        final tab = _AppTabCell(
+          label: tabs[index].label,
+          icon: tabs[index].icon,
+          isSelected: selected == index,
+          onTap: () => onChanged(index),
+        );
+        return scrollable ? tab : Expanded(child: tab);
+      }),
+    );
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0xFFF4F6FA),
         borderRadius: BorderRadius.circular(22),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(tabs.length, (index) {
-            return _AppTabCell(
-              label: tabs[index].label,
-              icon: tabs[index].icon,
-              isSelected: selected == index,
-              onTap: () => onChanged(index),
-            );
-          }),
-        ),
-      ),
+      child: scrollable
+          ? SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: row,
+            )
+          : row,
     );
   }
 }

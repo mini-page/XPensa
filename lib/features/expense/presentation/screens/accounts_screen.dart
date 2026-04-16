@@ -53,6 +53,7 @@ class _AccountsScreenState extends State<AccountsScreen>
           bottom: AppTabSwitcher(
             tabs: _toolsTabs,
             selected: _selectedTab,
+            scrollable: true,
             onChanged: (index) {
               setState(() => _selectedTab = index);
               _tabController.animateTo(index);
