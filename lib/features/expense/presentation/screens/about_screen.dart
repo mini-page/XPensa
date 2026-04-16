@@ -21,7 +21,7 @@ class AboutScreen extends StatelessWidget {
   static const String _repoUrl = 'https://github.com/mini-page/XPensa';
   static const String _issuesUrl =
       'https://github.com/mini-page/XPensa/issues';
-  static const String _email = 'raghavans5711+portfolio@gmail.com';
+  static const String _email = 'xpensa-support@gmail.com';
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -36,7 +36,7 @@ class AboutScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: const Text(
-          'About & Developer',
+          'About',
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
         ),
         backgroundColor: Colors.white,
@@ -107,9 +107,11 @@ class AboutScreen extends StatelessWidget {
                   iconColor: AppColors.primaryBlue,
                   title: 'Share with Friends',
                   subtitle: 'Word of mouth is the best marketing',
-                  onTap: () => Share.share(
-                    'Check out XPensa – a free, offline-first expense tracker! '
-                    '$_repoUrl',
+                  onTap: () => SharePlus.instance.share(
+                    ShareParams(
+                      text: 'Check out XPensa – a free, offline-first expense tracker! '
+                          '$_repoUrl',
+                    ),
                   ),
                 ),
               ],
@@ -271,24 +273,26 @@ class _DeveloperCard extends StatelessWidget {
                     size: 30, color: AppColors.primaryBlue),
               ),
               const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Umang Gupta',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textDark,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Umang Gupta',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textDark,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Independent Developer · aka mini-page',
-                    style: TextStyle(
-                        color: AppColors.textMuted, fontSize: 12),
-                  ),
-                ],
+                    SizedBox(height: 2),
+                    Text(
+                      'Independent Developer · aka mini-page',
+                      style: TextStyle(
+                          color: AppColors.textMuted, fontSize: 12),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -304,8 +308,10 @@ class _DeveloperCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          // Social links row
-          Row(
+          // Social links wrap
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               _SocialChip(
                 icon: Icons.code_rounded,
@@ -313,21 +319,18 @@ class _DeveloperCard extends StatelessWidget {
                 onTap: () =>
                     onLaunchUrl(AboutScreen._githubUrl),
               ),
-              const SizedBox(width: 8),
               _SocialChip(
                 icon: Icons.work_outline_rounded,
                 label: 'LinkedIn',
                 onTap: () =>
                     onLaunchUrl(AboutScreen._linkedinUrl),
               ),
-              const SizedBox(width: 8),
               _SocialChip(
                 icon: Icons.alternate_email_rounded,
                 label: 'X',
                 onTap: () =>
                     onLaunchUrl(AboutScreen._xUrl),
               ),
-              const SizedBox(width: 8),
               _SocialChip(
                 icon: Icons.photo_camera_outlined,
                 label: 'Instagram',

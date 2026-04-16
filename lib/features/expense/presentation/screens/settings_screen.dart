@@ -271,31 +271,8 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 _buildActionTile(
                   icon: Icons.info_outline_rounded,
-                  title: 'App Version',
-                  subtitle: AppConstants.version,
-                  onTap: () {
-                    showAboutDialog(
-                      context: context,
-                      applicationName: AppConstants.appName,
-                      applicationVersion: AppConstants.version,
-                      applicationLegalese:
-                          '© 2025 XPensa. Offline-first expense tracking.',
-                    );
-                  },
-                ),
-                _buildActionTile(
-                  icon: Icons.description_outlined,
-                  title: 'About This Project',
-                  subtitle: 'Learn more about XPensa',
-                  onTap: () => Navigator.of(context).push<void>(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const AboutScreen()),
-                  ),
-                ),
-                _buildActionTile(
-                  icon: Icons.person_outline_rounded,
-                  title: 'Developer Page',
-                  subtitle: 'Visit the project repository',
+                  title: 'About',
+                  subtitle: 'About XPensa & developer info',
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute<void>(
                         builder: (_) => const AboutScreen()),

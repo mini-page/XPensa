@@ -31,9 +31,11 @@ class BackupController {
       final backupFile = await _datasource.createBackup();
 
       // Share the file so user can save it anywhere
-      await Share.shareXFiles(
-        [XFile(backupFile.path)],
-        subject: 'XPensa Data Backup',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(backupFile.path)],
+          subject: 'XPensa Data Backup',
+        ),
       );
 
       // Clean up temporary file after sharing
