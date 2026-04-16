@@ -2,10 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../provider/preferences_providers.dart';
 
 /// An expandable power FAB.
 ///
@@ -15,7 +13,7 @@ import '../provider/preferences_providers.dart';
 ///
 /// Use [PowerFabState] via a [GlobalKey] to imperatively [close] the menu
 /// (e.g. from a barrier tap in the parent).
-class PowerFab extends ConsumerStatefulWidget {
+class PowerFab extends StatefulWidget {
   const PowerFab({
     super.key,
     required this.onQuickAdd,
@@ -33,7 +31,7 @@ class PowerFab extends ConsumerStatefulWidget {
   PowerFabState createState() => PowerFabState();
 }
 
-class PowerFabState extends ConsumerState<PowerFab>
+class PowerFabState extends State<PowerFab>
     with SingleTickerProviderStateMixin {
   bool _open = false;
   late AnimationController _ctrl;
@@ -85,8 +83,6 @@ class PowerFabState extends ConsumerState<PowerFab>
 
   @override
   Widget build(BuildContext context) {
-    final symbol = ref.watch(currencySymbolProvider);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -105,7 +101,7 @@ class PowerFabState extends ConsumerState<PowerFab>
             animation: _ctrl,
             staggerStart: 0.2,
             icon: Icons.mic_none_rounded,
-            label: '$symbol  Voice',
+            label: 'Voice',
             badgeLabel: 'Soon',
           ),
           const SizedBox(height: 8),
@@ -113,7 +109,7 @@ class PowerFabState extends ConsumerState<PowerFab>
             animation: _ctrl,
             staggerStart: 0.1,
             icon: Icons.qr_code_scanner_rounded,
-            label: '$symbol  Scanner',
+            label: 'Scanner',
             onTap: () => _closeAndRun(widget.onScanner),
           ),
           const SizedBox(height: 8),

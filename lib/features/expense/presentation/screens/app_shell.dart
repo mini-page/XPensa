@@ -216,7 +216,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           // Expandable power FAB
           Positioned(
             right: 16,
-            bottom: 92,
+            bottom: 120,
             child: PowerFab(
               key: _fabKey,
               onQuickAdd: _openAddExpenseScreen,
