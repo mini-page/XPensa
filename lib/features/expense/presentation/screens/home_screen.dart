@@ -61,9 +61,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       (sum, expense) => sum + expense.signedAmount,
     );
 
-    // Locale-aware quick amounts (H4)
+    // Locale-aware quick amounts (H4) merged with user-defined custom amounts
     final locale = ref.watch(localeProvider);
-    final quickAmounts = _localeQuickAmounts(locale);
+    final localeAmounts = _localeQuickAmounts(locale);
+    final customAmounts = ref.watch(customQuickAmountsProvider);
+    // Merge: locale defaults first, then custom (deduplicated)
+    final quickAmounts = [
+      ...localeAmounts,
+      ...customAmounts.where((a) => !localeAmounts.contains(a)),
+    ];
 
     final unreadCount = ref.watch(unreadNotificationCountProvider);
 
@@ -106,22 +112,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: <Widget>[
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: 72,
+                  height: 44,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: quickAmounts.map((amount) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: HomeAmountChip(
-                          label: currencyFormat.format(amount),
-                          onTap: () => _openAddExpenseScreen(
-                            context,
-                            initialAmount: amount,
-                            initialDate: _selectedDate,
+                    children: <Widget>[
+                      ...quickAmounts.map((amount) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: HomeAmountChip(
+                            label: currencyFormat.format(amount),
+                            onTap: () => _openAddExpenseScreen(
+                              context,
+                              initialAmount: amount,
+                              initialDate: _selectedDate,
+                            ),
                           ),
+                        );
+                      }),
+                      HomeAddAmountChip(
+                        onTap: () => _showAddCustomAmountDialog(
+                          context,
+                          customAmounts: customAmounts,
                         ),
-                      );
-                    }).toList(growable: false),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -348,5 +362,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Transaction removed.')));
+  }
+
+  Future<void> _showAddCustomAmountDialog(
+    BuildContext context, {
+    required List<double> customAmounts,
+  }) async {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add quick amount'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              labelText: 'Amount',
+              hintText: 'e.g. 75',
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Enter an amount';
+              }
+              final parsed = double.tryParse(value.trim());
+              if (parsed == null || parsed <= 0) {
+                return 'Enter a valid positive number';
+              }
+              return null;
+            },
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(ctx).pop(true);
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final parsed = double.tryParse(controller.text.trim());
+    if (parsed == null || parsed <= 0) return;
+
+    final updated = [...customAmounts, parsed];
+    await ref
+        .read(appPreferencesControllerProvider)
+        .setCustomQuickAmounts(updated);
   }
 }

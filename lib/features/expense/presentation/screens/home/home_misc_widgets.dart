@@ -52,44 +52,62 @@ class HomeAmountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      child: Semantics(
-        button: true,
-        label: 'Quick add $label',
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            width: 92,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  color: Color(0x1209386D),
-                  blurRadius: 18,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: AppColors.textDark,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ),
+    return Semantics(
+      button: true,
+      label: 'Quick add $label',
+      child: ActionChip(
+        onPressed: onTap,
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.primaryBlue,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
           ),
         ),
+        backgroundColor: AppColors.surfaceAccent,
+        side: const BorderSide(color: AppColors.primaryBlueLight, width: 1),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        elevation: 0,
+      ),
+    );
+  }
+}
+
+/// A chip showing a `+` icon to let users add their own quick-add amount.
+class HomeAddAmountChip extends StatelessWidget {
+  const HomeAddAmountChip({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Add custom quick amount',
+      child: ActionChip(
+        onPressed: onTap,
+        avatar: const Icon(
+          Icons.add_rounded,
+          size: 16,
+          color: AppColors.textSecondary,
+        ),
+        label: const Text(
+          'Add',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
+        backgroundColor: AppColors.surfaceLight,
+        side: const BorderSide(color: Color(0xFFD1DAEA), width: 1),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        elevation: 0,
       ),
     );
   }

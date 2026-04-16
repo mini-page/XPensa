@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
@@ -100,6 +101,18 @@ final biometricLockEnabledProvider = Provider<bool>((ref) {
 
 final savingsGoalsJsonProvider = Provider<String>((ref) {
   return ref.watch(appPreferencesProvider).value?.savingsGoalsJson ?? '';
+});
+
+final customQuickAmountsProvider = Provider<List<double>>((ref) {
+  final json =
+      ref.watch(appPreferencesProvider).value?.customQuickAmountsJson ?? '';
+  if (json.isEmpty) return const <double>[];
+  try {
+    final list = jsonDecode(json) as List<dynamic>;
+    return list.map((e) => (e as num).toDouble()).toList();
+  } catch (_) {
+    return const <double>[];
+  }
 });
 
 final isOnboardingCompletedProvider = Provider<bool>((ref) {
@@ -312,6 +325,14 @@ class AppPreferencesController {
     await _ref
         .read(appPreferencesProvider.notifier)
         .save(_current.copyWith(lastBackupDateTime: dateTime));
+  }
+
+  Future<void> setCustomQuickAmounts(List<double> amounts) async {
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customQuickAmountsJson: jsonEncode(amounts),
+          ),
+        );
   }
 
   Future<void> setExpenseCategoryEnabled(
