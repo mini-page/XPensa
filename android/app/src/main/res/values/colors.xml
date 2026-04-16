@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#0A6BE8</color>
+
+    <!-- Widget colour tokens -->
+    <color name="widget_primary_blue">#0A6BE8</color>
+    <color name="widget_white">#FFFFFF</color>
+    <color name="widget_text_dark">#152039</color>
+    <color name="widget_text_muted">#90A1BE</color>
+    <color name="widget_income_green">#1DAA63</color>
+    <color name="widget_expense_red">#FF446D</color>
+    <color name="widget_transfer_blue">#0A6BE8</color>
+    <color name="widget_divider">#1A000000</color>
+    <color name="widget_chip_selected_text">#FFFFFF</color>
+    <color name="widget_chip_unselected_text">#48607E</color>
+    <color name="widget_surface_accent">#EFF5FF</color>
+    <color name="widget_open_app_text">#0A6BE8</color>
+    <color name="widget_more_text">#90A1BE</color>
 </resources>
