@@ -37,18 +37,7 @@ class AppTabSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final row = Row(
-      mainAxisSize: scrollable ? MainAxisSize.min : MainAxisSize.max,
-      children: List.generate(tabs.length, (index) {
-        final tab = _AppTabCell(
-          label: tabs[index].label,
-          icon: tabs[index].icon,
-          isSelected: selected == index,
-          onTap: () => onChanged(index),
-        );
-        return scrollable ? tab : Expanded(child: tab);
-      }),
-    );
+    const containerPadding = 8.0; // 4px left + 4px right
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -57,11 +46,42 @@ class AppTabSwitcher extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       child: scrollable
-          ? SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: row,
+          ? LayoutBuilder(
+              builder: (context, constraints) {
+                final tabWidth =
+                    (constraints.maxWidth - containerPadding) / tabs.length;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(tabs.length, (index) {
+                      return SizedBox(
+                        width: tabWidth,
+                        child: _AppTabCell(
+                          label: tabs[index].label,
+                          icon: tabs[index].icon,
+                          isSelected: selected == index,
+                          onTap: () => onChanged(index),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              },
             )
-          : row,
+          : Row(
+              mainAxisSize: MainAxisSize.max,
+              children: List.generate(tabs.length, (index) {
+                return Expanded(
+                  child: _AppTabCell(
+                    label: tabs[index].label,
+                    icon: tabs[index].icon,
+                    isSelected: selected == index,
+                    onTap: () => onChanged(index),
+                  ),
+                );
+              }),
+            ),
     );
   }
 }
