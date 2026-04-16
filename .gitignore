@@ -69,3 +69,4 @@ linux/
 # ==============================
 benchmark/
 public_assets/
+.gitnexus
