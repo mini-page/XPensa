@@ -8,7 +8,134 @@ import '../../provider/account_providers.dart';
 import '../../provider/expense_providers.dart';
 import '../../widgets/amount_visibility.dart';
 
-/// Blue hero header showing the app bar, net total, and monthly metrics.
+// ---------------------------------------------------------------------------
+// HomeTopBar — sticky slim app-bar (menu · logo · name · search · bell)
+// ---------------------------------------------------------------------------
+
+/// The sticky top application bar shown on the Home screen.
+///
+/// Only this widget is pinned; the blue hero balance card below it scrolls.
+class HomeTopBar extends StatelessWidget {
+  const HomeTopBar({
+    super.key,
+    required this.onMenuPressed,
+    required this.onSearchPressed,
+    required this.onNotificationPressed,
+    this.unreadCount = 0,
+  });
+
+  final VoidCallback onMenuPressed;
+  final VoidCallback onSearchPressed;
+  final VoidCallback onNotificationPressed;
+
+  /// Number of unread notifications — drives the red badge.
+  final int unreadCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    return Container(
+      color: AppColors.primaryBlue,
+      padding: EdgeInsets.fromLTRB(4, topPadding + 4, 4, 4),
+      child: Row(
+        children: <Widget>[
+          IconButton(
+            tooltip: 'Open menu',
+            onPressed: onMenuPressed,
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(25),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.menu_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(AppAssets.logo, width: 30, height: 30),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'XPensa',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            tooltip: 'Search transactions',
+            onPressed: onSearchPressed,
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(25),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.search_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+          Stack(
+            children: <Widget>[
+              IconButton(
+                tooltip: 'Notifications',
+                onPressed: onNotificationPressed,
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(25),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  top: 10,
+                  right: 12,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primaryBlue,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HomeHeader — scrollable blue hero card (balance, metrics, budget bar)
+// ---------------------------------------------------------------------------
+
+/// Blue hero section showing the net total and monthly metrics.
+///
+/// This widget is NOT sticky — it scrolls with the page content.
 class HomeHeader extends StatefulWidget {
   const HomeHeader({
     super.key,
@@ -17,8 +144,6 @@ class HomeHeader extends StatefulWidget {
     required this.budgets,
     required this.currencyFormat,
     required this.privacyModeEnabled,
-    required this.onMenuPressed,
-    required this.onSearchPressed,
     required this.onTogglePrivacy,
   });
 
@@ -27,8 +152,6 @@ class HomeHeader extends StatefulWidget {
   final Map<String, double> budgets;
   final NumberFormat currencyFormat;
   final bool privacyModeEnabled;
-  final VoidCallback onMenuPressed;
-  final VoidCallback onSearchPressed;
   final VoidCallback onTogglePrivacy;
 
   @override
@@ -40,7 +163,6 @@ class _HomeHeaderState extends State<HomeHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
     final stats = widget.stats;
     final netTotal = formatSignedCurrencyForHome(
       stats.monthNetTotal,
@@ -67,100 +189,13 @@ class _HomeHeaderState extends State<HomeHeader> {
         : 0.0;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(16, topPadding + 8, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 28),
       decoration: const BoxDecoration(
         color: AppColors.primaryBlue,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: Column(
         children: <Widget>[
-          // Top App Bar
-          Row(
-            children: <Widget>[
-              IconButton(
-                tooltip: 'Open menu',
-                onPressed: widget.onMenuPressed,
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.menu_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(AppAssets.logo, width: 32, height: 32),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'XPensa',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                tooltip: 'Search transactions',
-                onPressed: widget.onSearchPressed,
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.search_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-              Stack(
-                children: [
-                  IconButton(
-                    tooltip: 'Notifications',
-                    onPressed: () {},
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(25),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 12,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.primaryBlue, width: 2),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Balance Section
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

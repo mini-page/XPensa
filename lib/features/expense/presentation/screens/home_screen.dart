@@ -8,6 +8,7 @@ import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
 import '../provider/budget_providers.dart';
 import '../provider/expense_providers.dart';
+import '../provider/notifications_provider.dart';
 import '../provider/preferences_providers.dart';
 import '../widgets/quick_action_bar.dart';
 import '../widgets/transaction_card.dart';
@@ -67,31 +68,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final locale = ref.watch(localeProvider);
     final quickAmounts = _localeQuickAmounts(locale);
 
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        HomeHeader(
-          stats: stats,
-          accountSummary: accountSummary,
-          budgets: budgets,
-          currencyFormat: currencyFormat,
-          privacyModeEnabled: privacyModeEnabled,
+        // ── Sticky top bar (menu · logo · search · bell) ─────────────────
+        HomeTopBar(
           onMenuPressed: () => Scaffold.of(context).openDrawer(),
           onSearchPressed: () => AppRoutes.pushTransactionSearch(context),
-          onTogglePrivacy: () {
-            ref
-                .read(appPreferencesControllerProvider)
-                .setPrivacyMode(!privacyModeEnabled);
-          },
+          onNotificationPressed: () => AppRoutes.pushNotifications(context),
+          unreadCount: unreadCount,
         ),
+
+        // ── Everything below scrolls ──────────────────────────────────────
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 120),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // Blue hero card (balance, metrics, budget bar)
+                HomeHeader(
+                  stats: stats,
+                  accountSummary: accountSummary,
+                  budgets: budgets,
+                  currencyFormat: currencyFormat,
+                  privacyModeEnabled: privacyModeEnabled,
+                  onTogglePrivacy: () {
+                    ref
+                        .read(appPreferencesControllerProvider)
+                        .setPrivacyMode(!privacyModeEnabled);
+                  },
+                ),
+
+                // ── Scrollable content ────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
                 const SizedBox(height: 8),
                 QuickActionBar(
                   actions: const <QuickActionItem>[
@@ -228,8 +244,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       onDelete: () => _confirmDeleteExpense(expense),
                     );
                   }),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

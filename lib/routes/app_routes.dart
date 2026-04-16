@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../features/expense/data/models/expense_model.dart';
 import '../features/expense/presentation/screens/add_expense_screen.dart';
+import '../features/expense/presentation/screens/notifications_screen.dart';
 import '../features/expense/presentation/screens/records_history_screen.dart';
 import '../features/expense/presentation/screens/scanner_screen.dart';
 import '../features/expense/presentation/screens/settings_screen.dart';
@@ -95,6 +96,17 @@ abstract final class AppRoutes {
   static Future<void> pushSettings(BuildContext context) {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+    );
+  }
+
+  // ── Notifications ──────────────────────────────────────────────────────────
+
+  /// Push the notifications screen.
+  static Future<void> pushNotifications(BuildContext context) {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => const NotificationsScreen(),
+      ),
     );
   }
 
