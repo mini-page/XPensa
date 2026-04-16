@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/widgets/app_page_header.dart';
+import '../../../../shared/widgets/app_tab_switcher.dart';
 import '../provider/expense_providers.dart';
 import '../provider/preferences_providers.dart';
 import 'stats/stats_widgets.dart';
@@ -20,7 +21,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   int _selectedTab = 0;
   String _selectedRange = 'This Month';
 
-  static const _tabLabels = <String>['Flow', 'Spend', 'Habit'];
+  static const List<AppTabItem> _analyticsTabs = <AppTabItem>[
+    AppTabItem(label: 'Flow', icon: Icons.waterfall_chart_rounded),
+    AppTabItem(label: 'Spend', icon: Icons.pie_chart_outline_rounded),
+    AppTabItem(label: 'Habit', icon: Icons.calendar_month_outlined),
+  ];
 
   static const _rangeOptions = <String>[
     'This Week',
@@ -60,8 +65,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
               ),
             ),
           ),
-          bottom: AnalyticsPillTabs(
-            tabs: _tabLabels,
+          bottom: AppTabSwitcher(
+            tabs: _analyticsTabs,
             selected: _selectedTab,
             onChanged: (index) => setState(() => _selectedTab = index),
           ),
@@ -80,7 +85,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                 children: <Widget>[
                   // Tab title
                   Text(
-                    _tabLabels[_selectedTab],
+                    _analyticsTabs[_selectedTab].label,
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,

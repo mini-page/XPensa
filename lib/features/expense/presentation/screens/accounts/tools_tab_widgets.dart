@@ -22,65 +22,17 @@ const _maxDisplayedFutureTransactions = 6;
 // Tab Bar & Tab View
 // ---------------------------------------------------------------------------
 
-/// Renders the Tools workspace tab bar.
-class ToolsTabBar extends StatelessWidget {
-  const ToolsTabBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F6FA),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: TabBar(
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-        indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.07),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        labelColor: AppColors.textDark,
-        unselectedLabelColor: AppColors.textSecondary,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 13,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-        ),
-        tabs: const <Tab>[
-          Tab(text: 'Budget'),
-          Tab(text: 'Goals'),
-          Tab(text: 'Split'),
-          Tab(text: 'Recurring'),
-          Tab(text: 'Future'),
-        ],
-      ),
-    );
-  }
-}
-
-/// Renders the tab views that correspond to [ToolsTabBar].
-/// Must be used under a [DefaultTabController] with length 5.
+/// Renders the tab views driven by [controller].
 class ToolsTabView extends StatelessWidget {
-  const ToolsTabView({super.key});
+  const ToolsTabView({super.key, required this.controller});
+
+  final TabController controller;
 
   @override
   Widget build(BuildContext context) {
-    return const TabBarView(
-      children: <Widget>[
+    return TabBarView(
+      controller: controller,
+      children: const <Widget>[
         _ToolsTabPane(child: BudgetToolView()),
         _ToolsTabPane(child: GoalsToolView()),
         _ToolsTabPane(child: SplitBillToolView()),

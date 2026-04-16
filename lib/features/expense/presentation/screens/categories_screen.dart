@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../shared/widgets/app_page_header.dart';
+import '../../../../shared/widgets/app_tab_switcher.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/expense_model.dart';
 import '../provider/account_providers.dart';
@@ -16,7 +17,6 @@ import '../widgets/account_icons.dart';
 import '../widgets/amount_visibility.dart';
 import '../widgets/budget_editor_sheet.dart';
 import '../widgets/expense_category.dart';
-import 'add_expense/add_expense_widgets.dart';
 import 'categories/categories_widgets.dart';
 
 enum _BoardMode { expenses, income, accounts }
@@ -30,6 +30,12 @@ class CategoriesScreen extends ConsumerStatefulWidget {
 
 class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   _BoardMode _mode = _BoardMode.expenses;
+
+  static const List<AppTabItem> _categoryTabs = <AppTabItem>[
+    AppTabItem(label: 'Expense', icon: Icons.arrow_outward_rounded),
+    AppTabItem(label: 'Income', icon: Icons.arrow_downward_rounded),
+    AppTabItem(label: 'Account', icon: Icons.account_balance_wallet_outlined),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +78,12 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           eyebrow: 'Categories',
           title: summaryAmount,
           subtitle: summaryLabel,
-          bottom: _ModeTabs(
-            mode: _mode,
-            onChanged: (mode) {
+          bottom: AppTabSwitcher(
+            tabs: _categoryTabs,
+            selected: _mode.index,
+            onChanged: (index) {
               setState(() {
-                _mode = mode;
+                _mode = _BoardMode.values[index];
               });
             },
           ),
@@ -533,57 +540,3 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 }
 
-class _ModeTabs extends StatelessWidget {
-  const _ModeTabs({
-    required this.mode,
-    required this.onChanged,
-  });
-
-  final _BoardMode mode;
-  final ValueChanged<_BoardMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F6FA),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: AddExpenseModeTab(
-              label: 'Expense',
-              icon: Icons.arrow_outward_rounded,
-              activeColor: const Color(0xFFC23358),
-              inactiveColor: const Color(0xFFC23358),
-              isSelected: mode == _BoardMode.expenses,
-              onTap: () => onChanged(_BoardMode.expenses),
-            ),
-          ),
-          Expanded(
-            child: AddExpenseModeTab(
-              label: 'Income',
-              icon: Icons.arrow_downward_rounded,
-              activeColor: AppColors.success,
-              inactiveColor: AppColors.success,
-              isSelected: mode == _BoardMode.income,
-              onTap: () => onChanged(_BoardMode.income),
-            ),
-          ),
-          Expanded(
-            child: AddExpenseModeTab(
-              label: 'Account',
-              icon: Icons.account_balance_wallet_outlined,
-              activeColor: AppColors.primaryBlue,
-              inactiveColor: AppColors.primaryBlue,
-              isSelected: mode == _BoardMode.accounts,
-              onTap: () => onChanged(_BoardMode.accounts),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
