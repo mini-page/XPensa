@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -741,8 +742,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                notes!.length > _kMaxReleaseNotesLength
-                    ? '${notes.substring(0, _kMaxReleaseNotesLength).trimRight()}\u2026'
+                notes!.characters.length > _kMaxReleaseNotesLength
+                    ? '${notes.characters.take(_kMaxReleaseNotesLength).toString().trimRight()}\u2026'
                     : notes,
                 style: const TextStyle(
                     fontSize: 12, color: AppColors.textMuted),
