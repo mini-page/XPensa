@@ -4,9 +4,9 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../expense/presentation/provider/expense_providers.dart';
 import '../../../expense/presentation/provider/preferences_providers.dart';
 import '../../../expense/data/models/expense_model.dart';
-import '../data/sms_queue_item.dart';
-import '../data/sms_transaction.dart';
-import '../domain/sms_parser_engine.dart';
+import '../../data/sms_queue_item.dart';
+import '../../data/sms_transaction.dart';
+import '../../domain/sms_parser_engine.dart';
 
 // ── Preferences-level SMS providers ─────────────────────────────────────────
 
