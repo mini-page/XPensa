@@ -631,128 +631,94 @@ class SettingsScreen extends ConsumerWidget {
     AppPreferencesController controller,
   ) {
     final hasKey = currentKey.isNotEmpty;
-    final maskedKey = hasKey
-        ? '${currentKey.substring(0, currentKey.length.clamp(0, 6))}••••••••'
-        : 'Not set';
 
     return ListTile(
-      leading: const SettingsTileIcon(icon: Icons.vpn_key_outlined),
+      dense: true,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (hasKey ? AppColors.success : AppColors.primaryBlue)
+              .withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          hasKey ? Icons.check_circle_outline_rounded : Icons.vpn_key_outlined,
+          color: hasKey ? AppColors.success : AppColors.primaryBlue,
+          size: 18,
+        ),
+      ),
       title: const Text(
-        'AI API Key',
-        style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
+        'Gemini AI Key',
+        style: TextStyle(
+          color: AppColors.textDark,
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+        ),
       ),
       subtitle: Text(
-        hasKey ? maskedKey : 'Tap to add your Gemini API key',
-        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        hasKey ? 'Connected — tap delete to remove' : 'Not configured',
+        style: TextStyle(
+          color: hasKey ? AppColors.success : AppColors.textMuted,
+          fontSize: 11,
+        ),
       ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (hasKey)
-            IconButton(
+      trailing: hasKey
+          ? IconButton(
+              iconSize: 20,
               icon: const Icon(Icons.delete_outline_rounded,
-                  color: AppColors.danger, size: 20),
+                  color: AppColors.danger),
               tooltip: 'Remove key',
               onPressed: () async {
-                await controller.setAiApiKey('');
-                if (context.mounted) {
-                  context.showSnackBar('AI API key removed.');
+                final confirmed = await confirmDestructiveAction(
+                  context,
+                  title: 'Remove AI Key?',
+                  message:
+                      'The Gemini API key will be deleted. AI-powered features '
+                      'will be unavailable until you add a new key.',
+                  confirmLabel: 'Remove',
+                );
+                if (confirmed) {
+                  await controller.setAiApiKey('');
+                  if (context.mounted) {
+                    context.showSnackBar('AI API key removed.');
+                  }
                 }
               },
+            )
+          : TextButton(
+              onPressed: () =>
+                  _showAddApiKeyDialog(context, controller),
+              child: const Text(
+                'Add Key',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-          const Icon(Icons.edit_outlined,
-              color: AppColors.textMuted, size: 20),
-        ],
-      ),
-      onTap: () => _showAiApiKeyDialog(context, currentKey, controller),
+      onTap: hasKey
+          ? () => context.showSnackBar(
+                'Delete the key first to add a new one.',
+              )
+          : () => _showAddApiKeyDialog(context, controller),
     );
   }
 
-  Future<void> _showAiApiKeyDialog(
+  void _showAddApiKeyDialog(
     BuildContext context,
-    String currentKey,
     AppPreferencesController controller,
-  ) async {
-    final textController = TextEditingController(text: currentKey);
-    var obscure = true;
-
-    await showDialog<void>(
+  ) {
+    showDialog<void>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            title: const Text(
-              'AI API Key',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Enter your Gemini API key to enable AI-powered features '
-                  'like smart category detection. The key is stored locally '
-                  'on your device only.',
-                  style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 13,
-                      height: 1.5),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: textController,
-                  obscureText: obscure,
-                  decoration: InputDecoration(
-                    hintText: 'AIzaSy…',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscure
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                      ),
-                      onPressed: () =>
-                          setDialogState(() => obscure = !obscure),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  final key = textController.text.trim();
-                  await controller.setAiApiKey(key);
-                  if (ctx.mounted) Navigator.of(ctx).pop();
-                  if (context.mounted) {
-                    context.showSnackBar(
-                      key.isEmpty
-                          ? 'AI API key removed.'
-                          : 'AI API key saved.',
-                    );
-                  }
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Save'),
-              ),
-            ],
-          );
+      builder: (_) => _ApiKeyAddDialog(
+        onSave: (key) async {
+          await controller.setAiApiKey(key);
+          if (context.mounted) {
+            context.showSnackBar('AI API key saved.');
+          }
         },
       ),
     );
-
-    textController.dispose();
   }
 
   // ── Update tile ──────────────────────────────────────────────────────────
@@ -946,3 +912,166 @@ class _UpdateBadge extends StatelessWidget {
 
 /// Maximum number of characters shown for release notes in the update dialog.
 const int _kMaxReleaseNotesLength = 280;
+
+// ── AI Key dialog ─────────────────────────────────────────────────────────────
+
+/// A self-contained dialog for adding a Gemini API key.
+///
+/// The key can only be added (not edited). Editing is prevented by design to
+/// avoid key theft — the user must delete and re-add if they want to change it.
+///
+/// Manages its own [TextEditingController] lifecycle to avoid the
+/// "TextEditingController used after being disposed" error that arises when
+/// a controller is created outside a [StatefulBuilder].
+class _ApiKeyAddDialog extends StatefulWidget {
+  const _ApiKeyAddDialog({required this.onSave});
+
+  /// Called with the validated key when the user taps Save.
+  final Future<void> Function(String key) onSave;
+
+  @override
+  State<_ApiKeyAddDialog> createState() => _ApiKeyAddDialogState();
+}
+
+class _ApiKeyAddDialogState extends State<_ApiKeyAddDialog> {
+  late final TextEditingController _ctrl;
+  String? _error;
+  bool _saving = false;
+
+  /// A valid Gemini API key starts with "AIzaSy" and is 39 characters.
+  static bool _isValidKey(String key) =>
+      key.startsWith('AIzaSy') && key.length == 39;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final key = _ctrl.text.trim();
+    if (!_isValidKey(key)) {
+      setState(() => _error =
+          'Key must start with "AIzaSy" and be 39 characters long.');
+      return;
+    }
+    setState(() {
+      _error = null;
+      _saving = true;
+    });
+    await widget.onSave(key);
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(
+        'Add Gemini API Key',
+        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Your key is stored only on this device.\n'
+              'To change it later, delete and re-add.',
+              style: TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 12,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // ── Get key link ──────────────────────────────────────────
+            InkWell(
+              onTap: () async {
+                final uri = Uri.parse('https://aistudio.google.com/api-keys');
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri,
+                      mode: LaunchMode.externalApplication);
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.open_in_new_rounded,
+                        size: 13, color: AppColors.primaryBlue),
+                    SizedBox(width: 4),
+                    Text(
+                      'Get your key at aistudio.google.com',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // ── Key input (write-once, always obscured) ───────────────
+            TextField(
+              controller: _ctrl,
+              obscureText: true,
+              enableSuggestions: false,
+              autocorrect: false,
+              onChanged: (_) {
+                if (_error != null) setState(() => _error = null);
+              },
+              decoration: InputDecoration(
+                hintText: 'AIzaSy…',
+                errorText: _error,
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _save,
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primaryBlue,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _saving
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('Save'),
+        ),
+      ],
+    );
+  }
+}

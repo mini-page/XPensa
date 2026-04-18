@@ -45,85 +45,90 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        16,
-        24,
-        24 + MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // Drag handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDDE4F0),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          const SizedBox(height: 20),
-
-          // Title row
-          Row(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            16,
+            24,
+            24 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.mic_rounded,
-                  color: AppColors.primaryBlue,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Voice Entry',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    Text(
-                      'Speak to log a transaction',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDDE4F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Title row
+              Row(
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.mic_rounded,
+                      color: AppColors.primaryBlue,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Voice Entry',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        Text(
+                          'Speak to log a transaction',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── State-driven body ──────────────────────────────────────
+              if (_state == _VoiceState.idle) _buildIdleBody(),
+              if (_state == _VoiceState.listening) _buildListeningBody(),
+              if (_state == _VoiceState.result) _buildResultBody(),
+
+              const SizedBox(height: 8),
             ],
           ),
-
-          const SizedBox(height: 24),
-
-          // ── State-driven body ──────────────────────────────────────
-          if (_state == _VoiceState.idle) _buildIdleBody(),
-          if (_state == _VoiceState.listening) _buildListeningBody(),
-          if (_state == _VoiceState.result) _buildResultBody(),
-
-          const SizedBox(height: 8),
-        ],
+        ),
       ),
     );
   }
@@ -178,6 +183,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> {
   Widget _buildResultBody() {
     final cmd = _parsed;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         // Recognised text chip
