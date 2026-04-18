@@ -129,54 +129,67 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
               ),
             ),
           ),
-          // Hint text — sits above the bottom controls
-          const Positioned(
-            bottom: 100,
+          // Hint pill + controls — stacked at the very bottom
+          Positioned(
+            bottom: 0,
             left: 0,
             right: 0,
-            child: Center(
-              child: Text(
-                'Point camera at a UPI payment QR',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  backgroundColor: Colors.black45,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Hint pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Point camera at a UPI payment QR',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Flash toggle + image picker
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ValueListenableBuilder<MobileScannerState>(
+                          valueListenable: _controller,
+                          builder: (_, state, __) {
+                            final torchOn =
+                                state.torchState == TorchState.on;
+                            return _ScannerControlButton(
+                              icon: torchOn
+                                  ? Icons.flash_on_rounded
+                                  : Icons.flash_off_rounded,
+                              label: torchOn ? 'Flash On' : 'Flash Off',
+                              highlighted: torchOn,
+                              onTap: _controller.toggleTorch,
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 32),
+                        _ScannerControlButton(
+                          icon: Icons.photo_library_outlined,
+                          label: 'Gallery',
+                          loading: _isPickingImage,
+                          onTap: _pickImageAndScan,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          // Bottom controls: flash toggle + image picker
-          Positioned(
-            bottom: 32,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Flash toggle
-                ValueListenableBuilder<MobileScannerState>(
-                  valueListenable: _controller,
-                  builder: (_, state, __) {
-                    final torchOn = state.torchState == TorchState.on;
-                    return _ScannerControlButton(
-                      icon: torchOn
-                          ? Icons.flash_on_rounded
-                          : Icons.flash_off_rounded,
-                      label: torchOn ? 'Flash On' : 'Flash Off',
-                      highlighted: torchOn,
-                      onTap: _controller.toggleTorch,
-                    );
-                  },
-                ),
-                const SizedBox(width: 32),
-                // Image picker
-                _ScannerControlButton(
-                  icon: Icons.photo_library_outlined,
-                  label: 'Gallery',
-                  loading: _isPickingImage,
-                  onTap: _pickImageAndScan,
-                ),
-              ],
             ),
           ),
         ],
