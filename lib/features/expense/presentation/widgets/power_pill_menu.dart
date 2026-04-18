@@ -9,7 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 ///
 /// Shows a circular `+` button. When tapped the button rotates 135° (making it
 /// look like ×) and four action pills animate up above it:
-///   Quick Add · {symbol} Scanner · {symbol} Voice (Soon) · SMS (Soon)
+///   Quick Add · {symbol} Scanner · {symbol} Voice (Soon) · SMS
 ///
 /// Use [PowerFabState] via a [GlobalKey] to imperatively [close] the menu
 /// (e.g. from a barrier tap in the parent).
@@ -18,11 +18,13 @@ class PowerFab extends StatefulWidget {
     super.key,
     required this.onQuickAdd,
     required this.onScanner,
+    required this.onSms,
     required this.onToggle,
   });
 
   final VoidCallback onQuickAdd;
   final VoidCallback onScanner;
+  final VoidCallback onSms;
 
   /// Called whenever the open/closed state changes. `true` = opened.
   final ValueChanged<bool> onToggle;
@@ -94,7 +96,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.3,
             icon: Icons.sms_outlined,
             label: 'SMS',
-            badgeLabel: 'Soon',
+            onTap: () => _closeAndRun(widget.onSms),
           ),
           const SizedBox(height: 8),
           _AnimatedPill(

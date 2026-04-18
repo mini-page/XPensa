@@ -14,6 +14,9 @@ class MainActivity : FlutterActivity() {
     private var voiceResultCallback: MethodChannel.Result? = null
     private val voiceRequestCode = 0xA1CE
 
+    // ── SMS receiver ───────────────────────────────────────────────────
+    private var smsReceiverPlugin: SmsReceiverPlugin? = null
+
     // ── MethodChannel ─────────────────────────────────────────────────
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -30,9 +33,31 @@ class MainActivity : FlutterActivity() {
                     startVoiceRecognition()
                 }
 
+                // Flutter → Android: enable live SMS monitoring
+                "startSmsMonitoring" -> {
+                    if (smsReceiverPlugin == null) {
+                        smsReceiverPlugin = SmsReceiverPlugin(flutterEngine)
+                        smsReceiverPlugin!!.register(applicationContext)
+                    }
+                    result.success(null)
+                }
+
+                // Flutter → Android: disable live SMS monitoring
+                "stopSmsMonitoring" -> {
+                    smsReceiverPlugin?.unregister(applicationContext)
+                    smsReceiverPlugin = null
+                    result.success(null)
+                }
+
                 else -> result.notImplemented()
             }
         }
+    }
+
+    override fun onDestroy() {
+        smsReceiverPlugin?.unregister(applicationContext)
+        smsReceiverPlugin = null
+        super.onDestroy()
     }
 
     // ── Voice recognition ──────────────────────────────────────────────

@@ -26,6 +26,9 @@ class AppPreferencesModel {
     this.customIncomeCategoriesJson = '',
     this.builtInExpenseCategoryOverridesJson = '',
     this.builtInIncomeCategoryOverridesJson = '',
+    this.smsParsingEnabled = false,
+    this.smsDefaultAccountId = '',
+    this.smsDefaultCategory = '',
   });
 
   static const AppPreferencesModel defaults = AppPreferencesModel(
@@ -51,6 +54,9 @@ class AppPreferencesModel {
     customIncomeCategoriesJson: '',
     builtInExpenseCategoryOverridesJson: '',
     builtInIncomeCategoryOverridesJson: '',
+    smsParsingEnabled: false,
+    smsDefaultAccountId: '',
+    smsDefaultCategory: '',
   );
 
   final String themeModeKey;
@@ -90,6 +96,19 @@ class AppPreferencesModel {
   /// JSON-serialised list of built-in income category icon/colour overrides.
   final String builtInIncomeCategoryOverridesJson;
 
+  // ── SMS Parsing ─────────────────────────────────────────────────────────
+
+  /// Whether SMS transaction parsing is active.
+  final bool smsParsingEnabled;
+
+  /// ID of the account to use when auto-confirming a parsed SMS transaction.
+  /// Empty string means "use app default".
+  final String smsDefaultAccountId;
+
+  /// Category name to use when auto-confirming a parsed SMS transaction.
+  /// Empty string means "use app default".
+  final String smsDefaultCategory;
+
   bool get isPinEnabled => pinHash.isNotEmpty;
 
   AppPreferencesModel copyWith({
@@ -119,6 +138,9 @@ class AppPreferencesModel {
     String? customIncomeCategoriesJson,
     String? builtInExpenseCategoryOverridesJson,
     String? builtInIncomeCategoryOverridesJson,
+    bool? smsParsingEnabled,
+    String? smsDefaultAccountId,
+    String? smsDefaultCategory,
   }) {
     return AppPreferencesModel(
       themeModeKey: themeModeKey ?? this.themeModeKey,
@@ -159,6 +181,9 @@ class AppPreferencesModel {
       builtInIncomeCategoryOverridesJson:
           builtInIncomeCategoryOverridesJson ??
               this.builtInIncomeCategoryOverridesJson,
+      smsParsingEnabled: smsParsingEnabled ?? this.smsParsingEnabled,
+      smsDefaultAccountId: smsDefaultAccountId ?? this.smsDefaultAccountId,
+      smsDefaultCategory: smsDefaultCategory ?? this.smsDefaultCategory,
     );
   }
 }
@@ -203,6 +228,9 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     String customIncomeCategoriesJson = AppPreferencesModel.defaults.customIncomeCategoriesJson;
     String builtInExpenseCategoryOverridesJson = AppPreferencesModel.defaults.builtInExpenseCategoryOverridesJson;
     String builtInIncomeCategoryOverridesJson = AppPreferencesModel.defaults.builtInIncomeCategoryOverridesJson;
+    bool smsParsingEnabled = AppPreferencesModel.defaults.smsParsingEnabled;
+    String smsDefaultAccountId = AppPreferencesModel.defaults.smsDefaultAccountId;
+    String smsDefaultCategory = AppPreferencesModel.defaults.smsDefaultCategory;
 
     try {
       if (reader.availableBytes > 0) locale = reader.readString();
@@ -239,6 +267,9 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       if (reader.availableBytes > 0) customIncomeCategoriesJson = reader.readString();
       if (reader.availableBytes > 0) builtInExpenseCategoryOverridesJson = reader.readString();
       if (reader.availableBytes > 0) builtInIncomeCategoryOverridesJson = reader.readString();
+      if (reader.availableBytes > 0) smsParsingEnabled = reader.readBool();
+      if (reader.availableBytes > 0) smsDefaultAccountId = reader.readString();
+      if (reader.availableBytes > 0) smsDefaultCategory = reader.readString();
     } catch (_) {
       // Fallback if reading fails
     }
@@ -268,6 +299,9 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       customIncomeCategoriesJson: customIncomeCategoriesJson,
       builtInExpenseCategoryOverridesJson: builtInExpenseCategoryOverridesJson,
       builtInIncomeCategoryOverridesJson: builtInIncomeCategoryOverridesJson,
+      smsParsingEnabled: smsParsingEnabled,
+      smsDefaultAccountId: smsDefaultAccountId,
+      smsDefaultCategory: smsDefaultCategory,
     );
   }
 
@@ -300,7 +334,10 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       ..writeString(obj.customExpenseCategoriesJson)
       ..writeString(obj.customIncomeCategoriesJson)
       ..writeString(obj.builtInExpenseCategoryOverridesJson)
-      ..writeString(obj.builtInIncomeCategoryOverridesJson);
+      ..writeString(obj.builtInIncomeCategoryOverridesJson)
+      ..writeBool(obj.smsParsingEnabled)
+      ..writeString(obj.smsDefaultAccountId)
+      ..writeString(obj.smsDefaultCategory);
   }
 
   List<String> _readStringList(BinaryReader reader) {

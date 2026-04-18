@@ -18,6 +18,7 @@ import 'categories_screen.dart';
 import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'voice_entry_screen.dart';
+import '../../../sms_parser/presentation/screens/sms_settings_sheet.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -263,6 +264,9 @@ class _AppShellState extends ConsumerState<AppShell> {
               onScanner: () {
                 if (mounted) AppRoutes.pushScanner(context);
               },
+              onSms: () {
+                if (mounted) showSmsSettingsSheet(context);
+              },
               onToggle: (open) => setState(() => _fabOpen = open),
             ),
           ),
@@ -326,6 +330,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         if (mounted) await AppRoutes.pushScanner(context);
       case 'voice':
         if (mounted) await _showVoiceEntry();
+      case 'sms':
+        if (mounted) await showSmsSettingsSheet(context);
       // 'open_app' — just bring app to foreground, no extra navigation needed
     }
   }

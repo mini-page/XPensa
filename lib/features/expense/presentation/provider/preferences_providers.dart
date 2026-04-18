@@ -638,4 +638,24 @@ class AppPreferencesController {
       throw error;
     }
   }
+
+  // ── SMS Parsing ────────────────────────────────────────────────────────
+
+  Future<void> setSmsParsingEnabled(bool enabled) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(smsParsingEnabled: enabled));
+  }
+
+  Future<void> setSmsDefaultAccountId(String accountId) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(smsDefaultAccountId: accountId));
+  }
+
+  Future<void> setSmsDefaultCategory(String category) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(smsDefaultCategory: category));
+  }
 }
