@@ -1,5 +1,38 @@
 import 'package:flutter/material.dart';
 
+/// Maps a category icon key string to its [IconData].
+/// Used by [CustomCategoryModel] and [CategoryEditorSheet].
+IconData categoryIconFromKey(String key) {
+  switch (key) {
+    case 'restaurant':
+      return Icons.restaurant_outlined;
+    case 'transport':
+      return Icons.directions_bus_outlined;
+    case 'shopping':
+      return Icons.shopping_bag_outlined;
+    case 'home':
+      return Icons.home_outlined;
+    case 'health':
+      return Icons.health_and_safety_outlined;
+    case 'education':
+      return Icons.school_outlined;
+    case 'entertainment':
+      return Icons.movie_outlined;
+    case 'gym':
+      return Icons.fitness_center_outlined;
+    case 'pets':
+      return Icons.pets_outlined;
+    case 'gift':
+      return Icons.card_giftcard_outlined;
+    case 'work':
+      return Icons.work_outline_rounded;
+    case 'star':
+      return Icons.star_outline_rounded;
+    default:
+      return Icons.category_outlined;
+  }
+}
+
 class ExpenseCategory {
   const ExpenseCategory({
     required this.name,
@@ -93,20 +126,38 @@ const List<ExpenseCategory> incomeCategories = <ExpenseCategory>[
   ),
 ];
 
-ExpenseCategory resolveExpenseCategory(String name) {
+ExpenseCategory resolveExpenseCategory(
+  String name, [
+  List<ExpenseCategory> extra = const [],
+]) {
+  for (final c in extra) {
+    if (c.name == name) return c;
+  }
   return expenseCategories.firstWhere(
     (category) => category.name == name,
     orElse: () => expenseCategories.last,
   );
 }
 
-ExpenseCategory resolveIncomeCategory(String name) {
+ExpenseCategory resolveIncomeCategory(
+  String name, [
+  List<ExpenseCategory> extra = const [],
+]) {
+  for (final c in extra) {
+    if (c.name == name) return c;
+  }
   return incomeCategories.firstWhere(
     (category) => category.name == name,
     orElse: () => incomeCategories.last,
   );
 }
 
-ExpenseCategory resolveCategory(String name, {bool income = false}) {
-  return income ? resolveIncomeCategory(name) : resolveExpenseCategory(name);
+ExpenseCategory resolveCategory(
+  String name, {
+  bool income = false,
+  List<ExpenseCategory> extra = const [],
+}) {
+  return income
+      ? resolveIncomeCategory(name, extra)
+      : resolveExpenseCategory(name, extra);
 }

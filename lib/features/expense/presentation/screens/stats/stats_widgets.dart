@@ -37,6 +37,7 @@ class AnalyticsSnapshot {
   factory AnalyticsSnapshot.fromExpenses(
     List<ExpenseModel> expenses, {
     String rangeLabel = 'This Month',
+    List<ExpenseCategory> extraExpenseCategories = const [],
   }) {
     final now = DateTime.now();
     final ({DateTime start, DateTime end, String label}) range =
@@ -177,7 +178,10 @@ class AnalyticsSnapshot {
             (entry) => CategoryMixPoint(
               label: entry.key,
               amount: entry.value,
-              color: resolveExpenseCategory(entry.key).color,
+              color: resolveExpenseCategory(
+                entry.key,
+                extraExpenseCategories,
+              ).color,
             ),
           )
           .toList(growable: false),

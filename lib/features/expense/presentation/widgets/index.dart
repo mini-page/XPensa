@@ -3,6 +3,7 @@ export 'account_icons.dart';
 export 'amount_visibility.dart';
 export 'app_drawer.dart';
 export 'budget_editor_sheet.dart';
+export 'category_editor_sheet.dart';
 export 'expense_category.dart';
 export 'power_pill_menu.dart';
 export 'quick_action_bar.dart';

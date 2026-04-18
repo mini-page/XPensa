@@ -8,7 +8,6 @@ import '../provider/preferences_providers.dart';
 import '../../data/models/expense_model.dart';
 import 'amount_visibility.dart';
 import 'expense_category.dart';
-
 class TransactionCard extends ConsumerStatefulWidget {
   const TransactionCard({
     super.key,
@@ -36,6 +35,8 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
     final symbol = ref.watch(currencySymbolProvider);
+    final allExpenseCategories = ref.watch(allExpenseCategoriesProvider);
+    final allIncomeCategories = ref.watch(allIncomeCategoriesProvider);
 
     final currencyFormat = NumberFormat.currency(
       locale: locale,
@@ -51,6 +52,7 @@ class _TransactionCardState extends ConsumerState<TransactionCard> {
     final category = resolveCategory(
       widget.expense.category,
       income: widget.expense.isIncome,
+      extra: widget.expense.isIncome ? allIncomeCategories : allExpenseCategories,
     );
     final isTransfer = widget.expense.type == TransactionType.transfer;
     final signedPrefix =

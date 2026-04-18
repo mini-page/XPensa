@@ -109,10 +109,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final disabledIncomeCategories =
         ref.watch(disabledIncomeCategoriesProvider);
     final disabledAccountIds = ref.watch(disabledAccountIdsProvider);
-    final availableExpenseCategories = expenseCategories
+    final allExpenseCategories = ref.watch(allExpenseCategoriesProvider);
+    final allIncomeCategories = ref.watch(allIncomeCategoriesProvider);
+    final availableExpenseCategories = allExpenseCategories
         .where((category) => !disabledExpenseCategories.contains(category.name))
         .toList(growable: false);
-    final availableIncomeCategories = incomeCategories
+    final availableIncomeCategories = allIncomeCategories
         .where((category) => !disabledIncomeCategories.contains(category.name))
         .toList(growable: false);
     final availableAccounts = accounts
@@ -126,10 +128,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     final selectedExpenseCat = _selectedExpenseCategory.isEmpty
         ? null
-        : resolveExpenseCategory(_selectedExpenseCategory);
+        : resolveExpenseCategory(
+            _selectedExpenseCategory, allExpenseCategories);
     final selectedIncomeCat = _selectedIncomeCategory.isEmpty
         ? null
-        : resolveIncomeCategory(_selectedIncomeCategory);
+        : resolveIncomeCategory(
+            _selectedIncomeCategory, allIncomeCategories);
     final selectionAccounts = widget.isEditing ? accounts : availableAccounts;
     final selectedAccount = _resolveSelectedAccount(selectionAccounts);
     final toAccount = _resolveToAccount(selectionAccounts);
@@ -792,10 +796,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         ref.read(disabledExpenseCategoriesProvider);
     final disabledIncomeCategories = ref.read(disabledIncomeCategoriesProvider);
     final disabledAccountIds = ref.read(disabledAccountIdsProvider);
-    final availableExpenseCategories = expenseCategories
+    final allExpenseCategories = ref.read(allExpenseCategoriesProvider);
+    final allIncomeCategories = ref.read(allIncomeCategoriesProvider);
+    final availableExpenseCategories = allExpenseCategories
         .where((category) => !disabledExpenseCategories.contains(category.name))
         .toList(growable: false);
-    final availableIncomeCategories = incomeCategories
+    final availableIncomeCategories = allIncomeCategories
         .where((category) => !disabledIncomeCategories.contains(category.name))
         .toList(growable: false);
     final availableAccounts = accounts
@@ -842,7 +848,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   Future<void> _pickExpenseCategory() async {
     final disabledExpenseCategories =
         ref.read(disabledExpenseCategoriesProvider);
-    final availableExpenseCategories = expenseCategories
+    final allExpenseCategories = ref.read(allExpenseCategoriesProvider);
+    final availableExpenseCategories = allExpenseCategories
         .where((category) => !disabledExpenseCategories.contains(category.name))
         .toList(growable: false);
     if (availableExpenseCategories.isEmpty) {
@@ -872,7 +879,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   Future<void> _pickIncomeCategory() async {
     final disabledIncomeCategories = ref.read(disabledIncomeCategoriesProvider);
-    final availableIncomeCategories = incomeCategories
+    final allIncomeCategories = ref.read(allIncomeCategoriesProvider);
+    final availableIncomeCategories = allIncomeCategories
         .where((category) => !disabledIncomeCategories.contains(category.name))
         .toList(growable: false);
     if (availableIncomeCategories.isEmpty) {

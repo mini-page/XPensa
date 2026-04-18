@@ -22,6 +22,8 @@ class AppPreferencesModel {
     this.savingsGoalsJson = '',
     this.customQuickAmountsJson = '',
     this.hiddenDefaultAmountsJson = '',
+    this.customExpenseCategoriesJson = '',
+    this.customIncomeCategoriesJson = '',
   });
 
   static const AppPreferencesModel defaults = AppPreferencesModel(
@@ -43,6 +45,8 @@ class AppPreferencesModel {
     savingsGoalsJson: '',
     customQuickAmountsJson: '',
     hiddenDefaultAmountsJson: '',
+    customExpenseCategoriesJson: '',
+    customIncomeCategoriesJson: '',
   );
 
   final String themeModeKey;
@@ -73,6 +77,10 @@ class AppPreferencesModel {
   final String customQuickAmountsJson;
   /// JSON-encoded list of locale-default amounts hidden by the user.
   final String hiddenDefaultAmountsJson;
+  /// JSON-serialised list of user-defined expense categories.
+  final String customExpenseCategoriesJson;
+  /// JSON-serialised list of user-defined income categories.
+  final String customIncomeCategoriesJson;
 
   bool get isPinEnabled => pinHash.isNotEmpty;
 
@@ -99,6 +107,8 @@ class AppPreferencesModel {
     String? savingsGoalsJson,
     String? customQuickAmountsJson,
     String? hiddenDefaultAmountsJson,
+    String? customExpenseCategoriesJson,
+    String? customIncomeCategoriesJson,
   }) {
     return AppPreferencesModel(
       themeModeKey: themeModeKey ?? this.themeModeKey,
@@ -129,6 +139,10 @@ class AppPreferencesModel {
           customQuickAmountsJson ?? this.customQuickAmountsJson,
       hiddenDefaultAmountsJson:
           hiddenDefaultAmountsJson ?? this.hiddenDefaultAmountsJson,
+      customExpenseCategoriesJson:
+          customExpenseCategoriesJson ?? this.customExpenseCategoriesJson,
+      customIncomeCategoriesJson:
+          customIncomeCategoriesJson ?? this.customIncomeCategoriesJson,
     );
   }
 }
@@ -169,6 +183,8 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     String savingsGoalsJson = AppPreferencesModel.defaults.savingsGoalsJson;
     String customQuickAmountsJson = AppPreferencesModel.defaults.customQuickAmountsJson;
     String hiddenDefaultAmountsJson = AppPreferencesModel.defaults.hiddenDefaultAmountsJson;
+    String customExpenseCategoriesJson = AppPreferencesModel.defaults.customExpenseCategoriesJson;
+    String customIncomeCategoriesJson = AppPreferencesModel.defaults.customIncomeCategoriesJson;
 
     try {
       if (reader.availableBytes > 0) locale = reader.readString();
@@ -201,6 +217,8 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       if (reader.availableBytes > 0) savingsGoalsJson = reader.readString();
       if (reader.availableBytes > 0) customQuickAmountsJson = reader.readString();
       if (reader.availableBytes > 0) hiddenDefaultAmountsJson = reader.readString();
+      if (reader.availableBytes > 0) customExpenseCategoriesJson = reader.readString();
+      if (reader.availableBytes > 0) customIncomeCategoriesJson = reader.readString();
     } catch (_) {
       // Fallback if reading fails
     }
@@ -226,6 +244,8 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       savingsGoalsJson: savingsGoalsJson,
       customQuickAmountsJson: customQuickAmountsJson,
       hiddenDefaultAmountsJson: hiddenDefaultAmountsJson,
+      customExpenseCategoriesJson: customExpenseCategoriesJson,
+      customIncomeCategoriesJson: customIncomeCategoriesJson,
     );
   }
 
@@ -254,7 +274,9 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       ..writeString(obj.whatsNewShownVersion)
       ..writeString(obj.savingsGoalsJson)
       ..writeString(obj.customQuickAmountsJson)
-      ..writeString(obj.hiddenDefaultAmountsJson);
+      ..writeString(obj.hiddenDefaultAmountsJson)
+      ..writeString(obj.customExpenseCategoriesJson)
+      ..writeString(obj.customIncomeCategoriesJson);
   }
 
   List<String> _readStringList(BinaryReader reader) {

@@ -9,8 +9,10 @@ import 'package:workmanager/workmanager.dart';
 
 import '../../data/datasource/preferences_local_datasource.dart';
 import '../../data/models/app_preferences_model.dart';
+import '../../data/models/custom_category_model.dart';
 import '../../data/repositories/hive_preferences_repository.dart';
 import '../../domain/repositories/preferences_repository.dart';
+import '../widgets/expense_category.dart';
 
 const String backupTaskTag = 'xpensa_offline_backup';
 
@@ -125,6 +127,52 @@ final hiddenDefaultAmountsProvider = Provider<List<double>>((ref) {
   } catch (_) {
     return const <double>[];
   }
+});
+
+final customExpenseCategoryListProvider =
+    Provider<List<CustomCategoryModel>>((ref) {
+  final json = ref.watch(appPreferencesProvider).value
+          ?.customExpenseCategoriesJson ??
+      '';
+  return customCategoriesFromJson(json);
+});
+
+final customIncomeCategoryListProvider =
+    Provider<List<CustomCategoryModel>>((ref) {
+  final json = ref.watch(appPreferencesProvider).value
+          ?.customIncomeCategoriesJson ??
+      '';
+  return customCategoriesFromJson(json);
+});
+
+/// All expense categories: built-in list + user-defined custom categories.
+final allExpenseCategoriesProvider = Provider<List<ExpenseCategory>>((ref) {
+  final custom = ref.watch(customExpenseCategoryListProvider);
+  return <ExpenseCategory>[
+    ...expenseCategories,
+    ...custom.map(
+      (c) => ExpenseCategory(
+        name: c.name,
+        icon: categoryIconFromKey(c.iconKey),
+        color: c.color,
+      ),
+    ),
+  ];
+});
+
+/// All income categories: built-in list + user-defined custom categories.
+final allIncomeCategoriesProvider = Provider<List<ExpenseCategory>>((ref) {
+  final custom = ref.watch(customIncomeCategoryListProvider);
+  return <ExpenseCategory>[
+    ...incomeCategories,
+    ...custom.map(
+      (c) => ExpenseCategory(
+        name: c.name,
+        icon: categoryIconFromKey(c.iconKey),
+        color: c.color,
+      ),
+    ),
+  ];
 });
 
 final isOnboardingCompletedProvider = Provider<bool>((ref) {
@@ -351,6 +399,78 @@ class AppPreferencesController {
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
             hiddenDefaultAmountsJson: jsonEncode(amounts),
+          ),
+        );
+  }
+
+  Future<void> addExpenseCategory(CustomCategoryModel category) async {
+    final list = customCategoriesFromJson(
+        _current.customExpenseCategoriesJson);
+    list.add(category);
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customExpenseCategoriesJson: customCategoriesToJson(list),
+          ),
+        );
+  }
+
+  Future<void> updateExpenseCategory(CustomCategoryModel category) async {
+    final list = customCategoriesFromJson(
+        _current.customExpenseCategoriesJson);
+    final index = list.indexWhere((c) => c.id == category.id);
+    if (index != -1) {
+      list[index] = category;
+    }
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customExpenseCategoriesJson: customCategoriesToJson(list),
+          ),
+        );
+  }
+
+  Future<void> removeExpenseCategory(String id) async {
+    final list = customCategoriesFromJson(
+        _current.customExpenseCategoriesJson);
+    list.removeWhere((c) => c.id == id);
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customExpenseCategoriesJson: customCategoriesToJson(list),
+          ),
+        );
+  }
+
+  Future<void> addIncomeCategory(CustomCategoryModel category) async {
+    final list = customCategoriesFromJson(
+        _current.customIncomeCategoriesJson);
+    list.add(category);
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customIncomeCategoriesJson: customCategoriesToJson(list),
+          ),
+        );
+  }
+
+  Future<void> updateIncomeCategory(CustomCategoryModel category) async {
+    final list = customCategoriesFromJson(
+        _current.customIncomeCategoriesJson);
+    final index = list.indexWhere((c) => c.id == category.id);
+    if (index != -1) {
+      list[index] = category;
+    }
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customIncomeCategoriesJson: customCategoriesToJson(list),
+          ),
+        );
+  }
+
+  Future<void> removeIncomeCategory(String id) async {
+    final list = customCategoriesFromJson(
+        _current.customIncomeCategoriesJson);
+    list.removeWhere((c) => c.id == id);
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            customIncomeCategoriesJson: customCategoriesToJson(list),
           ),
         );
   }

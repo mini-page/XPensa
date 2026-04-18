@@ -41,7 +41,12 @@ final analyticsSnapshotProvider =
     Provider.family<AnalyticsSnapshot, String>((ref, rangeLabel) {
   final expenses =
       ref.watch(expenseListProvider).value ?? const <ExpenseModel>[];
-  return AnalyticsSnapshot.fromExpenses(expenses, rangeLabel: rangeLabel);
+  final allExpenseCategories = ref.watch(allExpenseCategoriesProvider);
+  return AnalyticsSnapshot.fromExpenses(
+    expenses,
+    rangeLabel: rangeLabel,
+    extraExpenseCategories: allExpenseCategories,
+  );
 });
 
 class ExpenseListNotifier extends AsyncNotifier<List<ExpenseModel>> {

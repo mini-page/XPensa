@@ -68,6 +68,7 @@ class BudgetToolView extends ConsumerWidget {
     final budgets = ref.watch(budgetTargetsProvider).value ?? defaultBudgetTargets;
     final stats = ref.watch(statsProvider);
     final currency = ref.watch(currencyFormatProvider);
+    final allExpenseCategories = ref.watch(allExpenseCategoriesProvider);
 
     // Collect all categories that either have a budget or have been spent in
     final allCategories = {
@@ -193,7 +194,7 @@ class BudgetToolView extends ConsumerWidget {
             final progress =
                 budget > 0 ? (spend / budget).clamp(0.0, 1.0) : 0.0;
             final isOverBudget = budget > 0 && spend > budget;
-            final catInfo = resolveExpenseCategory(category);
+            final catInfo = resolveExpenseCategory(category, allExpenseCategories);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
