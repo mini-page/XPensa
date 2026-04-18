@@ -26,10 +26,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   bool _smartReminders = true;
   String _accountName = 'Main Account';
   double _initialBalance = 0.0;
-  String _displayName = '';
+  String _aiApiKey = '';
 
   // Step definitions
-  static const int _pageCount = 4;
+  static const int _pageCount = 5;
 
   @override
   void dispose() {
@@ -94,10 +94,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onPageChanged: (page) => setState(() => _currentPage = page),
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _WelcomePage(
-                    displayName: _displayName,
-                    onNameChanged: (v) => _displayName = v,
-                  ),
+                  const _WelcomePage(),
                   _LocalePage(
                     selectedLocale: _selectedLocale,
                     selectedCurrency: _selectedCurrency,
@@ -121,47 +118,70 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onRemindersChanged: (v) =>
                         setState(() => _smartReminders = v),
                   ),
+                  _AiApiKeyPage(
+                    apiKey: _aiApiKey,
+                    onApiKeyChanged: (v) => _aiApiKey = v,
+                  ),
                 ],
               ),
             ),
 
             // Navigation buttons
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_currentPage > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: OutlinedButton(
-                        onPressed: _previousPage,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
+                  Row(
+                    children: [
+                      if (_currentPage > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: OutlinedButton(
+                            onPressed: _previousPage,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              side: const BorderSide(color: AppColors.primaryBlue),
+                            ),
+                            child: const Text(
+                              'Back',
+                              style: TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          side: const BorderSide(color: AppColors.primaryBlue),
                         ),
-                        child: const Text(
-                          'Back',
-                          style: TextStyle(
-                            color: AppColors.primaryBlue,
-                            fontWeight: FontWeight.w800,
-                          ),
+                      Expanded(
+                        child: AppButton(
+                          label: _currentPage == _pageCount - 1
+                              ? 'Save & Get Started 🚀'
+                              : 'Continue',
+                          onPressed: _nextPage,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_currentPage == _pageCount - 1) ...[
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: _completeOnboarding,
+                      child: const Text(
+                        'Skip for now',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                  Expanded(
-                    child: AppButton(
-                      label: _currentPage == _pageCount - 1
-                          ? 'Get Started 🚀'
-                          : 'Continue',
-                      onPressed: _nextPage,
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -172,7 +192,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _completeOnboarding() async {
-    final name = _displayName.trim();
     final accountName = _accountName.trim().isEmpty ? 'Main Account' : _accountName;
 
     await ref.read(accountControllerProvider).saveAccount(
@@ -189,8 +208,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           isOnboardingCompleted: true,
         );
 
-    if (name.isNotEmpty) {
-      await ref.read(appPreferencesControllerProvider).setDisplayName(name);
+    final apiKey = _aiApiKey.trim();
+    if (apiKey.isNotEmpty) {
+      await ref.read(appPreferencesControllerProvider).setAiApiKey(apiKey);
     }
   }
 }
@@ -198,33 +218,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 // ---------------------------------------------------------------------------
 // Page 1: Welcome
 // ---------------------------------------------------------------------------
-class _WelcomePage extends StatefulWidget {
-  const _WelcomePage({
-    required this.displayName,
-    required this.onNameChanged,
-  });
-
-  final String displayName;
-  final ValueChanged<String> onNameChanged;
-
-  @override
-  State<_WelcomePage> createState() => _WelcomePageState();
-}
-
-class _WelcomePageState extends State<_WelcomePage> {
-  late final TextEditingController _nameController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.displayName);
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
+class _WelcomePage extends StatelessWidget {
+  const _WelcomePage();
 
   @override
   Widget build(BuildContext context) {
@@ -255,24 +250,6 @@ class _WelcomePageState extends State<_WelcomePage> {
                   color: AppColors.textSubtle,
                   height: 1.5,
                 ),
-          ),
-          const SizedBox(height: 40),
-          TextField(
-            controller: _nameController,
-            onChanged: widget.onNameChanged,
-            maxLength: 40,
-            decoration: InputDecoration(
-              labelText: 'What should we call you? (optional)',
-              hintText: 'Your name',
-              prefixIcon: const Icon(Icons.person_outline_rounded),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              counterText: '',
-            ),
           ),
           const Spacer(flex: 2),
           Text(
@@ -729,6 +706,175 @@ class _ThemeOption extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Page 5: AI API Key (optional)
+// ---------------------------------------------------------------------------
+class _AiApiKeyPage extends StatefulWidget {
+  const _AiApiKeyPage({
+    required this.apiKey,
+    required this.onApiKeyChanged,
+  });
+
+  final String apiKey;
+  final ValueChanged<String> onApiKeyChanged;
+
+  @override
+  State<_AiApiKeyPage> createState() => _AiApiKeyPageState();
+}
+
+class _AiApiKeyPageState extends State<_AiApiKeyPage> {
+  late final TextEditingController _keyCtrl;
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _keyCtrl = TextEditingController(text: widget.apiKey);
+  }
+
+  @override
+  void dispose() {
+    _keyCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
+          _OnboardingStepHeader(
+            icon: Icons.auto_awesome_rounded,
+            title: 'Unlock AI Features',
+            subtitle: 'Supercharge XPensa with Gemini AI',
+          ),
+          const SizedBox(height: 20),
+          // Feature highlights
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primaryBlue.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primaryBlue.withValues(alpha: 0.15),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _AiFeatureRow(
+                  icon: Icons.search_rounded,
+                  label: 'Smart expense search & insights',
+                ),
+                SizedBox(height: 8),
+                _AiFeatureRow(
+                  icon: Icons.mic_rounded,
+                  label: 'Voice entry — just speak your expense',
+                ),
+                SizedBox(height: 8),
+                _AiFeatureRow(
+                  icon: Icons.document_scanner_rounded,
+                  label: 'Receipt & bill scanning',
+                ),
+                SizedBox(height: 8),
+                _AiFeatureRow(
+                  icon: Icons.sms_rounded,
+                  label: 'Automatic SMS transaction detection',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _keyCtrl,
+            onChanged: widget.onApiKeyChanged,
+            obscureText: _obscure,
+            decoration: InputDecoration(
+              labelText: 'Gemini API Key (optional)',
+              hintText: 'AIza...',
+              prefixIcon: const Icon(Icons.key_rounded),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              helperText: 'Get your free key at aistudio.google.com',
+              helperStyle: const TextStyle(
+                color: AppColors.primaryBlue,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.surfaceAccent),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.info_outline_rounded,
+                    color: AppColors.textMuted, size: 18),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'You can add or change this later in Settings → AI Features',
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AiFeatureRow extends StatelessWidget {
+  const _AiFeatureRow({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primaryBlue, size: 18),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textDark,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

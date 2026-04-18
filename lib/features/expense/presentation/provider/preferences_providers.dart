@@ -229,6 +229,11 @@ final smartRemindersEnabledProvider = Provider<bool>((ref) {
       AppPreferencesModel.defaults.smartRemindersEnabled;
 });
 
+final aiApiKeyProvider = Provider<String>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiApiKey ??
+      AppPreferencesModel.defaults.aiApiKey;
+});
+
 final autoBackupEnabledProvider = Provider<bool>((ref) {
   return ref.watch(appPreferencesProvider).value?.autoBackupEnabled ??
       AppPreferencesModel.defaults.autoBackupEnabled;
@@ -657,5 +662,11 @@ class AppPreferencesController {
     await _ref
         .read(appPreferencesProvider.notifier)
         .save(_current.copyWith(smsDefaultCategory: category));
+  }
+
+  Future<void> setAiApiKey(String key) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiApiKey: key));
   }
 }

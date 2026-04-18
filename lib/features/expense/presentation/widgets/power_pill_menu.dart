@@ -11,6 +11,10 @@ import '../../../../core/theme/app_colors.dart';
 /// look like ×) and four action pills animate up above it:
 ///   Quick Add · {symbol} Scanner · {symbol} Voice (Soon) · SMS
 ///
+/// The SMS pill has a split interaction:
+///   - Tapping the label / icon area opens the SMS settings sheet.
+///   - The inline toggle switch toggles SMS parsing on/off directly.
+///
 /// Use [PowerFabState] via a [GlobalKey] to imperatively [close] the menu
 /// (e.g. from a barrier tap in the parent).
 class PowerFab extends StatefulWidget {
@@ -20,14 +24,24 @@ class PowerFab extends StatefulWidget {
     required this.onScanner,
     required this.onSms,
     required this.onToggle,
+    required this.smsParsingEnabled,
+    required this.onSmsToggle,
   });
 
   final VoidCallback onQuickAdd;
   final VoidCallback onScanner;
+
+  /// Opens the SMS settings sheet.
   final VoidCallback onSms;
 
   /// Called whenever the open/closed state changes. `true` = opened.
   final ValueChanged<bool> onToggle;
+
+  /// Current SMS parsing enabled state (drives the inline toggle).
+  final bool smsParsingEnabled;
+
+  /// Called when the user taps the inline SMS toggle switch.
+  final ValueChanged<bool> onSmsToggle;
 
   @override
   PowerFabState createState() => PowerFabState();
@@ -97,6 +111,8 @@ class PowerFabState extends State<PowerFab>
             icon: Icons.sms_outlined,
             label: 'SMS',
             onTap: () => _closeAndRun(widget.onSms),
+            trailingToggleValue: widget.smsParsingEnabled,
+            onTrailingToggle: widget.onSmsToggle,
           ),
           const SizedBox(height: 8),
           _AnimatedPill(
@@ -180,6 +196,8 @@ class _AnimatedPill extends StatelessWidget {
     this.badgeLabel,
     this.highlighted = false,
     this.onTap,
+    this.trailingToggleValue,
+    this.onTrailingToggle,
   });
 
   final Animation<double> animation;
@@ -191,6 +209,11 @@ class _AnimatedPill extends StatelessWidget {
   final String? badgeLabel;
   final bool highlighted;
   final VoidCallback? onTap;
+
+  /// When non-null, a compact toggle switch is shown at the trailing edge
+  /// of the pill. Tapping the toggle does NOT trigger [onTap].
+  final bool? trailingToggleValue;
+  final ValueChanged<bool>? onTrailingToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +246,12 @@ class _AnimatedPill extends StatelessWidget {
               : null,
           borderRadius: BorderRadius.circular(28),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: EdgeInsets.only(
+              left: 18,
+              right: trailingToggleValue != null ? 6 : 18,
+              top: 14,
+              bottom: 14,
+            ),
             decoration: BoxDecoration(
               color: highlighted ? AppColors.primaryBlue : _kPillColor,
               borderRadius: BorderRadius.circular(28),
@@ -266,6 +294,39 @@ class _AnimatedPill extends StatelessWidget {
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+                if (trailingToggleValue != null) ...<Widget>[
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 1,
+                    height: 20,
+                    color: Colors.white.withValues(alpha: 0.25),
+                  ),
+                  // GestureDetector absorbs taps so they don't bubble to InkWell
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      onTrailingToggle?.call(!trailingToggleValue!);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Transform.scale(
+                        scale: 0.75,
+                        child: Switch(
+                          value: trailingToggleValue!,
+                          onChanged: onTrailingToggle,
+                          activeColor: Colors.white,
+                          activeTrackColor: AppColors.primaryBlue
+                              .withValues(alpha: 0.7),
+                          inactiveThumbColor: Colors.white60,
+                          inactiveTrackColor: Colors.white24,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
                     ),
                   ),

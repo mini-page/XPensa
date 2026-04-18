@@ -19,6 +19,7 @@ import 'home_screen.dart';
 import 'stats_screen.dart';
 import 'voice_entry_screen.dart';
 import '../../../sms_parser/presentation/screens/sms_settings_sheet.dart';
+import '../../../sms_parser/presentation/provider/sms_providers.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -268,6 +269,12 @@ class _AppShellState extends ConsumerState<AppShell> {
                 if (mounted) showSmsSettingsSheet(context);
               },
               onToggle: (open) => setState(() => _fabOpen = open),
+              smsParsingEnabled: ref.watch(smsParsingEnabledProvider),
+              onSmsToggle: (enabled) {
+                ref
+                    .read(appPreferencesControllerProvider)
+                    .setSmsParsingEnabled(enabled);
+              },
             ),
           ),
         ],
