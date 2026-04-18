@@ -101,9 +101,11 @@ class UpdateService {
 
   static List<int>? _parseVersion(String v) {
     try {
-      final parts = v.split('.').map(int.parse).toList();
-      while (parts.length < 3) parts.add(0);
-      return parts;
+      final parts = v.split('.');
+      // Only the first three segments are significant; extras are ignored.
+      final semver = parts.take(3).map(int.parse).toList();
+      while (semver.length < 3) semver.add(0);
+      return semver;
     } catch (_) {
       return null;
     }

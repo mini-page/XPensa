@@ -796,8 +796,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                notes!.length > 280
-                    ? '${notes.substring(0, 280).trimRight()}\u2026'
+                notes!.length > _kMaxReleaseNotesLength
+                    ? '${notes.substring(0, _kMaxReleaseNotesLength).trimRight()}\u2026'
                     : notes,
                 style: const TextStyle(
                     fontSize: 12, color: AppColors.textMuted),
@@ -817,6 +817,11 @@ class SettingsScreen extends ConsumerWidget {
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri,
                     mode: LaunchMode.externalApplication);
+              } else if (context.mounted) {
+                context.showSnackBar(
+                  'Could not open the download link. '
+                  'Visit github.com/mini-page/XPensa/releases manually.',
+                );
               }
             },
             icon: const Icon(Icons.download_rounded, size: 18),
@@ -855,3 +860,8 @@ class _UpdateBadge extends StatelessWidget {
     );
   }
 }
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+/// Maximum number of characters shown for release notes in the update dialog.
+const int _kMaxReleaseNotesLength = 280;
