@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/biometric_service.dart';
 import '../../../../core/services/update_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -44,6 +45,13 @@ class SettingsScreen extends ConsumerWidget {
     final lastBackup = ref.watch(lastBackupDateTimeProvider);
 
     final aiApiKey = ref.watch(aiApiKeyProvider);
+    final aiEnabled = ref.watch(aiEnabledProvider);
+    final aiModelId = ref.watch(aiModelIdProvider);
+    final aiSmartSearch = ref.watch(aiSmartSearchEnabledProvider);
+    final aiVoice = ref.watch(aiVoiceEnabledProvider);
+    final aiScanner = ref.watch(aiScannerEnabledProvider);
+    final aiSmsAi = ref.watch(aiSmsAiEnabledProvider);
+    final biometricEnabled = ref.watch(biometricLockEnabledProvider);
 
     // Update check state
     final updateState = ref.watch(updateCheckerProvider);
@@ -125,11 +133,19 @@ class SettingsScreen extends ConsumerWidget {
                       );
                     },
                   ),
-                _buildComingSoonTile(
-                  context,
+                _buildToggleTile(
                   icon: Icons.fingerprint_rounded,
                   title: 'Biometric Lock',
-                  subtitle: 'Secure the app with fingerprint or face ID',
+                  subtitle: isPinEnabled
+                      ? 'Use fingerprint / face-ID in addition to PIN'
+                      : 'Enable PIN Lock first to use Biometric Lock',
+                  value: biometricEnabled,
+                  onChanged: isPinEnabled
+                      ? (enabled) =>
+                          _handleBiometricToggle(context, ref, enabled)
+                      : (_) => context.showSnackBar(
+                            'Please enable PIN Lock first.',
+                          ),
                 ),
               ],
             ),
@@ -250,10 +266,32 @@ class SettingsScreen extends ConsumerWidget {
 
             // ── AI Features ───────────────────────────────────────────────
             const SettingsSectionHeader(title: 'AI Features'),
-            SettingsCard(
-              children: [
-                _buildAiApiKeyTile(context, aiApiKey, controller),
-              ],
+            _AiFeaturesCard(
+              apiKey: aiApiKey,
+              aiEnabled: aiEnabled,
+              aiModelId: aiModelId,
+              aiSmartSearch: aiSmartSearch,
+              aiVoice: aiVoice,
+              aiScanner: aiScanner,
+              aiSmsAi: aiSmsAi,
+              controller: controller,
+              onAddKey: () => _showAddApiKeyDialog(context, controller),
+              onDeleteKey: () async {
+                final confirmed = await confirmDestructiveAction(
+                  context,
+                  title: 'Remove AI Key?',
+                  message:
+                      'The Gemini API key will be deleted. AI-powered features '
+                      'will be unavailable until you add a new key.',
+                  confirmLabel: 'Remove',
+                );
+                if (confirmed) {
+                  await controller.setAiApiKey('');
+                  if (context.mounted) {
+                    context.showSnackBar('AI API key removed.');
+                  }
+                }
+              },
             ),
             const SizedBox(height: 24),
 
@@ -299,7 +337,42 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handlePinToggle(
+  Future<void> _handleBiometricToggle(
+    BuildContext context,
+    WidgetRef ref,
+    bool enable,
+  ) async {
+    final controller = ref.read(appPreferencesControllerProvider);
+    if (enable) {
+      final available =
+          await BiometricService.isAvailable();
+      if (!available) {
+        if (context.mounted) {
+          context.showSnackBar(
+            'No biometrics are enrolled on this device.',
+          );
+        }
+        return;
+      }
+      final ok = await BiometricService.authenticate(
+        reason: 'Confirm your identity to enable Biometric Lock',
+      );
+      if (!ok) {
+        if (context.mounted) {
+          context.showSnackBar('Biometric verification failed.');
+        }
+        return;
+      }
+    }
+    await controller.setBiometricLock(enable);
+    if (context.mounted) {
+      context.showSnackBar(
+        enable ? 'Biometric lock enabled.' : 'Biometric lock disabled.',
+      );
+    }
+  }
+
+
     BuildContext context,
     WidgetRef ref,
     bool enable,
@@ -623,86 +696,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  // ── AI Features tile ──────────────────────────────────────────────────────
-
-  Widget _buildAiApiKeyTile(
-    BuildContext context,
-    String currentKey,
-    AppPreferencesController controller,
-  ) {
-    final hasKey = currentKey.isNotEmpty;
-
-    return ListTile(
-      dense: true,
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: (hasKey ? AppColors.success : AppColors.primaryBlue)
-              .withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          hasKey ? Icons.check_circle_outline_rounded : Icons.vpn_key_outlined,
-          color: hasKey ? AppColors.success : AppColors.primaryBlue,
-          size: 18,
-        ),
-      ),
-      title: const Text(
-        'Gemini AI Key',
-        style: TextStyle(
-          color: AppColors.textDark,
-          fontWeight: FontWeight.w700,
-          fontSize: 14,
-        ),
-      ),
-      subtitle: Text(
-        hasKey ? 'Connected — tap delete to remove' : 'Not configured',
-        style: TextStyle(
-          color: hasKey ? AppColors.success : AppColors.textMuted,
-          fontSize: 11,
-        ),
-      ),
-      trailing: hasKey
-          ? IconButton(
-              iconSize: 20,
-              icon: const Icon(Icons.delete_outline_rounded,
-                  color: AppColors.danger),
-              tooltip: 'Remove key',
-              onPressed: () async {
-                final confirmed = await confirmDestructiveAction(
-                  context,
-                  title: 'Remove AI Key?',
-                  message:
-                      'The Gemini API key will be deleted. AI-powered features '
-                      'will be unavailable until you add a new key.',
-                  confirmLabel: 'Remove',
-                );
-                if (confirmed) {
-                  await controller.setAiApiKey('');
-                  if (context.mounted) {
-                    context.showSnackBar('AI API key removed.');
-                  }
-                }
-              },
-            )
-          : TextButton(
-              onPressed: () =>
-                  _showAddApiKeyDialog(context, controller),
-              child: const Text(
-                'Add Key',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-      onTap: hasKey
-          ? () => context.showSnackBar(
-                'Delete the key first to add a new one.',
-              )
-          : () => _showAddApiKeyDialog(context, controller),
-    );
-  }
+  // ── AI key dialog helper ─────────────────────────────────────────────────
 
   void _showAddApiKeyDialog(
     BuildContext context,
@@ -912,6 +906,364 @@ class _UpdateBadge extends StatelessWidget {
 
 /// Maximum number of characters shown for release notes in the update dialog.
 const int _kMaxReleaseNotesLength = 280;
+
+// ── AI Features card ──────────────────────────────────────────────────────────
+
+/// Available Gemini models the user can choose from.
+const List<({String id, String label, String description})> _kGeminiModels = [
+  (
+    id: 'gemini-2.0-flash',
+    label: 'Gemini 2.0 Flash',
+    description: 'Fast & balanced — recommended',
+  ),
+  (
+    id: 'gemini-2.0-flash-lite',
+    label: 'Gemini 2.0 Flash Lite',
+    description: 'Lightest, lowest latency',
+  ),
+  (
+    id: 'gemini-2.5-flash',
+    label: 'Gemini 2.5 Flash',
+    description: 'Most capable flash model',
+  ),
+  (
+    id: 'gemini-1.5-flash',
+    label: 'Gemini 1.5 Flash',
+    description: 'Stable and widely tested',
+  ),
+  (
+    id: 'gemini-1.5-pro',
+    label: 'Gemini 1.5 Pro',
+    description: 'Highest quality, higher latency',
+  ),
+];
+
+/// A self-contained card widget that renders the full AI Features section.
+///
+/// Composed of:
+///   • API key status row (compact)
+///   • Master "Enable AI Features" toggle (only interactive when key is present)
+///   • Gemini model selector (only shown when AI is enabled)
+///   • Per-feature toggles (only shown when AI is enabled)
+class _AiFeaturesCard extends StatelessWidget {
+  const _AiFeaturesCard({
+    required this.apiKey,
+    required this.aiEnabled,
+    required this.aiModelId,
+    required this.aiSmartSearch,
+    required this.aiVoice,
+    required this.aiScanner,
+    required this.aiSmsAi,
+    required this.controller,
+    required this.onAddKey,
+    required this.onDeleteKey,
+  });
+
+  final String apiKey;
+  final bool aiEnabled;
+  final String aiModelId;
+  final bool aiSmartSearch;
+  final bool aiVoice;
+  final bool aiScanner;
+  final bool aiSmsAi;
+  final AppPreferencesController controller;
+  final VoidCallback onAddKey;
+  final VoidCallback onDeleteKey;
+
+  bool get _hasKey => apiKey.isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsCard(
+      children: [
+        // ── API Key row ─────────────────────────────────────────────
+        _AiKeyRow(
+          hasKey: _hasKey,
+          onAdd: onAddKey,
+          onDelete: onDeleteKey,
+        ),
+
+        // ── Master toggle ──────────────────────────────────────────
+        ListTile(
+          dense: true,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: (aiEnabled
+                      ? AppColors.primaryBlue
+                      : AppColors.textMuted)
+                  .withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              color:
+                  aiEnabled ? AppColors.primaryBlue : AppColors.textMuted,
+              size: 18,
+            ),
+          ),
+          title: const Text(
+            'Enable AI Features',
+            style: TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w700,
+                fontSize: 14),
+          ),
+          subtitle: Text(
+            _hasKey
+                ? 'Use Gemini to power smart features'
+                : 'Add an API key first',
+            style: TextStyle(
+              color: _hasKey ? AppColors.textMuted : AppColors.danger,
+              fontSize: 11,
+            ),
+          ),
+          trailing: Switch.adaptive(
+            value: aiEnabled,
+            activeTrackColor: AppColors.primaryBlue,
+            onChanged: _hasKey
+                ? (v) => controller.setAiEnabled(v)
+                : (_) {},
+          ),
+        ),
+
+        // ── Model selector ─────────────────────────────────────────
+        if (aiEnabled) ...[
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          _AiModelSelector(
+            currentId: aiModelId,
+            onChanged: controller.setAiModelId,
+          ),
+
+          // ── Per-feature toggles ─────────────────────────────────
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          _AiFeatureToggle(
+            icon: Icons.search_rounded,
+            title: 'Smart Search',
+            subtitle: 'AI-enhanced transaction search',
+            value: aiSmartSearch,
+            onChanged: controller.setAiSmartSearchEnabled,
+          ),
+          _AiFeatureToggle(
+            icon: Icons.mic_rounded,
+            title: 'Smart Voice Entry',
+            subtitle: 'AI parses voice commands',
+            value: aiVoice,
+            onChanged: controller.setAiVoiceEnabled,
+          ),
+          _AiFeatureToggle(
+            icon: Icons.qr_code_scanner_rounded,
+            title: 'Smart Scanner',
+            subtitle: 'AI reads receipts & product labels',
+            value: aiScanner,
+            onChanged: controller.setAiScannerEnabled,
+          ),
+          _AiFeatureToggle(
+            icon: Icons.sms_outlined,
+            title: 'AI SMS Parsing',
+            subtitle: 'AI extracts amounts from bank SMS',
+            value: aiSmsAi,
+            onChanged: controller.setAiSmsAiEnabled,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ── Compact API key row ───────────────────────────────────────────────────────
+
+class _AiKeyRow extends StatelessWidget {
+  const _AiKeyRow({
+    required this.hasKey,
+    required this.onAdd,
+    required this.onDelete,
+  });
+
+  final bool hasKey;
+  final VoidCallback onAdd;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (hasKey ? AppColors.success : AppColors.primaryBlue)
+              .withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          hasKey
+              ? Icons.check_circle_outline_rounded
+              : Icons.vpn_key_outlined,
+          color: hasKey ? AppColors.success : AppColors.primaryBlue,
+          size: 18,
+        ),
+      ),
+      title: const Text(
+        'Gemini API Key',
+        style: TextStyle(
+          color: AppColors.textDark,
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+        ),
+      ),
+      subtitle: Text(
+        hasKey ? 'Connected  •  tap 🗑 to remove' : 'Not configured',
+        style: TextStyle(
+          color: hasKey ? AppColors.success : AppColors.textMuted,
+          fontSize: 11,
+        ),
+      ),
+      trailing: hasKey
+          ? IconButton(
+              iconSize: 20,
+              icon: const Icon(Icons.delete_outline_rounded,
+                  color: AppColors.danger),
+              tooltip: 'Remove key',
+              onPressed: onDelete,
+            )
+          : TextButton(
+              onPressed: onAdd,
+              child: const Text(
+                'Add Key',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+      onTap: hasKey
+          ? () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Delete the key first to add a new one.'),
+                  duration: Duration(seconds: 2),
+                ),
+              )
+          : onAdd,
+    );
+  }
+}
+
+// ── Model selector row ────────────────────────────────────────────────────────
+
+class _AiModelSelector extends StatelessWidget {
+  const _AiModelSelector({
+    required this.currentId,
+    required this.onChanged,
+  });
+
+  final String currentId;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    // Fall back gracefully if a previously saved model is not in the list
+    final selected = _kGeminiModels.any((m) => m.id == currentId)
+        ? currentId
+        : _kGeminiModels.first.id;
+    final model =
+        _kGeminiModels.firstWhere((m) => m.id == selected);
+
+    return ListTile(
+      dense: true,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(
+          Icons.settings_suggest_rounded,
+          color: AppColors.primaryBlue,
+          size: 18,
+        ),
+      ),
+      title: const Text(
+        'Gemini Model',
+        style: TextStyle(
+            color: AppColors.textDark,
+            fontWeight: FontWeight.w700,
+            fontSize: 14),
+      ),
+      subtitle: Text(
+        model.description,
+        style:
+            const TextStyle(color: AppColors.textMuted, fontSize: 11),
+      ),
+      trailing: DropdownButton<String>(
+        value: selected,
+        underline: const SizedBox(),
+        isDense: true,
+        onChanged: (v) {
+          if (v != null) onChanged(v);
+        },
+        items: _kGeminiModels
+            .map(
+              (m) => DropdownMenuItem(
+                value: m.id,
+                child: Text(
+                  m.label,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+}
+
+// ── Per-feature toggle row ────────────────────────────────────────────────────
+
+class _AiFeatureToggle extends StatelessWidget {
+  const _AiFeatureToggle({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      leading: Icon(icon,
+          color: value ? AppColors.primaryBlue : AppColors.textMuted,
+          size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: AppColors.textDark,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style:
+            const TextStyle(color: AppColors.textMuted, fontSize: 11),
+      ),
+      trailing: Switch.adaptive(
+        value: value,
+        activeTrackColor: AppColors.primaryBlue,
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
 
 // ── AI Key dialog ─────────────────────────────────────────────────────────────
 

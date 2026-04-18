@@ -30,6 +30,12 @@ class AppPreferencesModel {
     this.smsDefaultAccountId = '',
     this.smsDefaultCategory = '',
     this.aiApiKey = '',
+    this.aiEnabled = false,
+    this.aiModelId = 'gemini-2.0-flash',
+    this.aiSmartSearchEnabled = true,
+    this.aiVoiceEnabled = true,
+    this.aiScannerEnabled = true,
+    this.aiSmsAiEnabled = true,
   });
 
   static const AppPreferencesModel defaults = AppPreferencesModel(
@@ -59,6 +65,12 @@ class AppPreferencesModel {
     smsDefaultAccountId: '',
     smsDefaultCategory: '',
     aiApiKey: '',
+    aiEnabled: false,
+    aiModelId: 'gemini-2.0-flash',
+    aiSmartSearchEnabled: true,
+    aiVoiceEnabled: true,
+    aiScannerEnabled: true,
+    aiSmsAiEnabled: true,
   );
 
   final String themeModeKey;
@@ -114,6 +126,24 @@ class AppPreferencesModel {
   /// AI (Gemini) API key entered by the user. Empty string means not set.
   final String aiApiKey;
 
+  /// Whether the user has enabled AI-powered features (requires [aiApiKey]).
+  final bool aiEnabled;
+
+  /// The Gemini model ID selected by the user.
+  final String aiModelId;
+
+  /// Whether AI-enhanced search is enabled.
+  final bool aiSmartSearchEnabled;
+
+  /// Whether AI-enhanced voice entry is enabled.
+  final bool aiVoiceEnabled;
+
+  /// Whether AI product/receipt scanning is enabled.
+  final bool aiScannerEnabled;
+
+  /// Whether AI-assisted SMS parsing is enabled.
+  final bool aiSmsAiEnabled;
+
   bool get isPinEnabled => pinHash.isNotEmpty;
 
   AppPreferencesModel copyWith({
@@ -147,6 +177,12 @@ class AppPreferencesModel {
     String? smsDefaultAccountId,
     String? smsDefaultCategory,
     String? aiApiKey,
+    bool? aiEnabled,
+    String? aiModelId,
+    bool? aiSmartSearchEnabled,
+    bool? aiVoiceEnabled,
+    bool? aiScannerEnabled,
+    bool? aiSmsAiEnabled,
   }) {
     return AppPreferencesModel(
       themeModeKey: themeModeKey ?? this.themeModeKey,
@@ -191,6 +227,12 @@ class AppPreferencesModel {
       smsDefaultAccountId: smsDefaultAccountId ?? this.smsDefaultAccountId,
       smsDefaultCategory: smsDefaultCategory ?? this.smsDefaultCategory,
       aiApiKey: aiApiKey ?? this.aiApiKey,
+      aiEnabled: aiEnabled ?? this.aiEnabled,
+      aiModelId: aiModelId ?? this.aiModelId,
+      aiSmartSearchEnabled: aiSmartSearchEnabled ?? this.aiSmartSearchEnabled,
+      aiVoiceEnabled: aiVoiceEnabled ?? this.aiVoiceEnabled,
+      aiScannerEnabled: aiScannerEnabled ?? this.aiScannerEnabled,
+      aiSmsAiEnabled: aiSmsAiEnabled ?? this.aiSmsAiEnabled,
     );
   }
 }
@@ -239,6 +281,12 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     String smsDefaultAccountId = AppPreferencesModel.defaults.smsDefaultAccountId;
     String smsDefaultCategory = AppPreferencesModel.defaults.smsDefaultCategory;
     String aiApiKey = AppPreferencesModel.defaults.aiApiKey;
+    bool aiEnabled = AppPreferencesModel.defaults.aiEnabled;
+    String aiModelId = AppPreferencesModel.defaults.aiModelId;
+    bool aiSmartSearchEnabled = AppPreferencesModel.defaults.aiSmartSearchEnabled;
+    bool aiVoiceEnabled = AppPreferencesModel.defaults.aiVoiceEnabled;
+    bool aiScannerEnabled = AppPreferencesModel.defaults.aiScannerEnabled;
+    bool aiSmsAiEnabled = AppPreferencesModel.defaults.aiSmsAiEnabled;
 
     try {
       if (reader.availableBytes > 0) locale = reader.readString();
@@ -279,6 +327,12 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       if (reader.availableBytes > 0) smsDefaultAccountId = reader.readString();
       if (reader.availableBytes > 0) smsDefaultCategory = reader.readString();
       if (reader.availableBytes > 0) aiApiKey = reader.readString();
+      if (reader.availableBytes > 0) aiEnabled = reader.readBool();
+      if (reader.availableBytes > 0) aiModelId = reader.readString();
+      if (reader.availableBytes > 0) aiSmartSearchEnabled = reader.readBool();
+      if (reader.availableBytes > 0) aiVoiceEnabled = reader.readBool();
+      if (reader.availableBytes > 0) aiScannerEnabled = reader.readBool();
+      if (reader.availableBytes > 0) aiSmsAiEnabled = reader.readBool();
     } catch (_) {
       // Fallback if reading fails
     }
@@ -312,6 +366,12 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       smsDefaultAccountId: smsDefaultAccountId,
       smsDefaultCategory: smsDefaultCategory,
       aiApiKey: aiApiKey,
+      aiEnabled: aiEnabled,
+      aiModelId: aiModelId,
+      aiSmartSearchEnabled: aiSmartSearchEnabled,
+      aiVoiceEnabled: aiVoiceEnabled,
+      aiScannerEnabled: aiScannerEnabled,
+      aiSmsAiEnabled: aiSmsAiEnabled,
     );
   }
 
@@ -348,7 +408,13 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       ..writeBool(obj.smsParsingEnabled)
       ..writeString(obj.smsDefaultAccountId)
       ..writeString(obj.smsDefaultCategory)
-      ..writeString(obj.aiApiKey);
+      ..writeString(obj.aiApiKey)
+      ..writeBool(obj.aiEnabled)
+      ..writeString(obj.aiModelId)
+      ..writeBool(obj.aiSmartSearchEnabled)
+      ..writeBool(obj.aiVoiceEnabled)
+      ..writeBool(obj.aiScannerEnabled)
+      ..writeBool(obj.aiSmsAiEnabled);
   }
 
   List<String> _readStringList(BinaryReader reader) {

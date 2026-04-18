@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/biometric_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../provider/preferences_providers.dart';
 import 'app_shell.dart';
@@ -20,15 +21,18 @@ String hashPin(String pin) {
 /// [isSetup] = `true`  → asks user to set a new PIN (confirm step included).
 /// [isSetup] = `false` → asks user to enter existing PIN to unlock the app.
 /// [isChange] = `true` → first asks for current PIN, then new PIN + confirm.
+/// [tryBiometricFirst] = `true` → attempt biometric auth automatically on open.
 class PinEntryScreen extends ConsumerStatefulWidget {
   const PinEntryScreen({
     super.key,
     required this.isSetup,
     this.isChange = false,
+    this.tryBiometricFirst = false,
   });
 
   final bool isSetup;
   final bool isChange;
+  final bool tryBiometricFirst;
 
   @override
   ConsumerState<PinEntryScreen> createState() => _PinEntryScreenState();
@@ -48,6 +52,20 @@ class _PinEntryScreenState extends ConsumerState<PinEntryScreen> {
   void initState() {
     super.initState();
     _phase = widget.isChange ? 'verify' : 'enter';
+    if (widget.tryBiometricFirst && !widget.isSetup && !widget.isChange) {
+      // Attempt biometric authentication automatically after the first frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryBiometric());
+    }
+  }
+
+  Future<void> _tryBiometric() async {
+    final ok = await BiometricService.authenticate();
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const AppShell()),
+      );
+    }
   }
 
   String get _title {
@@ -232,6 +250,21 @@ class _PinEntryScreenState extends ConsumerState<PinEntryScreen> {
                 _NumPad(onDigit: _onDigit, onBackspace: _onBackspace),
                 if (!widget.isSetup) ...[
                   const SizedBox(height: 24),
+                  if (widget.tryBiometricFirst)
+                    TextButton.icon(
+                      onPressed: _tryBiometric,
+                      icon: const Icon(
+                        Icons.fingerprint_rounded,
+                        color: AppColors.primaryBlue,
+                      ),
+                      label: const Text(
+                        'Use Biometric',
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   TextButton(
                     onPressed: () => Navigator.of(context)
                         .pushReplacement(

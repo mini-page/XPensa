@@ -234,6 +234,36 @@ final aiApiKeyProvider = Provider<String>((ref) {
       AppPreferencesModel.defaults.aiApiKey;
 });
 
+final aiEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiEnabled ??
+      AppPreferencesModel.defaults.aiEnabled;
+});
+
+final aiModelIdProvider = Provider<String>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiModelId ??
+      AppPreferencesModel.defaults.aiModelId;
+});
+
+final aiSmartSearchEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiSmartSearchEnabled ??
+      AppPreferencesModel.defaults.aiSmartSearchEnabled;
+});
+
+final aiVoiceEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiVoiceEnabled ??
+      AppPreferencesModel.defaults.aiVoiceEnabled;
+});
+
+final aiScannerEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiScannerEnabled ??
+      AppPreferencesModel.defaults.aiScannerEnabled;
+});
+
+final aiSmsAiEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appPreferencesProvider).value?.aiSmsAiEnabled ??
+      AppPreferencesModel.defaults.aiSmsAiEnabled;
+});
+
 final autoBackupEnabledProvider = Provider<bool>((ref) {
   return ref.watch(appPreferencesProvider).value?.autoBackupEnabled ??
       AppPreferencesModel.defaults.autoBackupEnabled;
@@ -665,8 +695,50 @@ class AppPreferencesController {
   }
 
   Future<void> setAiApiKey(String key) async {
+    // When key is cleared, also disable AI features so the user can't
+    // accidentally leave AI "on" with no key.
+    final disableAi = key.isEmpty;
+    await _ref.read(appPreferencesProvider.notifier).save(
+          _current.copyWith(
+            aiApiKey: key,
+            aiEnabled: disableAi ? false : _current.aiEnabled,
+          ),
+        );
+  }
+
+  Future<void> setAiEnabled(bool enabled) async {
     await _ref
         .read(appPreferencesProvider.notifier)
-        .save(_current.copyWith(aiApiKey: key));
+        .save(_current.copyWith(aiEnabled: enabled));
+  }
+
+  Future<void> setAiModelId(String modelId) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiModelId: modelId));
+  }
+
+  Future<void> setAiSmartSearchEnabled(bool enabled) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiSmartSearchEnabled: enabled));
+  }
+
+  Future<void> setAiVoiceEnabled(bool enabled) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiVoiceEnabled: enabled));
+  }
+
+  Future<void> setAiScannerEnabled(bool enabled) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiScannerEnabled: enabled));
+  }
+
+  Future<void> setAiSmsAiEnabled(bool enabled) async {
+    await _ref
+        .read(appPreferencesProvider.notifier)
+        .save(_current.copyWith(aiSmsAiEnabled: enabled));
   }
 }

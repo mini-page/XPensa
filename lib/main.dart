@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'core/constants/app_constants.dart';
+import 'core/services/biometric_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/background_backup.dart';
 import 'core/utils/hive_bootstrap.dart';
@@ -39,6 +40,7 @@ class XPensaApp extends ConsumerWidget {
     final onboardingCompleted = ref.watch(isOnboardingCompletedProvider);
     final preferencesAsync = ref.watch(appPreferencesProvider);
     final isPinEnabled = ref.watch(isPinEnabledProvider);
+    final isBiometricEnabled = ref.watch(biometricLockEnabledProvider);
     final localeString = ref.watch(localeProvider);
 
     // Parse locale (e.g. 'en_IN' → Locale('en', 'IN'))
@@ -57,7 +59,12 @@ class XPensaApp extends ConsumerWidget {
       home: preferencesAsync.when(
         data: (_) {
           if (!onboardingCompleted) return const OnboardingScreen();
-          if (isPinEnabled) return const PinEntryScreen(isSetup: false);
+          if (isPinEnabled) {
+            return PinEntryScreen(
+              isSetup: false,
+              tryBiometricFirst: isBiometricEnabled,
+            );
+          }
           return const AppShell();
         },
         loading: () =>
