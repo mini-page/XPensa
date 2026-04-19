@@ -820,7 +820,7 @@ class _UnifiedScannerScreenState extends ConsumerState<UnifiedScannerScreen>
 // ── Hint pill ─────────────────────────────────────────────────────────────────
 
 class _HintPill extends StatelessWidget {
-  const _HintPill({required this.text});
+  const _HintPill({super.key, required this.text});
   final String text;
 
   @override
