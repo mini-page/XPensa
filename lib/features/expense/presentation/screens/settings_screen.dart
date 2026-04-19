@@ -478,8 +478,8 @@ class SettingsScreen extends ConsumerWidget {
               return (
                 value: item.value!,
                 label: label,
-                icon: null as IconData?,
-                iconColor: null as Color?,
+                icon: null,
+                iconColor: null,
               );
             })
             .toList(growable: false),
@@ -536,7 +536,7 @@ class SettingsScreen extends ConsumerWidget {
           if (value != null) controller.setLocale(value);
         },
         options: AppConstants.locales
-            .map((l) => (value: l.locale, label: l.label, icon: (Icons.language_rounded as IconData?), iconColor: (AppColors.primaryBlue as Color?)))
+            .map((l) => (value: l.locale, label: l.label, icon: Icons.language_rounded, iconColor: AppColors.primaryBlue))
             .toList(growable: false),
       ),
     );
@@ -564,7 +564,7 @@ class SettingsScreen extends ConsumerWidget {
           if (value != null) controller.setCurrencySymbol(value);
         },
         options: AppConstants.currencies
-            .map((c) => (value: c.symbol, label: c.label, icon: (Icons.payments_outlined as IconData?), iconColor: (AppColors.success as Color?)))
+            .map((c) => (value: c.symbol, label: c.label, icon: Icons.payments_outlined, iconColor: AppColors.success))
             .toList(growable: false),
       ),
     );
@@ -1275,8 +1275,8 @@ class _AiModelSelector extends StatelessWidget {
             .map((m) => (
                   value: m.id,
                   label: m.label,
-                  icon: Icons.auto_awesome_outlined as IconData?,
-                  iconColor: AppColors.primaryBlue as Color?,
+                  icon: Icons.auto_awesome_outlined,
+                  iconColor: AppColors.primaryBlue,
                 ))
             .toList(growable: false),
       ),
