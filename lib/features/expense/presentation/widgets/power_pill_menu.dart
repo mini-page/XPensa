@@ -263,7 +263,7 @@ class _AnimatedPill extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.only(
               left: 18,
-              right: trailingToggleValue != null ? 6 : 18,
+              right: trailingToggleValue != null ? 10 : 18,
               top: 14,
               bottom: 14,
             ),
@@ -330,6 +330,7 @@ class _AnimatedPill extends StatelessWidget {
                     child: AppToggleSwitch(
                       value: trailingToggleValue!,
                       onChanged: onTrailingToggle ?? (_) {},
+                      small: true,
                     ),
                   ),
                 ],
