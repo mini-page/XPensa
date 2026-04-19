@@ -41,7 +41,7 @@ class BackupController {
       // Share the file so user can save it anywhere
       await Share.shareXFiles(
         [XFile(backupFile.path)],
-        subject: 'XPensa Data Backup',
+        subject: 'XPens Data Backup',
       );
 
       // Clean up temporary file after sharing
@@ -59,7 +59,7 @@ class BackupController {
     try {
       await Share.shareXFiles(
         [XFile(csvFile.path, mimeType: 'text/csv')],
-        subject: 'XPensa Transactions (CSV)',
+        subject: 'XPens Transactions (CSV)',
       );
     } finally {
       if (await csvFile.exists()) await csvFile.delete();
@@ -72,7 +72,7 @@ class BackupController {
     try {
       await Share.shareXFiles(
         [XFile(jsonFile.path, mimeType: 'application/json')],
-        subject: 'XPensa Transactions (JSON)',
+        subject: 'XPens Transactions (JSON)',
       );
     } finally {
       if (await jsonFile.exists()) await jsonFile.delete();
@@ -81,7 +81,7 @@ class BackupController {
 
   /// Returns the app-scoped backup directory on external storage.
   ///
-  /// This directory lives under `Android/data/<package>/files/XPensa/Backups/`
+  /// This directory lives under `Android/data/<package>/files/XPens/Backups/`
   /// which is accessible to the user via the Files app but requires **zero
   /// runtime permissions** to write from the app itself.  Falls back to the
   /// app's internal documents directory if external storage is unavailable.
@@ -95,7 +95,7 @@ class BackupController {
     } catch (_) {
       base = await getApplicationDocumentsDirectory();
     }
-    final dir = Directory(p.join(base.path, 'XPensa', 'Backups'));
+    final dir = Directory(p.join(base.path, 'XPens', 'Backups'));
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
@@ -119,7 +119,7 @@ class BackupController {
     return defaultDir;
   }
 
-  /// Creates a `.xpensa` backup immediately and saves it to the backup
+  /// Creates a `.xpens` backup immediately and saves it to the backup
   /// directory, creating it automatically if needed.
   ///
   /// No runtime storage permission is required — backups are written to the
@@ -145,7 +145,7 @@ class BackupController {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType
-            .any, // .xpensa might not be recognized as a custom type easily
+            .any, // .xpens might not be recognized as a custom type easily
       );
 
       if (result == null || result.files.single.path == null) {
@@ -156,7 +156,7 @@ class BackupController {
 
       // Basic validation: check extension if possible, or just attempt decode
       if (!file.path.endsWith(BackupLocalDatasource.backupExtension)) {
-        throw Exception('Invalid file format. Please select a .xpensa file.');
+        throw Exception('Invalid file format. Please select a .xpens file.');
       }
 
       // Close all Hive boxes before overwriting

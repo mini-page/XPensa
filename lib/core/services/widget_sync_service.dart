@@ -29,7 +29,7 @@ class WidgetDataPayload {
 class WidgetSyncService {
   static const _qaWidgetName = 'QuickActionWidget';
   static const _rtWidgetName = 'RecentTransactionsWidget';
-  static const _packageName = 'app.xpensa.finance';
+  static const _packageName = 'app.xpens.finance';
 
   // ── Outbound (Flutter → Android) ──────────────────────────────────
 
@@ -78,7 +78,7 @@ class WidgetSyncService {
   /// recognised string, or `null` if cancelled / unavailable.
   static Future<String?> startVoiceInput() async {
     try {
-      const channel = MethodChannel('app.xpensa.finance/widget');
+      const channel = MethodChannel('app.xpens.finance/widget');
       return await channel.invokeMethod<String>('startVoiceInput');
     } catch (e, st) {
       assert(() {

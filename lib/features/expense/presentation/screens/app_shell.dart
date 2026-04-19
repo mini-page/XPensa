@@ -313,7 +313,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   /// Handles a widget-click URI emitted by [HomeWidget.widgetClicked] or
   /// returned by [HomeWidget.initiallyLaunchedFromHomeWidget].
   ///
-  /// Expected URI format: `xpensa://widget?action=<action>`
+  /// Expected URI format: `xpens://widget?action=<action>`
   void _handleWidgetUri(Uri? uri) {
     if (uri == null || !mounted) return;
     final action = uri.queryParameters['action'];

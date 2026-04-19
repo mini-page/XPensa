@@ -236,7 +236,7 @@ class _WelcomePage extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            'Welcome to XPensa',
+            'Welcome to XPens',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w900,
@@ -452,7 +452,7 @@ class _PreferencesPage extends StatelessWidget {
           _OnboardingStepHeader(
             icon: Icons.tune_rounded,
             title: 'Preferences',
-            subtitle: 'Customise how XPensa looks and behaves',
+            subtitle: 'Customise how XPens looks and behaves',
           ),
           const SizedBox(height: 28),
           _SectionLabel(label: 'Theme'),
@@ -749,7 +749,7 @@ class _AiApiKeyPageState extends State<_AiApiKeyPage> {
           _OnboardingStepHeader(
             icon: Icons.auto_awesome_rounded,
             title: 'Unlock AI Features',
-            subtitle: 'Supercharge XPensa with Gemini AI',
+            subtitle: 'Supercharge XPens with Gemini AI',
           ),
           const SizedBox(height: 20),
           // Feature highlights

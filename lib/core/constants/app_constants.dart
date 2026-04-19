@@ -4,7 +4,7 @@ abstract final class AppConstants {
   static const String version = '2.1.0';
 
   /// Display name shown on the about dialog and in the drawer footer.
-  static const String appName = 'XPensa';
+  static const String appName = 'XPens';
 
   /// Supported currency options (symbol → display label).
   static const List<({String symbol, String label})> currencies = [

@@ -1,4 +1,4 @@
-package app.xpensa.finance
+package app.xpens.finance
 
 internal object WidgetConstants {
     // Data keys (stored in home_widget's SharedPreferences: "HomeWidgetPreferences")
@@ -11,7 +11,7 @@ internal object WidgetConstants {
     const val KEY_TXN_FILTER_PREFIX = "txn_filter_"
 
     // Intent action for filter-chip broadcasts (widget-internal only)
-    const val ACTION_SET_TXN_FILTER = "app.xpensa.finance.ACTION_SET_TXN_FILTER"
+    const val ACTION_SET_TXN_FILTER = "app.xpens.finance.ACTION_SET_TXN_FILTER"
 
     // Intent extras for filter-chip broadcasts
     const val EXTRA_WIDGET_ID = "widget_id"
@@ -23,5 +23,5 @@ internal object WidgetConstants {
     const val FILTER_MONTH = "month"
 
     // Flutter MethodChannel name (kept for the voice-input channel)
-    const val CHANNEL_NAME = "app.xpensa.finance/widget"
+    const val CHANNEL_NAME = "app.xpens.finance/widget"
 }

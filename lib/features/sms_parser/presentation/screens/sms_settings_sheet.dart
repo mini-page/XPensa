@@ -264,7 +264,7 @@ class _SmsSettingsSheetState extends ConsumerState<SmsSettingsSheet> {
       builder: (ctx) => AlertDialog(
         title: const Text('SMS Permission Required'),
         content: const Text(
-          'XPensa needs SMS read permission to detect bank transactions automatically. '
+          'XPens needs SMS read permission to detect bank transactions automatically. '
           'Please enable it in app settings.',
         ),
         actions: <Widget>[

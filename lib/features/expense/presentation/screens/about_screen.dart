@@ -18,9 +18,9 @@ class AboutScreen extends StatelessWidget {
   static const String _linkedinUrl = 'https://www.linkedin.com/in/ug5711';
   static const String _xUrl = 'https://x.com/ug_5711';
   static const String _instagramUrl = 'https://www.instagram.com/ug_5711';
-  static const String _repoUrl = 'https://github.com/mini-page/XPensa';
-  static const String _issuesUrl = 'https://github.com/mini-page/XPensa/issues';
-  static const String _email = 'xpensa-support@gmail.com';
+  static const String _repoUrl = 'https://github.com/mini-page/XPens';
+  static const String _issuesUrl = 'https://github.com/mini-page/XPens/issues';
+  static const String _email = 'xpens-support@gmail.com';
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -65,7 +65,7 @@ class AboutScreen extends StatelessWidget {
                   leading: const SettingsTileIcon(
                       icon: Icons.volunteer_activism_outlined),
                   title: const Text(
-                    'Support XPensa',
+                    'Support XPens',
                     style: TextStyle(
                         color: AppColors.textDark, fontWeight: FontWeight.w700),
                   ),
@@ -99,7 +99,7 @@ class AboutScreen extends StatelessWidget {
                   icon: Icons.bug_report_outlined,
                   iconColor: AppColors.primaryBlue,
                   title: 'Report a Bug',
-                  subtitle: 'Help us fix issues and improve XPensa',
+                  subtitle: 'Help us fix issues and improve XPens',
                   onTap: () => _launchUrl(_issuesUrl),
                 ),
                 _ActionTile(
@@ -108,7 +108,7 @@ class AboutScreen extends StatelessWidget {
                   title: 'Share with Friends',
                   subtitle: 'Word of mouth is the best marketing',
                   onTap: () => Share.share(
-                    'Check out XPensa – a free, offline-first expense tracker! '
+                    'Check out XPens – a free, offline-first expense tracker! '
                     '$_repoUrl',
                   ),
                 ),
@@ -297,7 +297,7 @@ class _DeveloperCard extends StatelessWidget {
           // Bio
           const Text(
             "I'm a passionate developer building useful apps in my free time. "
-            "Every bit of support helps me keep building and improving XPensa.",
+            "Every bit of support helps me keep building and improving XPens.",
             style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 13,

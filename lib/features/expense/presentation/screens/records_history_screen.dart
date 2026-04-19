@@ -622,7 +622,7 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
 
     await Share.share(
       buffer.toString(),
-      subject: 'XPensa Transactions Export',
+      subject: 'XPens Transactions Export',
     );
   }
 

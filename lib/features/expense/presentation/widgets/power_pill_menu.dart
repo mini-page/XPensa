@@ -141,7 +141,7 @@ class PowerFabState extends State<PowerFab>
             icon: Icons.document_scanner_outlined,
             label: 'Scan & Log',
             infoText:
-                'Scan a bill barcode/QR or photograph a product — XPensa fills in the details for you',
+                'Scan a bill barcode/QR or photograph a product — XPens fills in the details for you',
             onTap: () => _closeAndRun(widget.onScanner),
           ),
           const SizedBox(height: 8),

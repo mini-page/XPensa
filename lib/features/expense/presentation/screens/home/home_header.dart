@@ -43,7 +43,7 @@ class HomeTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            'XPensa',
+            'XPens',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,

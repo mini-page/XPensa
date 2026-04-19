@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uuid/uuid.dart';
-import 'package:xpensa/features/expense/data/models/expense_model.dart';
+import 'package:xpens/features/expense/data/models/expense_model.dart';
 
 void main() {
   group('ExpenseModel', () {

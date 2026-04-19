@@ -264,7 +264,7 @@ class _UnifiedScannerScreenState extends ConsumerState<UnifiedScannerScreen>
       final dir = await getTemporaryDirectory();
       final ext = imagePath.split('.').last.toLowerCase();
       final tmpPath =
-          '${dir.path}/xpensa_bc_${DateTime.now().millisecondsSinceEpoch}.$ext';
+          '${dir.path}/xpens_bc_${DateTime.now().millisecondsSinceEpoch}.$ext';
       await File(imagePath).copy(tmpPath);
       final capture = await _billController.analyzeImage(tmpPath);
       final raw = capture?.barcodes.firstOrNull?.rawValue;

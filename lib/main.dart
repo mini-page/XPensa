@@ -27,11 +27,11 @@ Future<void> main() async {
     ),
   );
   await HiveBootstrap.initialize();
-  runApp(const ProviderScope(child: XPensaApp()));
+  runApp(const ProviderScope(child: XPensApp()));
 }
 
-class XPensaApp extends ConsumerWidget {
-  const XPensaApp({super.key});
+class XPensApp extends ConsumerWidget {
+  const XPensApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:xpensa/features/expense/data/models/budget_model.dart';
+import 'package:xpens/features/expense/data/models/budget_model.dart';
 
 void main() {
   group('BudgetModel', () {

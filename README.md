@@ -1,14 +1,14 @@
-# XPensa 💸
+# XPens 💸
 
-XPensa is a modern, personal expense tracker designed for a simple, focused, and intuitive money-management experience. It makes daily spending easy to log, review, and understand—all without clutter, complex setups, or privacy compromises.
+XPens is a modern, personal expense tracker designed for a simple, focused, and intuitive money-management experience. It makes daily spending easy to log, review, and understand—all without clutter, complex setups, or privacy compromises.
 
 <p align="center">
-  <img src="public_assets/Google-Pixel5-localhost.png" width="300" alt="XPensa App Screenshot"/>
+  <img src="public_assets/Google-Pixel5-localhost.png" width="300" alt="XPens App Screenshot"/>
 </p>
 
 ---
 
-## ✨ Why Choose XPensa?
+## ✨ Why Choose XPens?
 
 | Advantage | Description |
 | :---: | --- |
@@ -47,7 +47,7 @@ We are actively building new, frictionless ways to manage your money:
 
 ## 📱 Supported Platforms
 
-Enjoy tracking your expenses on any device! XPensa currently supports:
+Enjoy tracking your expenses on any device! XPens currently supports:
 
 ✅ Android (via GitHub Releases)
 🔜 iOS (Planned)

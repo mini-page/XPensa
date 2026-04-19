@@ -10,12 +10,12 @@ import '../models/expense_model.dart';
 import 'expense_local_datasource.dart';
 
 class BackupLocalDatasource {
-  static const String backupExtension = '.xpensa';
+  static const String backupExtension = '.xpens';
 
   Future<File> createBackup() async {
     final appDir = await getApplicationDocumentsDirectory();
     final backupFile = File(p.join(appDir.path,
-        'xpensa_backup${DateTime.now().millisecondsSinceEpoch}$backupExtension'));
+        'xpens_backup${DateTime.now().millisecondsSinceEpoch}$backupExtension'));
 
     final encoder = ZipFileEncoder();
     encoder.create(backupFile.path);
@@ -64,7 +64,7 @@ class BackupLocalDatasource {
     final appDir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final csvFile =
-        File(p.join(appDir.path, 'xpensa_export_$timestamp.csv'));
+        File(p.join(appDir.path, 'xpens_export_$timestamp.csv'));
 
     final box = Hive.box<ExpenseModel>(ExpenseLocalDatasource.boxName);
     final expenses = box.values.toList()
@@ -96,7 +96,7 @@ class BackupLocalDatasource {
     final appDir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final jsonFile =
-        File(p.join(appDir.path, 'xpensa_export_$timestamp.json'));
+        File(p.join(appDir.path, 'xpens_export_$timestamp.json'));
 
     final box = Hive.box<ExpenseModel>(ExpenseLocalDatasource.boxName);
     final expenses = box.values.toList()

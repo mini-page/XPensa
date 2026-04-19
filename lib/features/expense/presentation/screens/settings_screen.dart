@@ -165,13 +165,13 @@ class SettingsScreen extends ConsumerWidget {
                 _buildActionTile(
                   icon: Icons.cloud_upload_outlined,
                   title: 'Export Data',
-                  subtitle: 'Share as .xpensa, CSV, or JSON',
+                  subtitle: 'Share as .xpens, CSV, or JSON',
                   onTap: () => _showExportFormatSheet(context, ref),
                 ),
                 _buildActionTile(
                   icon: Icons.cloud_download_outlined,
                   title: 'Import Data',
-                  subtitle: 'Restore from a .xpensa backup file',
+                  subtitle: 'Restore from a .xpens backup file',
                   onTap: () async {
                     final confirmed = await confirmDestructiveAction(
                       context,
@@ -275,7 +275,7 @@ class SettingsScreen extends ConsumerWidget {
                 _buildActionTile(
                   icon: Icons.info_outline_rounded,
                   title: 'About',
-                  subtitle: 'About XPensa & developer info',
+                  subtitle: 'About XPens & developer info',
                   onTap: () => Navigator.of(context).push<void>(
                     MaterialPageRoute<void>(
                         builder: (_) => const AboutScreen()),
@@ -299,7 +299,7 @@ class SettingsScreen extends ConsumerWidget {
                     context,
                     title: 'Privacy Policy',
                     message:
-                        'XPensa stores all data locally on your device. No data is ever sent to any server or third party.',
+                        'XPens stores all data locally on your device. No data is ever sent to any server or third party.',
                   ),
                 ),
               ],
@@ -983,7 +983,7 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'A new version of XPensa is available.\n\n'
+              'A new version of XPens is available.\n\n'
               'v${AppConstants.version}  \u2192  v${info.latestVersion}',
               style: const TextStyle(fontSize: 14),
             ),
@@ -1018,7 +1018,7 @@ class SettingsScreen extends ConsumerWidget {
               } else if (context.mounted) {
                 context.showSnackBar(
                   'Could not open the download link. '
-                  'Visit github.com/mini-page/XPensa/releases manually.',
+                  'Visit github.com/mini-page/XPens/releases manually.',
                 );
               }
             },
@@ -1066,9 +1066,9 @@ class _ExportFormatSheet extends StatelessWidget {
             _FormatOption(
               icon: Icons.folder_zip_outlined,
               iconColor: AppColors.primaryBlue,
-              title: 'Native Backup (.xpensa)',
+              title: 'Native Backup (.xpens)',
               subtitle:
-                  'Full backup — includes all app data. Use to restore XPensa.',
+                  'Full backup — includes all app data. Use to restore XPens.',
               onTap: () =>
                   Navigator.of(context).pop(_ExportFormat.native),
             ),

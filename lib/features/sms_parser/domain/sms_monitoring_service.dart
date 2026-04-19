@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 /// unregistered in [MainActivity].
 abstract final class SmsMonitoringService {
   static const MethodChannel _channel =
-      MethodChannel('app.xpensa.finance/widget');
+      MethodChannel('app.xpens.finance/widget');
 
   /// Start monitoring incoming SMS (registers Android BroadcastReceiver).
   static Future<void> start() async {

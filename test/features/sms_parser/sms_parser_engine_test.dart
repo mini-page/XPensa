@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:xpensa/features/expense/data/models/expense_model.dart';
-import 'package:xpensa/features/sms_parser/domain/sms_parser_engine.dart';
+import 'package:xpens/features/expense/data/models/expense_model.dart';
+import 'package:xpens/features/sms_parser/domain/sms_parser_engine.dart';
 
 void main() {
   final now = DateTime(2026, 4, 18, 14, 30);

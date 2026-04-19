@@ -14,7 +14,7 @@ import '../../data/repositories/hive_preferences_repository.dart';
 import '../../domain/repositories/preferences_repository.dart';
 import '../widgets/expense_category.dart';
 
-const String backupTaskTag = 'xpensa_offline_backup';
+const String backupTaskTag = 'xpens_offline_backup';
 
 final preferencesLocalDatasourceProvider = Provider<PreferencesLocalDatasource>(
   (ref) {
@@ -442,8 +442,8 @@ class AppPreferencesController {
     }
 
     Workmanager().registerPeriodicTask(
-      'xpensa-periodic-backup',
-      'xpensa-periodic-backup-task',
+      'xpens-periodic-backup',
+      'xpens-periodic-backup-task',
       tag: backupTaskTag,
       frequency: duration,
       existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,

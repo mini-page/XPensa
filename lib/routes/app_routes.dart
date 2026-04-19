@@ -10,7 +10,7 @@ import '../features/expense/presentation/screens/unified_scanner_screen.dart';
 import '../features/expense/presentation/screens/settings_screen.dart';
 import '../features/expense/presentation/screens/upi_scanner_screen.dart';
 
-/// Centralised navigation helpers for XPensa.
+/// Centralised navigation helpers for XPens.
 ///
 /// All `Navigator.push` / `pushReplacement` calls for named screens are
 /// routed through this class so that screen locations and constructor

@@ -94,7 +94,7 @@ class _ProductScannerScreenState extends ConsumerState<ProductScannerScreen> {
       final dir = await getTemporaryDirectory();
       final ext = imagePath.split('.').last.toLowerCase();
       final tempPath =
-          '${dir.path}/xpensa_ai_${DateTime.now().millisecondsSinceEpoch}.$ext';
+          '${dir.path}/xpens_ai_${DateTime.now().millisecondsSinceEpoch}.$ext';
       await File(imagePath).copy(tempPath);
 
       final capture = await _scannerController.analyzeImage(tempPath);

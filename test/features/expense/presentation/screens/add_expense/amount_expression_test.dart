@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:xpensa/features/expense/presentation/screens/add_expense/amount_expression.dart';
+import 'package:xpens/features/expense/presentation/screens/add_expense/amount_expression.dart';
 
 void main() {
   group('evaluateAmountExpression', () {

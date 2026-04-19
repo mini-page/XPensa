@@ -1,4 +1,4 @@
-package app.xpensa.finance
+package app.xpens.finance
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -394,7 +394,7 @@ class RecentTransactionsWidget : AppWidgetProvider() {
             return HomeWidgetLaunchIntent.getActivity(
                 context,
                 MainActivity::class.java,
-                Uri.parse("xpensa://widget?action=$action"),
+                Uri.parse("xpens://widget?action=$action"),
             )
         }
     }

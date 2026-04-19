@@ -24,7 +24,7 @@ class BiometricService {
   /// Returns `false` on failure, cancellation, or if biometrics are
   /// unavailable.
   static Future<bool> authenticate({
-    String reason = 'Verify your identity to unlock XPensa',
+    String reason = 'Verify your identity to unlock XPens',
   }) async {
     try {
       return await _auth.authenticate(

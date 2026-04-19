@@ -1,4 +1,4 @@
-package app.xpensa.finance
+package app.xpens.finance
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -57,7 +57,7 @@ class QuickActionWidget : AppWidgetProvider() {
                 val balanceText = if (hasData) {
                     formatBalance(symbol, rawBalance)
                 } else {
-                    "Open XPensa"
+                    "Open XPens"
                 }
 
                 val views = RemoteViews(context.packageName, R.layout.widget_quick_action)
@@ -98,7 +98,7 @@ class QuickActionWidget : AppWidgetProvider() {
                 // "Can't load widget" due to an unexpected runtime exception.
                 try {
                     val fallback = RemoteViews(context.packageName, R.layout.widget_quick_action)
-                    fallback.setTextViewText(R.id.widget_qa_balance, "Open XPensa")
+                    fallback.setTextViewText(R.id.widget_qa_balance, "Open XPens")
                     appWidgetManager.updateAppWidget(widgetId, fallback)
                 } catch (_: Exception) {
                     // Nothing further we can do.
@@ -114,7 +114,7 @@ class QuickActionWidget : AppWidgetProvider() {
             return HomeWidgetLaunchIntent.getActivity(
                 context,
                 MainActivity::class.java,
-                Uri.parse("xpensa://widget?action=$widgetAction"),
+                Uri.parse("xpens://widget?action=$widgetAction"),
             )
         }
 

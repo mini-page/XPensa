@@ -1,4 +1,4 @@
-package app.xpensa.finance
+package app.xpens.finance
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -12,7 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 
 /**
  * Receives incoming SMS broadcasts and forwards them to the Flutter layer via
- * the `app.xpensa.finance/sms_receiver` MethodChannel.
+ * the `app.xpens.finance/sms_receiver` MethodChannel.
  *
  * Registration / unregistration is handled by [MainActivity] so the receiver
  * only runs while the Flutter engine is live.
@@ -22,7 +22,7 @@ class SmsReceiverPlugin(
 ) : BroadcastReceiver() {
 
     companion object {
-        const val CHANNEL_NAME = "app.xpensa.finance/sms_receiver"
+        const val CHANNEL_NAME = "app.xpens.finance/sms_receiver"
     }
 
     private val channel: MethodChannel by lazy {

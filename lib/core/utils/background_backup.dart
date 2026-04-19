@@ -44,14 +44,14 @@ void callbackDispatcher() {
         targetDir = await _resolveDefaultBackupDir();
       }
 
-      // Create a timestamped .xpensa backup file in the target directory.
+      // Create a timestamped .xpens backup file in the target directory.
       final timestamp = DateTime.now()
           .toIso8601String()
           .replaceAll(':', '-')
           .split('.')
           .first;
       final backupFile =
-          File(p.join(targetDir.path, 'xpensa_backup_$timestamp.xpensa'));
+          File(p.join(targetDir.path, 'xpens_backup_$timestamp.xpens'));
 
       final encoder = ZipFileEncoder();
       encoder.create(backupFile.path);
@@ -92,7 +92,7 @@ Future<Directory> _resolveDefaultBackupDir() async {
   } catch (_) {
     base = await getApplicationDocumentsDirectory();
   }
-  final dir = Directory(p.join(base.path, 'XPensa', 'Backups'));
+  final dir = Directory(p.join(base.path, 'XPens', 'Backups'));
   if (!await dir.exists()) {
     await dir.create(recursive: true);
   }

@@ -1,4 +1,4 @@
-package app.xpensa.finance
+package app.xpens.finance
 
 import android.app.Activity
 import android.content.Intent

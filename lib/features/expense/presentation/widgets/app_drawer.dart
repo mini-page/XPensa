@@ -58,7 +58,7 @@ class AppDrawer extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, String displayName) {
-    final name = displayName.trim().isEmpty ? 'XPensa User' : displayName;
+    final name = displayName.trim().isEmpty ? 'XPens User' : displayName;
     final initial = name[0].toUpperCase();
     return Container(
       width: double.infinity,

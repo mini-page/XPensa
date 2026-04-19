@@ -8,8 +8,8 @@ import '../../../../core/theme/app_colors.dart';
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
-  static const String _repoUrl = 'https://github.com/mini-page/XPensa';
-  static const String _issuesUrl = 'https://github.com/mini-page/XPensa/issues';
+  static const String _repoUrl = 'https://github.com/mini-page/XPens';
+  static const String _issuesUrl = 'https://github.com/mini-page/XPens/issues';
   static const String _buyMeCoffeeUrl =
       'https://www.buymeacoffee.com/minipagedev';
 
@@ -62,7 +62,7 @@ class SupportScreen extends StatelessWidget {
               icon: Icons.bug_report_outlined,
               iconColor: AppColors.primaryBlue,
               title: 'Report a Bug',
-              subtitle: 'Help us fix issues and improve XPensa',
+              subtitle: 'Help us fix issues and improve XPens',
               onTap: () => _launchUrl(_issuesUrl),
             ),
             const SizedBox(height: 10),
@@ -72,7 +72,7 @@ class SupportScreen extends StatelessWidget {
               title: 'Share with Friends',
               subtitle: 'Word of mouth is the best marketing',
               onTap: () => Share.share(
-                'Check out XPensa – a free, offline-first expense tracker! '
+                'Check out XPens – a free, offline-first expense tracker! '
                 '$_repoUrl',
               ),
             ),
@@ -121,7 +121,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           const Text(
-            'Support XPensa',
+            'Support XPens',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -140,7 +140,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           const Text(
-            'Your support keeps XPensa free, independent,\n'
+            'Your support keeps XPens free, independent,\n'
             'and actively maintained — no ads, no tracking,\n'
             'just a better way to manage your money.',
             textAlign: TextAlign.center,

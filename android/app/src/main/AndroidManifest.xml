@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
 
     <application
-        android:label="XPensa"
+        android:label="XPens"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -48,7 +48,7 @@
         <receiver
             android:name=".QuickActionWidget"
             android:exported="true"
-            android:label="XPensa Quick Actions">
+            android:label="XPens Quick Actions">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -61,10 +61,10 @@
         <receiver
             android:name=".RecentTransactionsWidget"
             android:exported="true"
-            android:label="XPensa Transactions">
+            android:label="XPens Transactions">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="app.xpensa.finance.ACTION_SET_TXN_FILTER" />
+                <action android:name="app.xpens.finance.ACTION_SET_TXN_FILTER" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
