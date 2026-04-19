@@ -3,4 +3,3 @@
 // Use RecordsHistoryScreen(autoFocusSearch: true) or
 // AppRoutes.pushTransactionSearch() instead.
 export 'records_history_screen.dart' show RecordsHistoryScreen;
-

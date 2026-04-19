@@ -24,7 +24,8 @@ class BackupController {
 
   BackupController(this._ref);
 
-  BackupLocalDatasource get _datasource => _ref.read(backupLocalDatasourceProvider);
+  BackupLocalDatasource get _datasource =>
+      _ref.read(backupLocalDatasourceProvider);
 
   Future<void> exportData() async {
     try {
@@ -48,7 +49,8 @@ class BackupController {
   Future<bool> importData() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.any, // .xpensa might not be recognized as a custom type easily
+        type: FileType
+            .any, // .xpensa might not be recognized as a custom type easily
       );
 
       if (result == null || result.files.single.path == null) {

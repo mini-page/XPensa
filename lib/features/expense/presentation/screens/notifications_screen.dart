@@ -18,8 +18,7 @@ class NotificationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifications = ref.watch(notificationsProvider);
     final controller = ref.read(notificationsControllerProvider);
-    final unreadCount =
-        notifications.where((n) => !n.isRead).length;
+    final unreadCount = notifications.where((n) => !n.isRead).length;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -88,7 +87,8 @@ class NotificationsScreen extends ConsumerWidget {
       ),
       body: notifications.isEmpty
           ? const _EmptyState()
-          : _NotificationList(notifications: notifications, controller: controller),
+          : _NotificationList(
+              notifications: notifications, controller: controller),
     );
   }
 

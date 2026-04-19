@@ -95,11 +95,8 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
     final currencySymbol = ref.watch(currencySymbolProvider);
 
     // Collect unique categories for filter
-    final allCategories = expenses
-        .map((e) => e.category)
-        .toSet()
-        .toList(growable: false)
-      ..sort();
+    final allCategories =
+        expenses.map((e) => e.category).toSet().toList(growable: false)..sort();
 
     final filteredExpenses = _filterExpenses(expenses, accountMap);
     final groupedExpenses = _groupExpenses(filteredExpenses);
@@ -521,8 +518,9 @@ class _RecordsHistoryScreenState extends ConsumerState<RecordsHistoryScreen> {
       final type = e.type.name;
       final category = _csvEscape(e.category);
       final note = _csvEscape(TagParser.stripTags(e.note));
-      final amount =
-          e.isIncome ? e.amount.toStringAsFixed(2) : (-e.amount).toStringAsFixed(2);
+      final amount = e.isIncome
+          ? e.amount.toStringAsFixed(2)
+          : (-e.amount).toStringAsFixed(2);
       final tags = TagParser.extractTags(e.note).map((t) => '#$t').join(' ');
       buffer.writeln('$date,$type,$category,$note,$amount,$tags');
     }
@@ -663,8 +661,7 @@ class _CategoryFilterChip extends StatelessWidget {
             Icon(
               Icons.category_outlined,
               size: 18,
-              color:
-                  isFiltered ? AppColors.primaryBlue : AppColors.textMuted,
+              color: isFiltered ? AppColors.primaryBlue : AppColors.textMuted,
             ),
             const SizedBox(width: 8),
             Text(

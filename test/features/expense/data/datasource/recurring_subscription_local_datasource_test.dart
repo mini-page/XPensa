@@ -38,7 +38,8 @@ void main() {
       datasource = RecurringSubscriptionLocalDatasource(mockBox);
     });
 
-    test('getAllSubscriptions should return sorted subscriptions by nextBillDate',
+    test(
+        'getAllSubscriptions should return sorted subscriptions by nextBillDate',
         () async {
       final sub1 = RecurringSubscriptionModel(
         id: '1',

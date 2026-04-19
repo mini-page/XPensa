@@ -172,9 +172,7 @@ class PowerFabState extends State<PowerFab>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: _open
-                    ? const Color(0xFF1A2340)
-                    : AppColors.primaryBlue,
+                color: _open ? const Color(0xFF1A2340) : AppColors.primaryBlue,
                 shape: BoxShape.circle,
                 boxShadow: <BoxShadow>[
                   BoxShadow(
@@ -342,8 +340,8 @@ class _AnimatedPill extends StatelessWidget {
                             value: trailingToggleValue!,
                             onChanged: onTrailingToggle,
                             activeColor: Colors.white,
-                            activeTrackColor: AppColors.primaryBlue
-                                .withValues(alpha: 0.7),
+                            activeTrackColor:
+                                AppColors.primaryBlue.withValues(alpha: 0.7),
                             inactiveThumbColor: Colors.white60,
                             inactiveTrackColor: Colors.white24,
                             materialTapTargetSize:

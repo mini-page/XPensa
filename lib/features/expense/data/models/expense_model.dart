@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 const bool _kDebugMode = !bool.fromEnvironment('dart.vm.product');
+
 enum TransactionType { expense, income, transfer }
 
 extension TransactionTypeCodec on TransactionType {
@@ -124,8 +125,7 @@ class ExpenseModel {
       date: date ?? this.date,
       note: note ?? this.note,
       accountId: clearAccountId ? null : accountId ?? this.accountId,
-      toAccountId:
-          clearToAccountId ? null : toAccountId ?? this.toAccountId,
+      toAccountId: clearToAccountId ? null : toAccountId ?? this.toAccountId,
       type: type ?? this.type,
     );
   }

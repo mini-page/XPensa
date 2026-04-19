@@ -31,26 +31,24 @@ final List<RecurringSeed> defaultSubscriptions = <RecurringSeed>[
 
 final recurringSubscriptionLocalDatasourceProvider =
     Provider<RecurringSubscriptionLocalDatasource>((ref) {
-      return RecurringSubscriptionLocalDatasource();
-    });
+  return RecurringSubscriptionLocalDatasource();
+});
 
 final recurringSubscriptionRepositoryProvider =
     Provider<RecurringSubscriptionRepository>((ref) {
-      return HiveRecurringSubscriptionRepository(
-        ref.watch(recurringSubscriptionLocalDatasourceProvider),
-      );
-    });
+  return HiveRecurringSubscriptionRepository(
+    ref.watch(recurringSubscriptionLocalDatasourceProvider),
+  );
+});
 
-final recurringSubscriptionListProvider =
-    AsyncNotifierProvider<
-      RecurringSubscriptionListNotifier,
-      List<RecurringSubscriptionModel>
-    >(RecurringSubscriptionListNotifier.new);
+final recurringSubscriptionListProvider = AsyncNotifierProvider<
+    RecurringSubscriptionListNotifier,
+    List<RecurringSubscriptionModel>>(RecurringSubscriptionListNotifier.new);
 
 final recurringSubscriptionControllerProvider =
     Provider<RecurringSubscriptionController>((ref) {
-      return RecurringSubscriptionController(ref);
-    });
+  return RecurringSubscriptionController(ref);
+});
 
 class RecurringSubscriptionListNotifier
     extends AsyncNotifier<List<RecurringSubscriptionModel>> {

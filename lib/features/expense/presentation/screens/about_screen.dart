@@ -19,8 +19,7 @@ class AboutScreen extends StatelessWidget {
   static const String _xUrl = 'https://x.com/ug_5711';
   static const String _instagramUrl = 'https://www.instagram.com/ug_5711';
   static const String _repoUrl = 'https://github.com/mini-page/XPensa';
-  static const String _issuesUrl =
-      'https://github.com/mini-page/XPensa/issues';
+  static const String _issuesUrl = 'https://github.com/mini-page/XPensa/issues';
   static const String _email = 'xpensa-support@gmail.com';
 
   Future<void> _launchUrl(String url) async {
@@ -63,7 +62,8 @@ class AboutScreen extends StatelessWidget {
             SettingsCard(
               children: [
                 ListTile(
-                  leading: const SettingsTileIcon(icon: Icons.volunteer_activism_outlined),
+                  leading: const SettingsTileIcon(
+                      icon: Icons.volunteer_activism_outlined),
                   title: const Text(
                     'Support XPensa',
                     style: TextStyle(
@@ -109,7 +109,7 @@ class AboutScreen extends StatelessWidget {
                   subtitle: 'Word of mouth is the best marketing',
                   onTap: () => Share.share(
                     'Check out XPensa – a free, offline-first expense tracker! '
-                        '$_repoUrl',
+                    '$_repoUrl',
                   ),
                 ),
               ],
@@ -188,8 +188,7 @@ class _AppIdentityCard extends StatelessWidget {
           const SizedBox(height: 6),
           // Version badge
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               color: AppColors.lightBlueBg,
               borderRadius: BorderRadius.circular(20),
@@ -286,8 +285,8 @@ class _DeveloperCard extends StatelessWidget {
                     SizedBox(height: 2),
                     Text(
                       'Independent Developer · aka mini-page',
-                      style: TextStyle(
-                          color: AppColors.textMuted, fontSize: 12),
+                      style:
+                          TextStyle(color: AppColors.textMuted, fontSize: 12),
                     ),
                   ],
                 ),
@@ -314,34 +313,29 @@ class _DeveloperCard extends StatelessWidget {
               _SocialChip(
                 icon: Icons.code_rounded,
                 label: 'GitHub',
-                onTap: () =>
-                    onLaunchUrl(AboutScreen._githubUrl),
+                onTap: () => onLaunchUrl(AboutScreen._githubUrl),
               ),
               _SocialChip(
                 icon: Icons.work_outline_rounded,
                 label: 'LinkedIn',
-                onTap: () =>
-                    onLaunchUrl(AboutScreen._linkedinUrl),
+                onTap: () => onLaunchUrl(AboutScreen._linkedinUrl),
               ),
               _SocialChip(
                 icon: Icons.alternate_email_rounded,
                 label: 'X',
-                onTap: () =>
-                    onLaunchUrl(AboutScreen._xUrl),
+                onTap: () => onLaunchUrl(AboutScreen._xUrl),
               ),
               _SocialChip(
                 icon: Icons.photo_camera_outlined,
                 label: 'Instagram',
-                onTap: () =>
-                    onLaunchUrl(AboutScreen._instagramUrl),
+                onTap: () => onLaunchUrl(AboutScreen._instagramUrl),
               ),
             ],
           ),
           const SizedBox(height: 12),
           // Email
           GestureDetector(
-            onTap: () =>
-                onLaunchUrl('mailto:$email'),
+            onTap: () => onLaunchUrl('mailto:$email'),
             child: Row(
               children: [
                 const Icon(Icons.email_outlined,
@@ -381,8 +375,7 @@ class _SocialChip extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.lightBlueBg,
           borderRadius: BorderRadius.circular(20),
@@ -440,11 +433,10 @@ class _ActionTile extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style:
-            const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
       ),
-      trailing: const Icon(Icons.chevron_right_rounded,
-          color: AppColors.textMuted),
+      trailing:
+          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
       onTap: onTap,
     );
   }

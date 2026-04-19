@@ -29,7 +29,9 @@ void main() {
   final expenses = List.generate(100000, (index) {
     final daysToSubtract = random.nextInt(60);
     final hoursToSubtract = random.nextInt(24);
-    final date = now.subtract(Duration(days: daysToSubtract, hours: hoursToSubtract)).toUtc();
+    final date = now
+        .subtract(Duration(days: daysToSubtract, hours: hoursToSubtract))
+        .toUtc();
     return MockExpenseModel(
       id: 'id_$index',
       amount: random.nextDouble() * 100,
@@ -48,8 +50,10 @@ void main() {
 
   // WARMUP
   for (var i = 0; i < 10; i++) {
-    _filterExpensesOriginal(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
-    _filterExpensesOptimized(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
+    _filterExpensesOriginal(
+        expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
+    _filterExpensesOptimized(
+        expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
 
   // BENCHMARK
@@ -58,14 +62,16 @@ void main() {
 
   final watchOriginal = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    _filterExpensesOriginal(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
+    _filterExpensesOriginal(
+        expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
   watchOriginal.stop();
   print('Original approach: ${watchOriginal.elapsedMilliseconds} ms');
 
   final watchOptimized = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    _filterExpensesOptimized(expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
+    _filterExpensesOptimized(
+        expenses, selectedFilter, selectedAccountFilter, allAccountsKey);
   }
   watchOptimized.stop();
   print('Optimized approach: ${watchOptimized.elapsedMilliseconds} ms');
@@ -87,8 +93,8 @@ List<MockExpenseModel> _filterExpensesOriginal(
   return expenses.where((expense) {
     final localDate = expense.date.toLocal();
     final dateOnly = DateTime(localDate.year, localDate.month, localDate.day);
-    final matchesAccount =
-        selectedAccountFilter == allAccountsKey || expense.accountId == selectedAccountFilter;
+    final matchesAccount = selectedAccountFilter == allAccountsKey ||
+        expense.accountId == selectedAccountFilter;
 
     if (!matchesAccount) {
       return false;
@@ -96,7 +102,9 @@ List<MockExpenseModel> _filterExpensesOriginal(
 
     switch (selectedFilter) {
       case RecordsFilter.today:
-        return dateOnly.year == today.year && dateOnly.month == today.month && dateOnly.day == today.day;
+        return dateOnly.year == today.year &&
+            dateOnly.month == today.month &&
+            dateOnly.day == today.day;
       case RecordsFilter.week:
         return !dateOnly.isBefore(weekStart) && !dateOnly.isAfter(today);
       case RecordsFilter.month:
@@ -132,7 +140,8 @@ List<MockExpenseModel> _filterExpensesOptimized(
       endBoundLocal = todayLocal.add(const Duration(days: 1));
       break;
     case RecordsFilter.week:
-      startBoundLocal = todayLocal.subtract(Duration(days: nowLocal.weekday - 1));
+      startBoundLocal =
+          todayLocal.subtract(Duration(days: nowLocal.weekday - 1));
       endBoundLocal = todayLocal.add(const Duration(days: 1));
       break;
     case RecordsFilter.month:

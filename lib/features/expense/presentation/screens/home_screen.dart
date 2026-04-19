@@ -115,131 +115,135 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 44,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      ...quickAmounts.map((amount) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: HomeAmountChip(
-                            label: currencyFormat.format(amount),
-                            onTap: () => _openAddExpenseScreen(
-                              context,
-                              initialAmount: amount,
-                              initialDate: _selectedDate,
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 44,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: <Widget>[
+                            ...quickAmounts.map((amount) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: HomeAmountChip(
+                                  label: currencyFormat.format(amount),
+                                  onTap: () => _openAddExpenseScreen(
+                                    context,
+                                    initialAmount: amount,
+                                    initialDate: _selectedDate,
+                                  ),
+                                  onLongPress: () => _showChipOptions(
+                                    context,
+                                    amount: amount,
+                                    // A value that was re-added as custom after
+                                    // hiding its locale default lives in customAmounts
+                                    // even though localeAmounts also contains it.
+                                    // Treat it as custom so the right storage path
+                                    // (setCustomQuickAmounts) is used on delete/edit.
+                                    isLocaleDefault:
+                                        localeAmounts.contains(amount) &&
+                                            !customAmounts.contains(amount),
+                                    customAmounts: customAmounts,
+                                    hiddenDefaults: hiddenDefaults,
+                                    quickAmounts: quickAmounts,
+                                  ),
+                                ),
+                              );
+                            }),
+                            HomeAddAmountChip(
+                              onTap: () => _showAddCustomAmountDialog(
+                                context,
+                                customAmounts: customAmounts,
+                                quickAmounts: quickAmounts,
+                              ),
                             ),
-                            onLongPress: () => _showChipOptions(
-                              context,
-                              amount: amount,
-                              // A value that was re-added as custom after
-                              // hiding its locale default lives in customAmounts
-                              // even though localeAmounts also contains it.
-                              // Treat it as custom so the right storage path
-                              // (setCustomQuickAmounts) is used on delete/edit.
-                              isLocaleDefault: localeAmounts.contains(amount) &&
-                                  !customAmounts.contains(amount),
-                              customAmounts: customAmounts,
-                              hiddenDefaults: hiddenDefaults,
-                              quickAmounts: quickAmounts,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      HomeDateStrip(
+                        visibleDates: visibleDates,
+                        selectedDate: _selectedDate,
+                        isOnToday: isOnToday,
+                        selectedTotalText: formatSignedCurrencyForHome(
+                          selectedTotal,
+                          currencyFormat,
+                          masked: privacyModeEnabled,
+                        ),
+                        transactionCount: selectedExpenses.length,
+                        onDateSelected: (date) {
+                          setState(() {
+                            _selectedDate = date;
+                          });
+                        },
+                        onPrevious: () => _shiftWindow(-7),
+                        onNext: () => _shiftWindow(7),
+                        onJumpToToday: _jumpToToday,
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: <Widget>[
+                          const Text(
+                            'RECENT TRANSACTIONS',
+                            style: TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
                             ),
                           ),
-                        );
-                      }),
-                      HomeAddAmountChip(
-                        onTap: () => _showAddCustomAmountDialog(
-                          context,
-                          customAmounts: customAmounts,
-                          quickAmounts: quickAmounts,
-                        ),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () => _openRecordsHistoryScreen(context),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              textStyle: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            child: const Text('View All'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                HomeDateStrip(
-                  visibleDates: visibleDates,
-                  selectedDate: _selectedDate,
-                  isOnToday: isOnToday,
-                  selectedTotalText: formatSignedCurrencyForHome(
-                    selectedTotal,
-                    currencyFormat,
-                    masked: privacyModeEnabled,
-                  ),
-                  transactionCount: selectedExpenses.length,
-                  onDateSelected: (date) {
-                    setState(() {
-                      _selectedDate = date;
-                    });
-                  },
-                  onPrevious: () => _shiftWindow(-7),
-                  onNext: () => _shiftWindow(7),
-                  onJumpToToday: _jumpToToday,
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: <Widget>[
-                    const Text(
-                      'RECENT TRANSACTIONS',
-                      style: TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () => _openRecordsHistoryScreen(context),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        textStyle: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      child: const Text('View All'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (expenseState.hasError)
-                  const HomeEmptyCard(
-                    title: 'Storage unavailable',
-                    message: 'The expense list could not be loaded right now.',
-                  )
-                else if (expenseState.isLoading && expenses.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (expenses.isEmpty)
-                  const HomeEmptyCard(
-                    title: 'No expenses yet',
-                    message:
-                        'Tap the blue add button or choose a quick amount to record your first transaction.',
-                  )
-                else if (selectedExpenses.isEmpty)
-                  HomeEmptyCard(
-                    title: _emptyTitleFor(_selectedDate),
-                    message: _emptyMessageFor(_selectedDate),
-                  )
-                else
-                  ...selectedExpenses.map((expense) {
-                    return TransactionCard(
-                      expense: expense,
-                      accountLabel: _accountLabelFor(expense, accountsMap),
-                      maskAmounts: privacyModeEnabled,
-                      onEdit: () => _openEditExpenseScreen(context, expense),
-                      onDelete: () => _confirmDeleteExpense(expense),
-                    );
-                  }),
+                      const SizedBox(height: 10),
+                      if (expenseState.hasError)
+                        const HomeEmptyCard(
+                          title: 'Storage unavailable',
+                          message:
+                              'The expense list could not be loaded right now.',
+                        )
+                      else if (expenseState.isLoading && expenses.isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else if (expenses.isEmpty)
+                        const HomeEmptyCard(
+                          title: 'No expenses yet',
+                          message:
+                              'Tap the blue add button or choose a quick amount to record your first transaction.',
+                        )
+                      else if (selectedExpenses.isEmpty)
+                        HomeEmptyCard(
+                          title: _emptyTitleFor(_selectedDate),
+                          message: _emptyMessageFor(_selectedDate),
+                        )
+                      else
+                        ...selectedExpenses.map((expense) {
+                          return TransactionCard(
+                            expense: expense,
+                            accountLabel:
+                                _accountLabelFor(expense, accountsMap),
+                            maskAmounts: privacyModeEnabled,
+                            onEdit: () =>
+                                _openEditExpenseScreen(context, expense),
+                            onDelete: () => _confirmDeleteExpense(expense),
+                          );
+                        }),
                     ],
                   ),
                 ),
@@ -429,7 +433,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: Theme.of(ctx).colorScheme.primary.withValues(alpha: 0.7),
+                      color: Theme.of(ctx)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.7),
                     ),
                   ),
                   contentPadding:
@@ -582,7 +589,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: Theme.of(ctx).colorScheme.primary.withValues(alpha: 0.7),
+                      color: Theme.of(ctx)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.7),
                     ),
                   ),
                   contentPadding:

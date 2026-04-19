@@ -71,10 +71,11 @@ class _SmsSettingsSheetState extends ConsumerState<SmsSettingsSheet> {
   Future<void> _checkPermission() async {
     setState(() => _checkingPermission = true);
     final granted = await SmsPermissionHelper.isGranted();
-    if (mounted) setState(() {
-      _permissionGranted = granted;
-      _checkingPermission = false;
-    });
+    if (mounted)
+      setState(() {
+        _permissionGranted = granted;
+        _checkingPermission = false;
+      });
   }
 
   @override
@@ -196,8 +197,7 @@ class _SmsSettingsSheetState extends ConsumerState<SmsSettingsSheet> {
                         ref.read(smsQueueControllerProvider).dismissAll(),
                     child: const Text(
                       'Dismiss all',
-                      style:
-                          TextStyle(color: AppColors.danger, fontSize: 12),
+                      style: TextStyle(color: AppColors.danger, fontSize: 12),
                     ),
                   )),
               ...pending.map(
@@ -440,8 +440,7 @@ class _DefaultsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accounts =
-        ref.watch(accountListProvider).value ?? const [];
+    final accounts = ref.watch(accountListProvider).value ?? const [];
     final prefs = ref.watch(appPreferencesProvider).value;
     final defaultAccountId = prefs?.smsDefaultAccountId ?? '';
     final defaultCategory = prefs?.smsDefaultCategory ?? '';
@@ -482,13 +481,14 @@ class _DefaultsCard extends ConsumerWidget {
             label: 'Account',
             icon: Icons.account_balance_wallet_outlined,
             value: accounts
-                .where((a) => a.id == defaultAccountId)
-                .map((a) => a.name)
-                .firstOrNull ??
+                    .where((a) => a.id == defaultAccountId)
+                    .map((a) => a.name)
+                    .firstOrNull ??
                 'App Default',
             onTap: accounts.isEmpty
                 ? null
-                : () => _pickAccount(context, accounts, defaultAccountId, controller),
+                : () => _pickAccount(
+                    context, accounts, defaultAccountId, controller),
           ),
           const SizedBox(height: 8),
 
@@ -669,8 +669,7 @@ class _QueueItemCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: typeColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
@@ -733,8 +732,7 @@ class _QueueItemCard extends StatelessWidget {
                   label: const Text('Edit'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryBlue,
-                    side:
-                        const BorderSide(color: AppColors.primaryBlue),
+                    side: const BorderSide(color: AppColors.primaryBlue),
                     visualDensity: VisualDensity.compact,
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.w800,

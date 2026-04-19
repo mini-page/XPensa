@@ -13,9 +13,13 @@ void main() {
       id: Uuid().v4(),
       amount: (i % 100) + 1.0,
       category: 'Category ${i % 10}',
-      date: i % 2 == 0 ? now : now.subtract(Duration(days: 30)), // Half in this month, half not
+      date: i % 2 == 0
+          ? now
+          : now.subtract(Duration(days: 30)), // Half in this month, half not
       note: 'Note $i',
-      type: i % 3 == 0 ? TransactionType.income : TransactionType.expense, // Mix of income and expense
+      type: i % 3 == 0
+          ? TransactionType.income
+          : TransactionType.expense, // Mix of income and expense
     ));
   }
 
@@ -34,5 +38,6 @@ void main() {
   }
   stopwatch.stop();
 
-  print('Average time per run: ${stopwatch.elapsedMilliseconds / iterations} ms');
+  print(
+      'Average time per run: ${stopwatch.elapsedMilliseconds / iterations} ms');
 }

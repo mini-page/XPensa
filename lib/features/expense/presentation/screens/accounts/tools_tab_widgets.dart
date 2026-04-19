@@ -65,7 +65,8 @@ class BudgetToolView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final budgets = ref.watch(budgetTargetsProvider).value ?? defaultBudgetTargets;
+    final budgets =
+        ref.watch(budgetTargetsProvider).value ?? defaultBudgetTargets;
     final stats = ref.watch(statsProvider);
     final currency = ref.watch(currencyFormatProvider);
     final allExpenseCategories = ref.watch(allExpenseCategoriesProvider);
@@ -194,7 +195,8 @@ class BudgetToolView extends ConsumerWidget {
             final progress =
                 budget > 0 ? (spend / budget).clamp(0.0, 1.0) : 0.0;
             final isOverBudget = budget > 0 && spend > budget;
-            final catInfo = resolveExpenseCategory(category, allExpenseCategories);
+            final catInfo =
+                resolveExpenseCategory(category, allExpenseCategories);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -270,11 +272,9 @@ class BudgetToolView extends ConsumerWidget {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor:
-                              AppColors.surfaceAccent,
-                          color: isOverBudget
-                              ? AppColors.danger
-                              : catInfo.color,
+                          backgroundColor: AppColors.surfaceAccent,
+                          color:
+                              isOverBudget ? AppColors.danger : catInfo.color,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -645,8 +645,7 @@ class GoalsToolView extends ConsumerWidget {
         title: Text('Add to "${goals[idx].name}"'),
         content: TextField(
           controller: amountController,
-          keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: const InputDecoration(hintText: 'Amount to add'),
           autofocus: true,
         ),
@@ -687,8 +686,7 @@ class GoalsToolView extends ConsumerWidget {
     NumberFormat currency,
   ) async {
     final existing = editIndex != null ? goals[editIndex] : null;
-    final nameController =
-        TextEditingController(text: existing?.name ?? '');
+    final nameController = TextEditingController(text: existing?.name ?? '');
     final targetController = TextEditingController(
       text: existing != null ? existing.targetAmount.toStringAsFixed(0) : '',
     );
@@ -705,8 +703,7 @@ class GoalsToolView extends ConsumerWidget {
           children: [
             TextField(
               controller: nameController,
-              decoration:
-                  const InputDecoration(labelText: 'Goal name'),
+              decoration: const InputDecoration(labelText: 'Goal name'),
               autofocus: true,
             ),
             const SizedBox(height: 8),
@@ -714,16 +711,14 @@ class GoalsToolView extends ConsumerWidget {
               controller: targetController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  const InputDecoration(labelText: 'Target amount'),
+              decoration: const InputDecoration(labelText: 'Target amount'),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: savedController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  const InputDecoration(labelText: 'Already saved'),
+              decoration: const InputDecoration(labelText: 'Already saved'),
             ),
           ],
         ),
@@ -777,13 +772,15 @@ class FutureTransactionsToolView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expenses = ref.watch(expenseListProvider).value ?? const <ExpenseModel>[];
+    final expenses =
+        ref.watch(expenseListProvider).value ?? const <ExpenseModel>[];
     final currency = ref.watch(currencyFormatProvider);
     final today = DateUtils.dateOnly(DateTime.now());
 
     final futureTransactions = expenses
         .where(
-          (expense) => DateUtils.dateOnly(expense.date.toLocal()).isAfter(today),
+          (expense) =>
+              DateUtils.dateOnly(expense.date.toLocal()).isAfter(today),
         )
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
@@ -868,7 +865,9 @@ class FutureTransactionsToolView extends ConsumerWidget {
             ),
           )
         else ...<Widget>[
-          ...futureTransactions.take(_maxDisplayedFutureTransactions).map((expense) {
+          ...futureTransactions
+              .take(_maxDisplayedFutureTransactions)
+              .map((expense) {
             final signedAmount =
                 expense.isIncome ? expense.amount : -expense.amount;
             return Padding(
@@ -887,7 +886,9 @@ class FutureTransactionsToolView extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            expense.note.isEmpty ? expense.category : expense.note,
+                            expense.note.isEmpty
+                                ? expense.category
+                                : expense.note,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -897,7 +898,8 @@ class FutureTransactionsToolView extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            DateFormat('EEE, d MMM').format(expense.date.toLocal()),
+                            DateFormat('EEE, d MMM')
+                                .format(expense.date.toLocal()),
                             style: const TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 12,

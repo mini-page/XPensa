@@ -111,8 +111,7 @@ final _rawNotificationsProvider = Provider<List<AppNotificationItem>>((ref) {
   for (final sub in subscriptions) {
     if (!sub.isActive) continue;
 
-    final daysUntilDue =
-        sub.nextBillDate.difference(today).inDays;
+    final daysUntilDue = sub.nextBillDate.difference(today).inDays;
     if (daysUntilDue < 0 || daysUntilDue > 7) continue;
 
     final dueLabel = daysUntilDue == 0
@@ -167,8 +166,7 @@ class _NotifInteractionState {
   }
 }
 
-class _NotifInteractionNotifier
-    extends Notifier<_NotifInteractionState> {
+class _NotifInteractionNotifier extends Notifier<_NotifInteractionState> {
   @override
   _NotifInteractionState build() => const _NotifInteractionState();
 
@@ -211,7 +209,8 @@ final notificationsProvider = Provider<List<AppNotificationItem>>((ref) {
 
   return raw
       .where((item) => !interactions.dismissedIds.contains(item.id))
-      .map((item) => item.copyWith(isRead: interactions.readIds.contains(item.id)))
+      .map((item) =>
+          item.copyWith(isRead: interactions.readIds.contains(item.id)))
       .toList(growable: false);
 });
 

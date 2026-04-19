@@ -9,8 +9,7 @@ class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
   static const String _repoUrl = 'https://github.com/mini-page/XPensa';
-  static const String _issuesUrl =
-      'https://github.com/mini-page/XPensa/issues';
+  static const String _issuesUrl = 'https://github.com/mini-page/XPensa/issues';
   static const String _buyMeCoffeeUrl =
       'https://www.buymeacoffee.com/minipagedev';
 
@@ -74,7 +73,7 @@ class SupportScreen extends StatelessWidget {
               subtitle: 'Word of mouth is the best marketing',
               onTap: () => Share.share(
                 'Check out XPensa – a free, offline-first expense tracker! '
-                    '$_repoUrl',
+                '$_repoUrl',
               ),
             ),
             const SizedBox(height: 28),
@@ -168,8 +167,7 @@ class _CoffeeButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: const Color(0xFFFEF3C7),
           borderRadius: BorderRadius.circular(18),
@@ -202,8 +200,7 @@ class _CoffeeButton extends StatelessWidget {
                   SizedBox(height: 2),
                   Text(
                     'One-time contribution',
-                    style: TextStyle(
-                        fontSize: 12, color: Color(0xFFB45309)),
+                    style: TextStyle(fontSize: 12, color: Color(0xFFB45309)),
                   ),
                 ],
               ),
@@ -260,8 +257,7 @@ class _WaysTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -305,8 +301,7 @@ class _WaysTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
       ),

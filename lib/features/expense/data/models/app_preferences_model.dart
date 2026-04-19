@@ -86,27 +86,38 @@ class AppPreferencesModel {
   final List<String> disabledExpenseCategories;
   final List<String> disabledIncomeCategories;
   final List<String> disabledAccountIds;
+
   /// User-defined display name shown in the drawer / profile screen.
   final String displayName;
+
   /// SHA-256 hash of the 4-digit PIN; empty string means PIN is not set.
   final String pinHash;
+
   /// Whether biometric lock is enabled (requires OS support).
   final bool biometricLockEnabled;
+
   /// The app version string at the time the What's New dialog was last shown.
   final String whatsNewShownVersion;
+
   /// JSON-serialised list of savings goals. Each goal:
   /// `{id, name, targetAmount, currentAmount}`.
   final String savingsGoalsJson;
+
   /// JSON-encoded list of user-defined quick-add amounts (e.g. [25, 75, 200]).
   final String customQuickAmountsJson;
+
   /// JSON-encoded list of locale-default amounts hidden by the user.
   final String hiddenDefaultAmountsJson;
+
   /// JSON-serialised list of user-defined expense categories.
   final String customExpenseCategoriesJson;
+
   /// JSON-serialised list of user-defined income categories.
   final String customIncomeCategoriesJson;
+
   /// JSON-serialised list of built-in expense category icon/colour overrides.
   final String builtInExpenseCategoryOverridesJson;
+
   /// JSON-serialised list of built-in income category icon/colour overrides.
   final String builtInIncomeCategoryOverridesJson;
 
@@ -220,9 +231,8 @@ class AppPreferencesModel {
       builtInExpenseCategoryOverridesJson:
           builtInExpenseCategoryOverridesJson ??
               this.builtInExpenseCategoryOverridesJson,
-      builtInIncomeCategoryOverridesJson:
-          builtInIncomeCategoryOverridesJson ??
-              this.builtInIncomeCategoryOverridesJson,
+      builtInIncomeCategoryOverridesJson: builtInIncomeCategoryOverridesJson ??
+          this.builtInIncomeCategoryOverridesJson,
       smsParsingEnabled: smsParsingEnabled ?? this.smsParsingEnabled,
       smsDefaultAccountId: smsDefaultAccountId ?? this.smsDefaultAccountId,
       smsDefaultCategory: smsDefaultCategory ?? this.smsDefaultCategory,
@@ -271,19 +281,27 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     String whatsNewShownVersion =
         AppPreferencesModel.defaults.whatsNewShownVersion;
     String savingsGoalsJson = AppPreferencesModel.defaults.savingsGoalsJson;
-    String customQuickAmountsJson = AppPreferencesModel.defaults.customQuickAmountsJson;
-    String hiddenDefaultAmountsJson = AppPreferencesModel.defaults.hiddenDefaultAmountsJson;
-    String customExpenseCategoriesJson = AppPreferencesModel.defaults.customExpenseCategoriesJson;
-    String customIncomeCategoriesJson = AppPreferencesModel.defaults.customIncomeCategoriesJson;
-    String builtInExpenseCategoryOverridesJson = AppPreferencesModel.defaults.builtInExpenseCategoryOverridesJson;
-    String builtInIncomeCategoryOverridesJson = AppPreferencesModel.defaults.builtInIncomeCategoryOverridesJson;
+    String customQuickAmountsJson =
+        AppPreferencesModel.defaults.customQuickAmountsJson;
+    String hiddenDefaultAmountsJson =
+        AppPreferencesModel.defaults.hiddenDefaultAmountsJson;
+    String customExpenseCategoriesJson =
+        AppPreferencesModel.defaults.customExpenseCategoriesJson;
+    String customIncomeCategoriesJson =
+        AppPreferencesModel.defaults.customIncomeCategoriesJson;
+    String builtInExpenseCategoryOverridesJson =
+        AppPreferencesModel.defaults.builtInExpenseCategoryOverridesJson;
+    String builtInIncomeCategoryOverridesJson =
+        AppPreferencesModel.defaults.builtInIncomeCategoryOverridesJson;
     bool smsParsingEnabled = AppPreferencesModel.defaults.smsParsingEnabled;
-    String smsDefaultAccountId = AppPreferencesModel.defaults.smsDefaultAccountId;
+    String smsDefaultAccountId =
+        AppPreferencesModel.defaults.smsDefaultAccountId;
     String smsDefaultCategory = AppPreferencesModel.defaults.smsDefaultCategory;
     String aiApiKey = AppPreferencesModel.defaults.aiApiKey;
     bool aiEnabled = AppPreferencesModel.defaults.aiEnabled;
     String aiModelId = AppPreferencesModel.defaults.aiModelId;
-    bool aiSmartSearchEnabled = AppPreferencesModel.defaults.aiSmartSearchEnabled;
+    bool aiSmartSearchEnabled =
+        AppPreferencesModel.defaults.aiSmartSearchEnabled;
     bool aiVoiceEnabled = AppPreferencesModel.defaults.aiVoiceEnabled;
     bool aiScannerEnabled = AppPreferencesModel.defaults.aiScannerEnabled;
     bool aiSmsAiEnabled = AppPreferencesModel.defaults.aiSmsAiEnabled;
@@ -317,12 +335,18 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       if (reader.availableBytes > 0) biometricLockEnabled = reader.readBool();
       if (reader.availableBytes > 0) whatsNewShownVersion = reader.readString();
       if (reader.availableBytes > 0) savingsGoalsJson = reader.readString();
-      if (reader.availableBytes > 0) customQuickAmountsJson = reader.readString();
-      if (reader.availableBytes > 0) hiddenDefaultAmountsJson = reader.readString();
-      if (reader.availableBytes > 0) customExpenseCategoriesJson = reader.readString();
-      if (reader.availableBytes > 0) customIncomeCategoriesJson = reader.readString();
-      if (reader.availableBytes > 0) builtInExpenseCategoryOverridesJson = reader.readString();
-      if (reader.availableBytes > 0) builtInIncomeCategoryOverridesJson = reader.readString();
+      if (reader.availableBytes > 0)
+        customQuickAmountsJson = reader.readString();
+      if (reader.availableBytes > 0)
+        hiddenDefaultAmountsJson = reader.readString();
+      if (reader.availableBytes > 0)
+        customExpenseCategoriesJson = reader.readString();
+      if (reader.availableBytes > 0)
+        customIncomeCategoriesJson = reader.readString();
+      if (reader.availableBytes > 0)
+        builtInExpenseCategoryOverridesJson = reader.readString();
+      if (reader.availableBytes > 0)
+        builtInIncomeCategoryOverridesJson = reader.readString();
       if (reader.availableBytes > 0) smsParsingEnabled = reader.readBool();
       if (reader.availableBytes > 0) smsDefaultAccountId = reader.readString();
       if (reader.availableBytes > 0) smsDefaultCategory = reader.readString();
@@ -429,5 +453,3 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     }
   }
 }
-
-

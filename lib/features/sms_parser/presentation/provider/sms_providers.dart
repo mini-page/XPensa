@@ -25,8 +25,7 @@ final smsDefaultCategoryProvider = Provider<String>((ref) {
 // ── SMS Queue ─────────────────────────────────────────────────────────────────
 
 /// In-session queue of parsed SMS transactions awaiting confirmation.
-final smsQueueProvider =
-    NotifierProvider<SmsQueueNotifier, List<SmsQueueItem>>(
+final smsQueueProvider = NotifierProvider<SmsQueueNotifier, List<SmsQueueItem>>(
   SmsQueueNotifier.new,
 );
 

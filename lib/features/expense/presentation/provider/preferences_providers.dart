@@ -131,23 +131,24 @@ final hiddenDefaultAmountsProvider = Provider<List<double>>((ref) {
 
 final customExpenseCategoryListProvider =
     Provider<List<CustomCategoryModel>>((ref) {
-  final json = ref.watch(appPreferencesProvider).value
-          ?.customExpenseCategoriesJson ??
-      '';
+  final json =
+      ref.watch(appPreferencesProvider).value?.customExpenseCategoriesJson ??
+          '';
   return customCategoriesFromJson(json);
 });
 
 final customIncomeCategoryListProvider =
     Provider<List<CustomCategoryModel>>((ref) {
-  final json = ref.watch(appPreferencesProvider).value
-          ?.customIncomeCategoriesJson ??
-      '';
+  final json =
+      ref.watch(appPreferencesProvider).value?.customIncomeCategoriesJson ?? '';
   return customCategoriesFromJson(json);
 });
 
 final builtInExpenseCategoryOverridesProvider =
     Provider<List<BuiltInCategoryOverride>>((ref) {
-  final json = ref.watch(appPreferencesProvider).value
+  final json = ref
+          .watch(appPreferencesProvider)
+          .value
           ?.builtInExpenseCategoryOverridesJson ??
       '';
   return builtInOverridesFromJson(json);
@@ -155,7 +156,9 @@ final builtInExpenseCategoryOverridesProvider =
 
 final builtInIncomeCategoryOverridesProvider =
     Provider<List<BuiltInCategoryOverride>>((ref) {
-  final json = ref.watch(appPreferencesProvider).value
+  final json = ref
+          .watch(appPreferencesProvider)
+          .value
           ?.builtInIncomeCategoryOverridesJson ??
       '';
   return builtInOverridesFromJson(json);
@@ -483,8 +486,7 @@ class AppPreferencesController {
   }
 
   Future<void> addExpenseCategory(CustomCategoryModel category) async {
-    final list = customCategoriesFromJson(
-        _current.customExpenseCategoriesJson);
+    final list = customCategoriesFromJson(_current.customExpenseCategoriesJson);
     list.add(category);
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
@@ -494,8 +496,7 @@ class AppPreferencesController {
   }
 
   Future<void> updateExpenseCategory(CustomCategoryModel category) async {
-    final list = customCategoriesFromJson(
-        _current.customExpenseCategoriesJson);
+    final list = customCategoriesFromJson(_current.customExpenseCategoriesJson);
     final index = list.indexWhere((c) => c.id == category.id);
     if (index != -1) {
       list[index] = category;
@@ -508,8 +509,7 @@ class AppPreferencesController {
   }
 
   Future<void> removeExpenseCategory(String id) async {
-    final list = customCategoriesFromJson(
-        _current.customExpenseCategoriesJson);
+    final list = customCategoriesFromJson(_current.customExpenseCategoriesJson);
     list.removeWhere((c) => c.id == id);
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
@@ -519,8 +519,7 @@ class AppPreferencesController {
   }
 
   Future<void> addIncomeCategory(CustomCategoryModel category) async {
-    final list = customCategoriesFromJson(
-        _current.customIncomeCategoriesJson);
+    final list = customCategoriesFromJson(_current.customIncomeCategoriesJson);
     list.add(category);
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
@@ -530,8 +529,7 @@ class AppPreferencesController {
   }
 
   Future<void> updateIncomeCategory(CustomCategoryModel category) async {
-    final list = customCategoriesFromJson(
-        _current.customIncomeCategoriesJson);
+    final list = customCategoriesFromJson(_current.customIncomeCategoriesJson);
     final index = list.indexWhere((c) => c.id == category.id);
     if (index != -1) {
       list[index] = category;
@@ -544,8 +542,7 @@ class AppPreferencesController {
   }
 
   Future<void> removeIncomeCategory(String id) async {
-    final list = customCategoriesFromJson(
-        _current.customIncomeCategoriesJson);
+    final list = customCategoriesFromJson(_current.customIncomeCategoriesJson);
     list.removeWhere((c) => c.id == id);
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
@@ -617,8 +614,8 @@ class AppPreferencesController {
   Future<void> saveBuiltInExpenseCategoryOverride(
     BuiltInCategoryOverride override,
   ) async {
-    final list = builtInOverridesFromJson(
-        _current.builtInExpenseCategoryOverridesJson);
+    final list =
+        builtInOverridesFromJson(_current.builtInExpenseCategoryOverridesJson);
     final index = list.indexWhere((o) => o.name == override.name);
     if (index != -1) {
       list[index] = override;
@@ -627,8 +624,7 @@ class AppPreferencesController {
     }
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
-            builtInExpenseCategoryOverridesJson:
-                builtInOverridesToJson(list),
+            builtInExpenseCategoryOverridesJson: builtInOverridesToJson(list),
           ),
         );
   }
@@ -636,8 +632,8 @@ class AppPreferencesController {
   Future<void> saveBuiltInIncomeCategoryOverride(
     BuiltInCategoryOverride override,
   ) async {
-    final list = builtInOverridesFromJson(
-        _current.builtInIncomeCategoryOverridesJson);
+    final list =
+        builtInOverridesFromJson(_current.builtInIncomeCategoryOverridesJson);
     final index = list.indexWhere((o) => o.name == override.name);
     if (index != -1) {
       list[index] = override;
@@ -646,8 +642,7 @@ class AppPreferencesController {
     }
     await _ref.read(appPreferencesProvider.notifier).save(
           _current.copyWith(
-            builtInIncomeCategoryOverridesJson:
-                builtInOverridesToJson(list),
+            builtInIncomeCategoryOverridesJson: builtInOverridesToJson(list),
           ),
         );
   }

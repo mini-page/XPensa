@@ -20,7 +20,9 @@ void main() {
   // Warmup
   for (var i = 0; i < 1000; i++) {
     expenses.where((e) => e.id == targetId).firstOrNull;
-    expenses.cast<MockExpense?>().firstWhere((e) => e?.id == targetId, orElse: () => null);
+    expenses
+        .cast<MockExpense?>()
+        .firstWhere((e) => e?.id == targetId, orElse: () => null);
   }
 
   final watch1 = Stopwatch()..start();
@@ -32,10 +34,13 @@ void main() {
 
   final watch2 = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {
-    expenses.cast<MockExpense?>().firstWhere((e) => e?.id == targetId, orElse: () => null);
+    expenses
+        .cast<MockExpense?>()
+        .firstWhere((e) => e?.id == targetId, orElse: () => null);
   }
   watch2.stop();
-  print('cast<T?>().firstWhere(..., orElse: () => null): ${watch2.elapsedMilliseconds} ms');
+  print(
+      'cast<T?>().firstWhere(..., orElse: () => null): ${watch2.elapsedMilliseconds} ms');
 
   final watch3 = Stopwatch()..start();
   for (var i = 0; i < iterations; i++) {

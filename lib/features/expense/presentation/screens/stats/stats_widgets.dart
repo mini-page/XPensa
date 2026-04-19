@@ -202,8 +202,8 @@ class AnalyticsSnapshot {
   ) {
     switch (label) {
       case 'This Week':
-        final weekStart = DateUtils.dateOnly(now)
-            .subtract(Duration(days: now.weekday - 1));
+        final weekStart =
+            DateUtils.dateOnly(now).subtract(Duration(days: now.weekday - 1));
         return (
           start: weekStart,
           end: DateUtils.dateOnly(now),
@@ -1189,7 +1189,10 @@ class _MetricGrid extends StatelessWidget {
             children: <Widget>[
               Expanded(child: children[2]),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: children.length > 3 ? children[3] : const SizedBox.shrink()),
+              Expanded(
+                  child: children.length > 3
+                      ? children[3]
+                      : const SizedBox.shrink()),
             ],
           ),
         ],

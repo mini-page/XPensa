@@ -421,8 +421,9 @@ class _CategoryEditorSheetState extends State<_CategoryEditorSheet> {
   }
 
   void _submit() {
-    final name =
-        widget.isBuiltIn ? (widget.editName ?? '') : _nameController.text.trim();
+    final name = widget.isBuiltIn
+        ? (widget.editName ?? '')
+        : _nameController.text.trim();
     if (name.isEmpty) {
       context.showSnackBar('Enter a category name.');
       return;

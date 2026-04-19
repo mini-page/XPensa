@@ -220,16 +220,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
-                tileColor: active
-                    ? AppColors.surfaceAccent
-                    : Colors.transparent,
+                tileColor:
+                    active ? AppColors.surfaceAccent : Colors.transparent,
                 title: Text(
                   option,
                   style: TextStyle(
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    color: active
-                        ? AppColors.primaryBlue
-                        : AppColors.textDark,
+                    color: active ? AppColors.primaryBlue : AppColors.textDark,
                   ),
                 ),
                 trailing: active

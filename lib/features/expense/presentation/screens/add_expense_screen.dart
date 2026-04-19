@@ -171,8 +171,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
             _selectedExpenseCategory, allExpenseCategories);
     final selectedIncomeCat = _selectedIncomeCategory.isEmpty
         ? null
-        : resolveIncomeCategory(
-            _selectedIncomeCategory, allIncomeCategories);
+        : resolveIncomeCategory(_selectedIncomeCategory, allIncomeCategories);
     final selectionAccounts = widget.isEditing ? accounts : availableAccounts;
     final selectedAccount = _resolveSelectedAccount(selectionAccounts);
     final toAccount = _resolveToAccount(selectionAccounts);

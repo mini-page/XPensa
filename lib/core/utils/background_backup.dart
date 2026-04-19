@@ -17,10 +17,13 @@ void callbackDispatcher() {
         Hive.registerAdapter(AppPreferencesModelAdapter());
       }
 
-      final box = await Hive.openBox<AppPreferencesModel>(PreferencesLocalDatasource.boxName);
+      final box = await Hive.openBox<AppPreferencesModel>(
+          PreferencesLocalDatasource.boxName);
       final preferences = box.get(PreferencesLocalDatasource.boxName);
 
-      if (preferences == null || !preferences.autoBackupEnabled || preferences.backupDirectoryPath == null) {
+      if (preferences == null ||
+          !preferences.autoBackupEnabled ||
+          preferences.backupDirectoryPath == null) {
         await box.close();
         return Future.value(true);
       }
@@ -34,22 +37,30 @@ void callbackDispatcher() {
       }
 
       // Create a timestamped backup folder or file
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
-      final backupFolder = Directory(p.join(targetDir.path, 'xpensa_backup_$timestamp'));
+      final timestamp = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
+      final backupFolder =
+          Directory(p.join(targetDir.path, 'xpensa_backup_$timestamp'));
       await backupFolder.create(recursive: true);
 
       final sourceDir = Directory(appDir.path);
       await for (final entity in sourceDir.list()) {
-        if (entity is File && (entity.path.endsWith('.hive') || entity.path.endsWith('.lock'))) {
+        if (entity is File &&
+            (entity.path.endsWith('.hive') || entity.path.endsWith('.lock'))) {
           final fileName = p.basename(entity.path);
           await entity.copy(p.join(backupFolder.path, fileName));
         }
       }
 
       // Update last backup time
-      await box.put(PreferencesLocalDatasource.boxName, preferences.copyWith(
-        lastBackupDateTime: DateTime.now(),
-      ));
+      await box.put(
+          PreferencesLocalDatasource.boxName,
+          preferences.copyWith(
+            lastBackupDateTime: DateTime.now(),
+          ));
 
       await box.close();
       return Future.value(true);

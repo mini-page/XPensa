@@ -59,8 +59,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (!mounted) return;
 
     // Navigate to AddExpenseScreen with parsed data
-    AppRoutes.replaceWithAddExpense(
-        context, initialAmount: amount, initialNote: note);
+    AppRoutes.replaceWithAddExpense(context,
+        initialAmount: amount, initialNote: note);
   }
 
   Future<void> _pickImageAndScan() async {
@@ -163,8 +163,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         ValueListenableBuilder<MobileScannerState>(
                           valueListenable: controller,
                           builder: (_, state, __) {
-                            final torchOn =
-                                state.torchState == TorchState.on;
+                            final torchOn = state.torchState == TorchState.on;
                             return _ScannerControlButton(
                               icon: torchOn
                                   ? Icons.flash_on_rounded
@@ -255,4 +254,3 @@ class _ScannerControlButton extends StatelessWidget {
     );
   }
 }
-

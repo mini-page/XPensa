@@ -98,8 +98,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   _LocalePage(
                     selectedLocale: _selectedLocale,
                     selectedCurrency: _selectedCurrency,
-                    onLocaleChanged: (v) =>
-                        setState(() => _selectedLocale = v),
+                    onLocaleChanged: (v) => setState(() => _selectedLocale = v),
                     onCurrencyChanged: (v) =>
                         setState(() => _selectedCurrency = v),
                   ),
@@ -147,7 +146,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              side: const BorderSide(color: AppColors.primaryBlue),
+                              side: const BorderSide(
+                                  color: AppColors.primaryBlue),
                             ),
                             child: const Text(
                               'Back',
@@ -192,7 +192,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _completeOnboarding() async {
-    final accountName = _accountName.trim().isEmpty ? 'Main Account' : _accountName;
+    final accountName =
+        _accountName.trim().isEmpty ? 'Main Account' : _accountName;
 
     await ref.read(accountControllerProvider).saveAccount(
           name: accountName,
@@ -618,12 +619,9 @@ class _OptionGrid<T> extends StatelessWidget {
           onTap: () => onSelected(opt.value),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.primaryBlue
-                  : Colors.white,
+              color: isSelected ? AppColors.primaryBlue : Colors.white,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
                 color: isSelected
@@ -677,9 +675,8 @@ class _ThemeOption extends StatelessWidget {
                 : Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primaryBlue
-                  : AppColors.surfaceAccent,
+              color:
+                  isSelected ? AppColors.primaryBlue : AppColors.surfaceAccent,
               width: 2,
             ),
           ),
@@ -697,9 +694,8 @@ class _ThemeOption extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: isSelected
-                      ? AppColors.primaryBlue
-                      : AppColors.textSubtle,
+                  color:
+                      isSelected ? AppColors.primaryBlue : AppColors.textSubtle,
                 ),
               ),
             ],
@@ -802,7 +798,9 @@ class _AiApiKeyPageState extends State<_AiApiKeyPage> {
               prefixIcon: const Icon(Icons.key_rounded),
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                 ),
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),

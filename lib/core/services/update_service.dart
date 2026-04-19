@@ -42,15 +42,13 @@ class UpdateService {
   static Future<UpdateInfo?> checkForUpdate() async {
     final client = http.Client();
     try {
-      final response = await client
-          .get(
-            Uri.parse(_latestReleaseApiUrl),
-            headers: {
-              'Accept': 'application/vnd.github+json',
-              'X-GitHub-Api-Version': '2022-11-28',
-            },
-          )
-          .timeout(const Duration(seconds: 12));
+      final response = await client.get(
+        Uri.parse(_latestReleaseApiUrl),
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      ).timeout(const Duration(seconds: 12));
 
       if (response.statusCode != 200) return null;
 
@@ -58,12 +56,10 @@ class UpdateService {
 
       // tag_name can be "v2.2.0" or "2.2.0"
       final rawTag = (data['tag_name'] as String? ?? '').trim();
-      final tagVersion =
-          rawTag.startsWith('v') ? rawTag.substring(1) : rawTag;
+      final tagVersion = rawTag.startsWith('v') ? rawTag.substring(1) : rawTag;
       if (tagVersion.isEmpty) return null;
 
-      final htmlUrl =
-          (data['html_url'] as String?)?.trim() ?? _releasesPageUrl;
+      final htmlUrl = (data['html_url'] as String?)?.trim() ?? _releasesPageUrl;
       final releaseNotes = data['body'] as String?;
 
       if (!_isNewerVersion(tagVersion, AppConstants.version)) return null;
@@ -121,8 +117,7 @@ class UpdateService {
 /// Initial state is `AsyncValue.data(null)` — meaning "not checked yet".
 /// Call [check] to trigger a network request; the state transitions through
 /// `loading` → `data(UpdateInfo?)` / `error`.
-class UpdateCheckerNotifier
-    extends Notifier<AsyncValue<UpdateInfo?>> {
+class UpdateCheckerNotifier extends Notifier<AsyncValue<UpdateInfo?>> {
   @override
   AsyncValue<UpdateInfo?> build() => const AsyncValue.data(null);
 

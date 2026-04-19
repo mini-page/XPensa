@@ -45,8 +45,8 @@ class AppTheme {
   static TextTheme _textTheme(Color defaultColor) {
     return TextTheme(
       headlineLarge: AppTextStyles.sectionHeading.copyWith(color: defaultColor),
-      headlineMedium:
-          AppTextStyles.sectionHeading.copyWith(color: defaultColor, fontSize: 18),
+      headlineMedium: AppTextStyles.sectionHeading
+          .copyWith(color: defaultColor, fontSize: 18),
       titleMedium: AppTextStyles.bodyStrong.copyWith(color: defaultColor),
       bodyMedium: AppTextStyles.bodyMuted,
       labelSmall: AppTextStyles.eyebrowOnDark,

@@ -45,9 +45,8 @@ class XPensaApp extends ConsumerWidget {
 
     // Parse locale (e.g. 'en_IN' → Locale('en', 'IN'))
     final parts = localeString.split('_');
-    final appLocale = parts.length >= 2
-        ? Locale(parts[0], parts[1])
-        : Locale(parts[0]);
+    final appLocale =
+        parts.length >= 2 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -74,4 +73,3 @@ class XPensaApp extends ConsumerWidget {
     );
   }
 }
-

@@ -27,31 +27,29 @@ class RecordsFilterChips extends StatelessWidget {
       height: 42,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        children: RecordsFilter.values
-            .map((filter) {
-              final isSelected = selectedFilter == filter;
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: ChoiceChip(
-                  label: Text(labelForFilter(filter)),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    if (filter == RecordsFilter.custom) {
-                      onCustomDateRange?.call();
-                    } else {
-                      onFilterSelected(filter);
-                    }
-                  },
-                  selectedColor: AppColors.primaryBlue,
-                  backgroundColor: AppColors.lightBlueBg,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF48607E),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              );
-            })
-            .toList(growable: false),
+        children: RecordsFilter.values.map((filter) {
+          final isSelected = selectedFilter == filter;
+          return Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: ChoiceChip(
+              label: Text(labelForFilter(filter)),
+              selected: isSelected,
+              onSelected: (_) {
+                if (filter == RecordsFilter.custom) {
+                  onCustomDateRange?.call();
+                } else {
+                  onFilterSelected(filter);
+                }
+              },
+              selectedColor: AppColors.primaryBlue,
+              backgroundColor: AppColors.lightBlueBg,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF48607E),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }).toList(growable: false),
       ),
     );
   }

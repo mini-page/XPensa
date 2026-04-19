@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'
-    show rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../../../../core/services/widget_sync_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -240,7 +239,8 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen> {
           const Text(
             "Couldn't understand that. Please try again.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: AppColors.textMuted, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
         ],
@@ -524,8 +524,7 @@ abstract final class _VoiceCommandParser {
 
   // ── Type detection ─────────────────────────────────────────────────
 
-  static TransactionType _detectType(
-      String text, Map<String, dynamic> dict) {
+  static TransactionType _detectType(String text, Map<String, dynamic> dict) {
     if (_any(text, _group(dict, 'transaction_types/transfer'))) {
       return TransactionType.transfer;
     }
@@ -569,10 +568,43 @@ abstract final class _VoiceCommandParser {
   /// stripping the numeric amount and very common filler words.
   static String _extractNote(String text, String amountStr) {
     final stopWords = <String>{
-      'a', 'an', 'the', 'on', 'for', 'at', 'in', 'of', 'to', 'from',
-      'and', 'or', 'is', 'it', 'my', 'me', 'i', 'rs', 'inr', 'rupees',
-      'rupee', 'add', 'new', 'entry', 'pe', 'par', 'ka', 'ki', 'ke',
-      'se', 'ko', 'ne', 'kiya', 'kiya', 'hai', 'tha', 'thi',
+      'a',
+      'an',
+      'the',
+      'on',
+      'for',
+      'at',
+      'in',
+      'of',
+      'to',
+      'from',
+      'and',
+      'or',
+      'is',
+      'it',
+      'my',
+      'me',
+      'i',
+      'rs',
+      'inr',
+      'rupees',
+      'rupee',
+      'add',
+      'new',
+      'entry',
+      'pe',
+      'par',
+      'ka',
+      'ki',
+      'ke',
+      'se',
+      'ko',
+      'ne',
+      'kiya',
+      'kiya',
+      'hai',
+      'tha',
+      'thi',
     };
     final words = text
         .replaceAll(amountStr, '')
@@ -582,8 +614,7 @@ abstract final class _VoiceCommandParser {
         .toList();
     // Capitalise first word and join
     if (words.isEmpty) return '';
-    words[0] =
-        words[0][0].toUpperCase() + words[0].substring(1);
+    words[0] = words[0][0].toUpperCase() + words[0].substring(1);
     return words.join(' ');
   }
 
@@ -591,8 +622,7 @@ abstract final class _VoiceCommandParser {
 
   /// Returns [DateTime.now()] for "today" hints, yesterday's date for
   /// "yesterday" hints, or `null` (caller should default to today).
-  static DateTime? _detectDate(
-      String text, Map<String, dynamic> dict) {
+  static DateTime? _detectDate(String text, Map<String, dynamic> dict) {
     final hints = dict['date_hints'] as Map<String, dynamic>? ?? {};
     final yesterdayKeys =
         (hints['yesterday'] as List?)?.cast<String>() ?? const <String>[];

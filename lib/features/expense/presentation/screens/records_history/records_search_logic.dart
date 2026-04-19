@@ -78,8 +78,9 @@ class SearchQuery {
   ) {
     if (_groups.isEmpty) return true;
 
-    final fromAccount =
-        expense.accountId == null ? '' : accountMap[expense.accountId]?.name ?? '';
+    final fromAccount = expense.accountId == null
+        ? ''
+        : accountMap[expense.accountId]?.name ?? '';
     final toAccount = expense.toAccountId == null
         ? ''
         : accountMap[expense.toAccountId]?.name ?? '';

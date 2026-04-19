@@ -107,22 +107,18 @@ class HomeDateStrip extends StatelessWidget {
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: visibleDates
-                .map((date) {
-                  final isSelected = DateUtils.isSameDay(date, selectedDate);
-                  return Expanded(
-                    child: HomeDayPill(
-                      label: weekdayFormat
-                          .format(date)
-                          .substring(0, 1)
-                          .toUpperCase(),
-                      day: date.day.toString().padLeft(2, '0'),
-                      isSelected: isSelected,
-                      onTap: () => onDateSelected(date),
-                    ),
-                  );
-                })
-                .toList(growable: false),
+            children: visibleDates.map((date) {
+              final isSelected = DateUtils.isSameDay(date, selectedDate);
+              return Expanded(
+                child: HomeDayPill(
+                  label:
+                      weekdayFormat.format(date).substring(0, 1).toUpperCase(),
+                  day: date.day.toString().padLeft(2, '0'),
+                  isSelected: isSelected,
+                  onTap: () => onDateSelected(date),
+                ),
+              );
+            }).toList(growable: false),
           ),
           const SizedBox(height: 16),
           Container(
@@ -242,9 +238,8 @@ class HomeDayPill extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? AppColors.accentLimeDark
-                    : AppColors.textMuted,
+                color:
+                    isSelected ? AppColors.accentLimeDark : AppColors.textMuted,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -252,9 +247,8 @@ class HomeDayPill extends StatelessWidget {
             Text(
               day,
               style: TextStyle(
-                color: isSelected
-                    ? AppColors.accentLimeDark
-                    : AppColors.textDark,
+                color:
+                    isSelected ? AppColors.accentLimeDark : AppColors.textDark,
                 fontWeight: FontWeight.w900,
                 fontSize: 18,
               ),

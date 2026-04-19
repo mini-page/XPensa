@@ -220,7 +220,8 @@ abstract final class SmsParserEngine {
     final refMatch = _kRefPattern.firstMatch(body);
     if (refMatch != null) parts.add('Ref: ${refMatch.group(1)}');
 
-    final upiMatch = _kUpiPattern.firstMatch(body) ?? _kVpaPattern.firstMatch(body);
+    final upiMatch =
+        _kUpiPattern.firstMatch(body) ?? _kVpaPattern.firstMatch(body);
     if (upiMatch != null) parts.add('UPI: ${upiMatch.group(1)}');
 
     final merchantMatch = _kMerchantPattern.firstMatch(body);

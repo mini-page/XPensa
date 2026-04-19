@@ -8,7 +8,8 @@ class BackupLocalDatasource {
 
   Future<File> createBackup() async {
     final appDir = await getApplicationDocumentsDirectory();
-    final backupFile = File(p.join(appDir.path, 'xpensa_backup${DateTime.now().millisecondsSinceEpoch}$backupExtension'));
+    final backupFile = File(p.join(appDir.path,
+        'xpensa_backup${DateTime.now().millisecondsSinceEpoch}$backupExtension'));
 
     final encoder = ZipFileEncoder();
     encoder.create(backupFile.path);
@@ -17,7 +18,8 @@ class BackupLocalDatasource {
     final files = directory.listSync();
 
     for (final file in files) {
-      if (file is File && (file.path.endsWith('.hive') || file.path.endsWith('.lock'))) {
+      if (file is File &&
+          (file.path.endsWith('.hive') || file.path.endsWith('.lock'))) {
         encoder.addFile(file);
       }
     }

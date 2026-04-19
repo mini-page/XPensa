@@ -266,8 +266,7 @@ class _PinEntryScreenState extends ConsumerState<PinEntryScreen> {
                       ),
                     ),
                   TextButton(
-                    onPressed: () => Navigator.of(context)
-                        .pushReplacement(
+                    onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute<void>(
                         builder: (_) => const AppShell(),
                       ),

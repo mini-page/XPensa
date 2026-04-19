@@ -14,7 +14,8 @@ void main() {
     });
 
     test('returns true for sender containing BANK / PAY / ALERT', () {
-      expect(SmsParserEngine.isTransactionalSender('AM-ICICIBANKNOTIFY'), isTrue);
+      expect(
+          SmsParserEngine.isTransactionalSender('AM-ICICIBANKNOTIFY'), isTrue);
       expect(SmsParserEngine.isTransactionalSender('BZ-PAYALERT'), isTrue);
       expect(SmsParserEngine.isTransactionalSender('VD-UPIALERTS'), isTrue);
     });
@@ -193,7 +194,8 @@ void main() {
             '₹1,200 debited from a/c XX9876 on 18-04-2026 at 3:00 PM. Ref 1234567890.',
         receivedAt: now,
       );
-      expect(tx!.confidence, greaterThanOrEqualTo(SmsParserEngine.kMinConfidence));
+      expect(
+          tx!.confidence, greaterThanOrEqualTo(SmsParserEngine.kMinConfidence));
     });
 
     test('bare amount only yields lower confidence', () {

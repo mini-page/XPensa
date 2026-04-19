@@ -54,6 +54,7 @@ class HomeAmountChip extends StatelessWidget {
 
   final String label;
   final VoidCallback onTap;
+
   /// Called when the chip is long-pressed. When non-null a subtle delete hint
   /// is implied to the user via the chip appearance.
   final VoidCallback? onLongPress;

@@ -166,8 +166,7 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
                         ValueListenableBuilder<MobileScannerState>(
                           valueListenable: _controller,
                           builder: (_, state, __) {
-                            final torchOn =
-                                state.torchState == TorchState.on;
+                            final torchOn = state.torchState == TorchState.on;
                             return _ScannerControlButton(
                               icon: torchOn
                                   ? Icons.flash_on_rounded
@@ -258,4 +257,3 @@ class _ScannerControlButton extends StatelessWidget {
     );
   }
 }
-

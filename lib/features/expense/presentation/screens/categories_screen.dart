@@ -75,8 +75,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     final allIncomeCategories = ref.watch(allIncomeCategoriesProvider);
     final customExpenseCategories =
         ref.watch(customExpenseCategoryListProvider);
-    final customIncomeCategories =
-        ref.watch(customIncomeCategoryListProvider);
+    final customIncomeCategories = ref.watch(customIncomeCategoryListProvider);
     final budgets = budgetState.value ?? defaultBudgetTargets;
     final accounts = accountState.value ?? const <AccountModel>[];
 
@@ -216,10 +215,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     required List<CustomCategoryModel> customExpenseCategories,
     required List<CustomCategoryModel> customIncomeCategories,
   }) {
-    final builtInExpenseNames =
-        expenseCategories.map((c) => c.name).toSet();
-    final builtInIncomeNames =
-        incomeCategories.map((c) => c.name).toSet();
+    final builtInExpenseNames = expenseCategories.map((c) => c.name).toSet();
+    final builtInIncomeNames = incomeCategories.map((c) => c.name).toSet();
 
     switch (mode) {
       case _BoardMode.expenses:
@@ -698,4 +695,3 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
         .showSnackBar(SnackBar(content: Text(message)));
   }
 }
-

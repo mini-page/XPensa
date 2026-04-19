@@ -406,8 +406,7 @@ class SliverAccountsTabView extends ConsumerWidget {
                       isNegative: account.balance < 0,
                       onTap: () =>
                           _openAccountEditor(context, ref, account: account),
-                      onDelete: () =>
-                          _deleteAccount(context, ref, account),
+                      onDelete: () => _deleteAccount(context, ref, account),
                     ),
                   );
                 },

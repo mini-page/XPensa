@@ -31,38 +31,36 @@ class RecordsExpenseList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: groupedExpenses.entries
-          .map((entry) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      groupLabel(entry.key),
-                      style: const TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+      children: groupedExpenses.entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(
+                  groupLabel(entry.key),
+                  style: const TextStyle(
+                    color: AppColors.primaryBlue,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
                   ),
-                  ...entry.value.map((expense) {
-                    return TransactionCard(
-                      expense: expense,
-                      accountLabel: accountLabelFor(expense, accounts),
-                      maskAmounts: privacyModeEnabled,
-                      onEdit: () => onEdit(expense),
-                      onDelete: () => onDelete(expense),
-                    );
-                  }),
-                ],
+                ),
               ),
-            );
-          })
-          .toList(growable: false),
+              ...entry.value.map((expense) {
+                return TransactionCard(
+                  expense: expense,
+                  accountLabel: accountLabelFor(expense, accounts),
+                  maskAmounts: privacyModeEnabled,
+                  onEdit: () => onEdit(expense),
+                  onDelete: () => onDelete(expense),
+                );
+              }),
+            ],
+          ),
+        );
+      }).toList(growable: false),
     );
   }
 }

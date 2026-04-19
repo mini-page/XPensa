@@ -256,8 +256,7 @@ class SettingsScreen extends ConsumerWidget {
                 _buildDangerTile(
                   icon: Icons.delete_sweep_outlined,
                   title: 'Reset App Data',
-                  subtitle:
-                      'Permanently erase all transactions and accounts',
+                  subtitle: 'Permanently erase all transactions and accounts',
                   onTap: () => _resetAppData(context, ref),
                 ),
               ],
@@ -344,8 +343,7 @@ class SettingsScreen extends ConsumerWidget {
   ) async {
     final controller = ref.read(appPreferencesControllerProvider);
     if (enable) {
-      final available =
-          await BiometricService.isAvailable();
+      final available = await BiometricService.isAvailable();
       if (!available) {
         if (context.mounted) {
           context.showSnackBar(
@@ -371,7 +369,6 @@ class SettingsScreen extends ConsumerWidget {
       );
     }
   }
-
 
   Future<void> _handlePinToggle(
     BuildContext context,
@@ -405,8 +402,7 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await confirmDestructiveAction(
       context,
       title: 'Reset All Data?',
-      message:
-          'This will permanently delete all transactions, accounts, '
+      message: 'This will permanently delete all transactions, accounts, '
           'subscriptions, and budgets. Your settings will be preserved. '
           'This cannot be undone.',
       confirmLabel: 'Reset Everything',
@@ -435,8 +431,8 @@ class SettingsScreen extends ConsumerWidget {
     final status = await Permission.storage.request();
     if (!status.isGranted && !status.isLimited) {
       if (context.mounted) {
-        context.showSnackBar(
-            'Storage permission is required for auto-backups.');
+        context
+            .showSnackBar('Storage permission is required for auto-backups.');
       }
       return null;
     }
@@ -485,8 +481,8 @@ class SettingsScreen extends ConsumerWidget {
       leading: const SettingsTileIcon(icon: Icons.palette_outlined),
       title: const Text(
         'Appearance',
-        style: TextStyle(
-            color: AppColors.textDark, fontWeight: FontWeight.w700),
+        style:
+            TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
       ),
       trailing: DropdownButton<String>(
         value: currentMode.name,
@@ -514,12 +510,11 @@ class SettingsScreen extends ConsumerWidget {
       leading: const SettingsTileIcon(icon: Icons.language_rounded),
       title: const Text(
         'Language',
-        style: TextStyle(
-            color: AppColors.textDark, fontWeight: FontWeight.w700),
+        style:
+            TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
       ),
       trailing: DropdownButton<String>(
-        value: AppConstants.locales
-                .any((l) => l.locale == currentLocale)
+        value: AppConstants.locales.any((l) => l.locale == currentLocale)
             ? currentLocale
             : AppConstants.locales.first.locale,
         underline: const SizedBox(),
@@ -549,12 +544,11 @@ class SettingsScreen extends ConsumerWidget {
       leading: const SettingsTileIcon(icon: Icons.payments_outlined),
       title: const Text(
         'Currency',
-        style: TextStyle(
-            color: AppColors.textDark, fontWeight: FontWeight.w700),
+        style:
+            TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
       ),
       trailing: DropdownButton<String>(
-        value: AppConstants.currencies
-                .any((c) => c.symbol == currentCurrency)
+        value: AppConstants.currencies.any((c) => c.symbol == currentCurrency)
             ? currentCurrency
             : AppConstants.currencies.first.symbol,
         underline: const SizedBox(),
@@ -691,8 +685,8 @@ class SettingsScreen extends ConsumerWidget {
         subtitle,
         style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
       ),
-      trailing: const Icon(Icons.chevron_right_rounded,
-          color: AppColors.danger),
+      trailing:
+          const Icon(Icons.chevron_right_rounded, color: AppColors.danger),
       onTap: onTap,
     );
   }
@@ -729,8 +723,8 @@ class SettingsScreen extends ConsumerWidget {
         leading: const SettingsTileIcon(icon: Icons.system_update_outlined),
         title: const Text(
           'Checking for Updates\u2026',
-          style: TextStyle(
-              color: AppColors.textDark, fontWeight: FontWeight.w700),
+          style:
+              TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
         ),
         subtitle: const Text(
           'Please wait a moment',
@@ -769,15 +763,14 @@ class SettingsScreen extends ConsumerWidget {
         leading: const SettingsTileIcon(icon: Icons.system_update_outlined),
         title: const Text(
           'Check for Updates',
-          style: TextStyle(
-              color: AppColors.textDark, fontWeight: FontWeight.w700),
+          style:
+              TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
         ),
         subtitle: const Text(
           'Could not connect. Tap to retry',
           style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
-        trailing:
-            const Icon(Icons.refresh_rounded, color: AppColors.textMuted),
+        trailing: const Icon(Icons.refresh_rounded, color: AppColors.textMuted),
         onTap: () => ref.read(updateCheckerProvider.notifier).check(),
       );
     }
@@ -787,8 +780,8 @@ class SettingsScreen extends ConsumerWidget {
       leading: const SettingsTileIcon(icon: Icons.system_update_outlined),
       title: const Text(
         'Check for Updates',
-        style: TextStyle(
-            color: AppColors.textDark, fontWeight: FontWeight.w700),
+        style:
+            TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w700),
       ),
       subtitle: Text(
         'Current version: v${AppConstants.version}',
@@ -833,16 +826,15 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               const Text(
                 "What's new:",
-                style: TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 13),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               ),
               const SizedBox(height: 4),
               Text(
                 notes!.characters.length > _kMaxReleaseNotesLength
                     ? '${notes.characters.take(_kMaxReleaseNotesLength).toString().trimRight()}\u2026'
                     : notes,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textMuted),
+                style:
+                    const TextStyle(fontSize: 12, color: AppColors.textMuted),
               ),
             ],
           ],
@@ -857,8 +849,7 @@ class SettingsScreen extends ConsumerWidget {
               Navigator.of(ctx).pop();
               final uri = Uri.parse(info.releaseUrl);
               if (await canLaunchUrl(uri)) {
-                await launchUrl(uri,
-                    mode: LaunchMode.externalApplication);
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
               } else if (context.mounted) {
                 context.showSnackBar(
                   'Could not open the download link. '
@@ -990,16 +981,13 @@ class _AiFeaturesCard extends StatelessWidget {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: (aiEnabled
-                      ? AppColors.primaryBlue
-                      : AppColors.textMuted)
+              color: (aiEnabled ? AppColors.primaryBlue : AppColors.textMuted)
                   .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               Icons.auto_awesome_rounded,
-              color:
-                  aiEnabled ? AppColors.primaryBlue : AppColors.textMuted,
+              color: aiEnabled ? AppColors.primaryBlue : AppColors.textMuted,
               size: 18,
             ),
           ),
@@ -1022,9 +1010,7 @@ class _AiFeaturesCard extends StatelessWidget {
           trailing: Switch.adaptive(
             value: aiEnabled,
             activeTrackColor: AppColors.primaryBlue,
-            onChanged: _hasKey
-                ? (v) => controller.setAiEnabled(v)
-                : (_) {},
+            onChanged: _hasKey ? (v) => controller.setAiEnabled(v) : (_) {},
           ),
         ),
 
@@ -1097,9 +1083,7 @@ class _AiKeyRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
-          hasKey
-              ? Icons.check_circle_outline_rounded
-              : Icons.vpn_key_outlined,
+          hasKey ? Icons.check_circle_outline_rounded : Icons.vpn_key_outlined,
           color: hasKey ? AppColors.success : AppColors.primaryBlue,
           size: 18,
         ),
@@ -1166,8 +1150,7 @@ class _AiModelSelector extends StatelessWidget {
     final selected = _kGeminiModels.any((m) => m.id == currentId)
         ? currentId
         : _kGeminiModels.first.id;
-    final model =
-        _kGeminiModels.firstWhere((m) => m.id == selected);
+    final model = _kGeminiModels.firstWhere((m) => m.id == selected);
 
     return ListTile(
       dense: true,
@@ -1192,8 +1175,7 @@ class _AiModelSelector extends StatelessWidget {
       ),
       subtitle: Text(
         model.description,
-        style:
-            const TextStyle(color: AppColors.textMuted, fontSize: 11),
+        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
       ),
       trailing: DropdownButton<String>(
         value: selected,
@@ -1239,11 +1221,9 @@ class _AiFeatureToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       dense: true,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       leading: Icon(icon,
-          color: value ? AppColors.primaryBlue : AppColors.textMuted,
-          size: 20),
+          color: value ? AppColors.primaryBlue : AppColors.textMuted, size: 20),
       title: Text(
         title,
         style: const TextStyle(
@@ -1254,8 +1234,7 @@ class _AiFeatureToggle extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style:
-            const TextStyle(color: AppColors.textMuted, fontSize: 11),
+        style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
       ),
       trailing: Switch.adaptive(
         value: value,
@@ -1310,8 +1289,8 @@ class _ApiKeyAddDialogState extends State<_ApiKeyAddDialog> {
   Future<void> _save() async {
     final key = _ctrl.text.trim();
     if (!_isValidKey(key)) {
-      setState(() => _error =
-          'Key must start with "AIzaSy" and be 39 characters long.');
+      setState(() =>
+          _error = 'Key must start with "AIzaSy" and be 39 characters long.');
       return;
     }
     setState(() {
@@ -1349,8 +1328,7 @@ class _ApiKeyAddDialogState extends State<_ApiKeyAddDialog> {
               onTap: () async {
                 final uri = Uri.parse('https://aistudio.google.com/api-keys');
                 if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri,
-                      mode: LaunchMode.externalApplication);
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
                 }
               },
               child: const Padding(

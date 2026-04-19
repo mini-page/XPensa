@@ -393,11 +393,9 @@ final widgetDataPayloadProvider = Provider<WidgetDataPayload?>((ref) {
 
   if (accounts == null || expenses == null) return null;
 
-  final totalBalance =
-      accounts.fold<double>(0.0, (sum, a) => sum + a.balance);
+  final totalBalance = accounts.fold<double>(0.0, (sum, a) => sum + a.balance);
 
-  final sorted = (expenses.toList()
-        ..sort((a, b) => b.date.compareTo(a.date)))
+  final sorted = (expenses.toList()..sort((a, b) => b.date.compareTo(a.date)))
       .take(20)
       .toList(growable: false);
 

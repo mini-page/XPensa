@@ -173,7 +173,11 @@ class _HomeHeaderState extends State<HomeHeader> {
         : isDeficit
             ? const Color(0xFFFFA2A2)
             : const Color(0xFFA2FFC0);
-    final String signSymbol = isZero ? '' : isDeficit ? '−' : '+';
+    final String signSymbol = isZero
+        ? ''
+        : isDeficit
+            ? '−'
+            : '+';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),

@@ -163,8 +163,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               _WhatsNewItem(
                 emoji: '📊',
                 title: 'Budget Progress Bar',
-                detail:
-                    'See your top budget right on the home header',
+                detail: 'See your top budget right on the home header',
               ),
               _WhatsNewItem(
                 emoji: '📅',
