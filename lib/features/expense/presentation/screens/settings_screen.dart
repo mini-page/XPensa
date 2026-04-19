@@ -13,7 +13,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_tokens.dart';
 import 'settings/settings_widgets.dart';
 import '../../../../core/utils/context_extensions.dart';
-import '../../../../shared/widgets/app_filter_sheet.dart';
 import '../provider/account_providers.dart';
 import '../provider/backup_providers.dart';
 import '../provider/budget_providers.dart';
@@ -1163,68 +1162,99 @@ class _SettingsChoiceMenu extends StatelessWidget {
     final match = options.where((o) => o.value == value).firstOrNull;
     final selectedLabel = (match ?? options.first).label;
 
-    return IntrinsicWidth(
-      child: GestureDetector(
-        onTap: () => _openSheet(context),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceAccent,
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            border: Border.all(
-              color: AppColors.primaryBlue.withValues(alpha: 0.22),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Flexible(
-                child: Text(
-                  selectedLabel,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13,
+    return PopupMenuButton<String>(
+      initialValue: value,
+      onSelected: onChanged,
+      constraints: const BoxConstraints(minWidth: 160, maxWidth: 220),
+      elevation: 6,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      itemBuilder: (context) => options
+          .map(
+            (o) => PopupMenuItem<String>(
+              value: o.value,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (o.icon != null) ...[
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: (o.iconColor ?? AppColors.primaryBlue)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        o.icon,
+                        size: 15,
+                        color: o.iconColor ?? AppColors.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      o.label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: o.value == value
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: o.value == value
+                            ? AppColors.primaryBlue
+                            : AppColors.textDark,
+                      ),
+                    ),
                   ),
-                ),
+                  if (o.value == value) ...[
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.check_rounded,
+                      size: 15,
+                      color: AppColors.primaryBlue,
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.expand_more_rounded,
-                color: AppColors.primaryBlue,
-                size: 18,
-              ),
-            ],
+            ),
+          )
+          .toList(growable: false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceAccent,
+          borderRadius: BorderRadius.circular(AppRadii.pill),
+          border: Border.all(
+            color: AppColors.primaryBlue.withValues(alpha: 0.22),
           ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              selectedLabel,
+              style: const TextStyle(
+                color: AppColors.primaryBlue,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.expand_more_rounded,
+              color: AppColors.primaryBlue,
+              size: 18,
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  Future<void> _openSheet(BuildContext context) async {
-    final items = options
-        .map(
-          (o) => FilterSheetItem<String>(
-            value: o.value,
-            label: o.label,
-            icon: o.icon,
-            iconColor: o.iconColor,
-          ),
-        )
-        .toList(growable: false);
-
-    final chosen = await showSingleSelectSheet<String>(
-      context: context,
-      title: sheetTitle,
-      items: items,
-      selectedValue: value,
-      searchable: searchable,
-    );
-
-    if (chosen != null) onChanged(chosen);
   }
 }
 
