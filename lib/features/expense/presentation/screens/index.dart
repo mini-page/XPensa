@@ -20,6 +20,7 @@ export 'scanner_screen.dart';
 export 'receipt_scanner_screen.dart';
 export 'product_scanner_screen.dart';
 export 'scan_mode_sheet.dart';
+export 'unified_scanner_screen.dart';
 export 'settings_screen.dart';
 export 'settings/settings_widgets.dart';
 export 'stats_screen.dart';

@@ -20,7 +20,6 @@ import 'stats_screen.dart';
 import 'voice_entry_screen.dart';
 import '../../../sms_parser/presentation/screens/sms_settings_sheet.dart';
 import '../../../sms_parser/presentation/provider/sms_providers.dart';
-import '../screens/scan_mode_sheet.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -263,7 +262,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               key: _fabKey,
               onQuickAdd: _openAddExpenseScreen,
               onScanner: () {
-                if (mounted) showScanModeSheet(context);
+                if (mounted) AppRoutes.pushUnifiedScanner(context);
               },
               onPayDirectly: () {
                 if (mounted) AppRoutes.pushUpiScanner(context);

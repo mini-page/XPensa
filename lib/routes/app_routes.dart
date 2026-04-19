@@ -6,6 +6,7 @@ import '../features/expense/presentation/screens/notifications_screen.dart';
 import '../features/expense/presentation/screens/records_history_screen.dart';
 import '../features/expense/presentation/screens/product_scanner_screen.dart';
 import '../features/expense/presentation/screens/receipt_scanner_screen.dart';
+import '../features/expense/presentation/screens/unified_scanner_screen.dart';
 import '../features/expense/presentation/screens/settings_screen.dart';
 import '../features/expense/presentation/screens/upi_scanner_screen.dart';
 
@@ -141,6 +142,22 @@ abstract final class AppRoutes {
     );
   }
 
+  // ── Unified Scanner ────────────────────────────────────────────────────────
+
+  /// Push the unified scanner screen (Bill Scan + AI Scan tabs).
+  ///
+  /// This is the primary entry point for the Scan & Log pill.
+  static Future<void> pushUnifiedScanner(
+    BuildContext context, {
+    int initialTab = 0,
+  }) {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => UnifiedScannerScreen(initialTab: initialTab),
+      ),
+    );
+  }
+
   // ── Receipt Scanner ────────────────────────────────────────────────────────
 
   /// Push the receipt / bill barcode–QR scanner screen.
@@ -164,9 +181,9 @@ abstract final class AppRoutes {
   /// Push the QR / barcode scanner screen.
   ///
   /// Kept for backward compatibility (e.g. home-widget `scanner` action).
-  /// New code should use [pushReceiptScanner] or [pushProductScanner].
+  /// New code should use [pushUnifiedScanner].
   static Future<void> pushScanner(BuildContext context) {
-    return pushReceiptScanner(context);
+    return pushUnifiedScanner(context);
   }
 
   /// Replace the current route with [AddExpenseScreen].
