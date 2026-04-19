@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -119,6 +120,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.4,
             icon: Icons.sms_outlined,
             label: 'SMS',
+            infoText: 'Reads transaction SMS and logs expenses automatically',
             onTap: () => _closeAndRun(widget.onSms),
             trailingToggleValue: widget.smsParsingEnabled,
             onTrailingToggle: widget.onSmsToggle,
@@ -129,6 +131,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.3,
             icon: Icons.mic_none_rounded,
             label: 'Voice',
+            infoText: 'Speak an expense aloud — parsed and saved for you',
             onTap: () => _closeAndRun(widget.onVoice),
           ),
           const SizedBox(height: 8),
@@ -137,6 +140,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.2,
             icon: Icons.qr_code_scanner_rounded,
             label: 'Scanner',
+            infoText: 'Scan a receipt or bill image to extract expense details',
             onTap: () => _closeAndRun(widget.onScanner),
           ),
           const SizedBox(height: 8),
@@ -145,6 +149,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.1,
             icon: Icons.currency_rupee_rounded,
             label: 'Pay Directly',
+            infoText: 'Pay via UPI QR code and log the transaction instantly',
             onTap: () => _closeAndRun(widget.onPayDirectly),
           ),
           const SizedBox(height: 8),
@@ -153,6 +158,7 @@ class PowerFabState extends State<PowerFab>
             staggerStart: 0.0,
             icon: Icons.add_rounded,
             label: 'Quick Add',
+            infoText: 'Jump straight into adding a new expense entry',
             highlighted: true,
             onTap: () => _closeAndRun(widget.onQuickAdd),
           ),
@@ -202,12 +208,15 @@ class PowerFabState extends State<PowerFab>
 
 const _kPillColor = Color(0xFF1A2340); // dark navy
 
-class _AnimatedPill extends StatelessWidget {
+// ── Pill ─────────────────────────────────────────────────────────────────────
+
+class _AnimatedPill extends StatefulWidget {
   const _AnimatedPill({
     required this.animation,
     required this.staggerStart,
     required this.icon,
     required this.label,
+    required this.infoText,
     this.badgeLabel,
     this.highlighted = false,
     this.onTap,
@@ -221,6 +230,10 @@ class _AnimatedPill extends StatelessWidget {
   final double staggerStart;
   final IconData icon;
   final String label;
+
+  /// Short description shown in the info bar when the ⓘ icon is tapped.
+  final String infoText;
+
   final String? badgeLabel;
   final bool highlighted;
   final VoidCallback? onTap;
@@ -231,12 +244,37 @@ class _AnimatedPill extends StatelessWidget {
   final ValueChanged<bool>? onTrailingToggle;
 
   @override
+  State<_AnimatedPill> createState() => _AnimatedPillState();
+}
+
+class _AnimatedPillState extends State<_AnimatedPill> {
+  bool _showInfo = false;
+  Timer? _infoTimer;
+
+  void _toggleInfo() {
+    HapticFeedback.selectionClick();
+    _infoTimer?.cancel();
+    setState(() => _showInfo = !_showInfo);
+    if (_showInfo) {
+      _infoTimer = Timer(const Duration(seconds: 3), () {
+        if (mounted) setState(() => _showInfo = false);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _infoTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final curve = CurvedAnimation(
-      parent: animation,
+      parent: widget.animation,
       curve: Interval(
-        staggerStart,
-        (staggerStart + 0.6).clamp(0.0, 1.0),
+        widget.staggerStart,
+        (widget.staggerStart + 0.6).clamp(0.0, 1.0),
         curve: Curves.easeOutCubic,
       ),
     );
@@ -250,93 +288,194 @@ class _AnimatedPill extends StatelessWidget {
           child: child,
         ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap != null
-              ? () {
-                  HapticFeedback.selectionClick();
-                  onTap!();
-                }
-              : null,
-          borderRadius: BorderRadius.circular(28),
-          child: Container(
-            padding: EdgeInsets.only(
-              left: 18,
-              right: trailingToggleValue != null ? 10 : 18,
-              top: 14,
-              bottom: 14,
-            ),
-            decoration: BoxDecoration(
-              color: highlighted ? AppColors.primaryBlue : _kPillColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          // ── Pill row ────────────────────────────────────────────────────
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap != null
+                  ? () {
+                      HapticFeedback.selectionClick();
+                      widget.onTap!();
+                    }
+                  : null,
               borderRadius: BorderRadius.circular(28),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(
-                  color: Color(0x28000000),
-                  blurRadius: 14,
-                  offset: Offset(0, 5),
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 12,
+                  top: 14,
+                  bottom: 14,
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 10),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    letterSpacing: 0.2,
-                  ),
+                decoration: BoxDecoration(
+                  color: widget.highlighted
+                      ? AppColors.primaryBlue
+                      : _kPillColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: const <BoxShadow>[
+                    BoxShadow(
+                      color: Color(0x28000000),
+                      blurRadius: 14,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
-                if (badgeLabel != null) ...<Widget>[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      badgeLabel!,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(widget.icon, color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      widget.label,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
                         fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        letterSpacing: 0.2,
                       ),
                     ),
-                  ),
-                ],
-                if (trailingToggleValue != null) ...<Widget>[
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 1,
-                    height: 20,
-                    color: Colors.white.withValues(alpha: 0.25),
-                  ),
-                  // GestureDetector absorbs taps so they don't bubble to InkWell
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      onTrailingToggle?.call(!trailingToggleValue!);
-                    },
-                    child: AppToggleSwitch(
-                      value: trailingToggleValue!,
-                      onChanged: onTrailingToggle ?? (_) {},
-                      small: true,
+                    if (widget.badgeLabel != null) ...<Widget>[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          widget.badgeLabel!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (widget.trailingToggleValue != null) ...<Widget>[
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 1,
+                        height: 20,
+                        color: Colors.white.withValues(alpha: 0.25),
+                      ),
+                      const SizedBox(width: 8),
+                      // GestureDetector absorbs taps so they don't bubble to InkWell
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          widget.onTrailingToggle
+                              ?.call(!widget.trailingToggleValue!);
+                        },
+                        child: AppToggleSwitch(
+                          value: widget.trailingToggleValue!,
+                          onChanged: widget.onTrailingToggle ?? (_) {},
+                          small: true,
+                        ),
+                      ),
+                    ],
+                    // ── Info icon ──────────────────────────────────────────
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 1,
+                      height: 20,
+                      color: Colors.white.withValues(alpha: 0.25),
                     ),
-                  ),
-                ],
-              ],
+                    const SizedBox(width: 2),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _toggleInfo,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        child: Icon(
+                          _showInfo
+                              ? Icons.info_rounded
+                              : Icons.info_outline_rounded,
+                          color: _showInfo
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.55),
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
+
+          // ── Info bar ────────────────────────────────────────────────────
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: SizeTransition(
+                sizeFactor: anim,
+                axisAlignment: -1,
+                child: child,
+              ),
+            ),
+            child: _showInfo
+                ? _InfoBar(key: const ValueKey('info'), text: widget.infoText)
+                : const SizedBox.shrink(key: ValueKey('empty')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Info bar ──────────────────────────────────────────────────────────────────
+
+class _InfoBar extends StatelessWidget {
+  const _InfoBar({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F1829),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(
+              Icons.lightbulb_outline_rounded,
+              color: Colors.white.withValues(alpha: 0.55),
+              size: 13,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
