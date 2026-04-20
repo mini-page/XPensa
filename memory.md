@@ -1,76 +1,153 @@
-# XPensa – Project Memory
+# XPens – Project Memory
 
-> **Purpose:** Living reference for AI agents and developers. Update this file at every structural change. Last updated: 2026-04-16.
+> **Purpose:** Living reference for AI agents and developers. Update this file at every structural change. Last updated: 2026-04-20.
 >
 > **Agent Rule:** Every AI agent (Claude, Copilot, Jules, Gemini, etc.) **must** read this file at the start of each session and **must** append a row to §8 Change Log for every file they modify. This is the single source of truth for the project state.
+>
+> **Brand note (2026-04-19):** Project was rebranded from **XPensa** to **XPens**. Package ID changed from `app.xpensa.finance` to `app.xpens.finance`. All occurrences of "XPensa" in source, strings, and config are now "XPens".
 
 ---
 
-## 1. Repository Layout (as of 2026-04-04)
+## 1. Repository Layout (as of 2026-04-20)
 
 ```
-XPensa/
+XPens/                                    ← rebranded from XPensa (2026-04-19)
 ├── android/                          # Android platform project
 │   └── app/src/main/
-│       ├── kotlin/app/xpensa/finance/MainActivity.kt
-│       └── res/                      # Launcher icons, splash assets
+│       ├── kotlin/app/xpens/finance/ # package ID: app.xpens.finance
+│       └── res/                      # Launcher icons, splash assets (generated)
 ├── assets/
 │   ├── icon/                         # Launcher/splash build-time icons (app_icon.png, app_icon_fg.png, splash_mark.png)
-│   └── images/                       # In-app runtime images (xpensa_logo.png)
+│   ├── images/                       # In-app runtime images (xpens_logo.png)
+│   └── data/                         # Static data files (voice_keywords.json)
 ├── benchmark/                        # Standalone Dart performance benchmarks
 ├── docs/
-│   ├── ai/                           # Agent guides: AGENTS.md, CLAUDE.md, NEW_SESSION_PLAN.md
+│   ├── ai/                           # Agent guides: AGENTS.md, CLAUDE.md
 │   └── plans/                        # Feature design docs (markdown)
+├── TASKS.md                          # Future goals & backlog (created 2026-04-20)
 ├── lib/
 │   ├── core/
-│   │   ├── constants/app_assets.dart       # Asset path constants
-│   │   ├── theme/app_colors.dart           # Brand + semantic colours
-│   │   ├── theme/app_tokens.dart           # Spacing, radii, text-styles
-│   │   ├── theme/app_theme.dart            # AppTheme.light() / AppTheme.dark() ThemeData factories
+│   │   ├── constants/
+│   │   │   ├── app_assets.dart             # AppAssets – all asset path constants
+│   │   │   ├── app_constants.dart          # AppConstants – app-wide string constants
+│   │   │   └── index.dart
+│   │   ├── services/                       # NEW (2026-04-19)
+│   │   │   ├── ai_product_service.dart     # AI-assisted product price lookup
+│   │   │   ├── biometric_service.dart      # Local biometric auth helper
+│   │   │   ├── update_service.dart         # In-app update check
+│   │   │   └── widget_sync_service.dart    # Android home-widget data sync
+│   │   ├── theme/
+│   │   │   ├── app_colors.dart             # Brand + semantic colours
+│   │   │   ├── app_tokens.dart             # Spacing, radii, text-styles
+│   │   │   ├── app_theme.dart              # AppTheme.light() / AppTheme.dark()
+│   │   │   └── index.dart
 │   │   └── utils/
 │   │       ├── background_backup.dart      # Workmanager callback dispatcher
 │   │       ├── context_extensions.dart     # BuildContext helpers
-│   │       └── hive_bootstrap.dart         # Hive init + adapter registration
+│   │       ├── hive_bootstrap.dart         # Hive init + adapter registration
+│   │       ├── tag_parser.dart             # NEW – hashtag / mention parser
+│   │       └── index.dart
 │   ├── features/
-│   │   ├── accounts/
-│   │   │   └── accounts.dart                   # Re-export barrel for the accounts feature
-│   │   ├── analytics/
-│   │   │   └── analytics.dart                  # Re-export barrel for the analytics/stats feature
-│   │   ├── categories/
-│   │   │   └── categories.dart                 # Re-export barrel for the categories/budget feature
-│   │   ├── recurring/
-│   │   │   └── recurring.dart                  # Re-export barrel for recurring subscriptions
-│   │   ├── settings/
-│   │   │   └── settings.dart                   # Re-export barrel for the settings/prefs feature
-│   │   ├── transactions/
-│   │   │   └── transactions.dart               # Re-export barrel for the transactions feature
-│   │   └── expense/                            # Core expense feature (all data layer lives here)
+│   │   ├── accounts/accounts.dart          # Re-export barrel
+│   │   ├── analytics/analytics.dart        # Re-export barrel
+│   │   ├── categories/categories.dart      # Re-export barrel
+│   │   ├── recurring/recurring.dart        # Re-export barrel
+│   │   ├── settings/settings.dart          # Re-export barrel
+│   │   ├── transactions/transactions.dart  # Re-export barrel
+│   │   ├── sms_parser/                     # NEW full SMS-parsing feature (2026-04-19)
+│   │   │   ├── data/
+│   │   │   │   ├── sms_queue_item.dart     # Parsed SMS awaiting user confirmation
+│   │   │   │   └── sms_transaction.dart    # Extracted transaction data from SMS
+│   │   │   ├── domain/
+│   │   │   │   ├── sms_broadcast_service.dart    # BroadcastReceiver bridge
+│   │   │   │   ├── sms_monitoring_service.dart   # Foreground monitoring service
+│   │   │   │   └── sms_parser_engine.dart        # Regex-based SMS → transaction parser
+│   │   │   ├── presentation/
+│   │   │   │   ├── provider/sms_providers.dart   # Riverpod providers for SMS queue
+│   │   │   │   └── screens/sms_settings_sheet.dart
+│   │   │   └── sms_parser.dart                   # Feature barrel
+│   │   └── expense/                        # Core feature (data layer lives here)
 │   │       ├── data/
-│   │       │   ├── datasource/                 # Raw Hive box read/write
-│   │       │   ├── models/                     # Hive models + adapters
-│   │       │   └── repositories/               # Hive repository implementations
-│   │       ├── domain/
-│   │       │   └── repositories/               # Abstract repository interfaces
+│   │       │   ├── datasource/             # Raw Hive box read/write
+│   │       │   ├── models/
+│   │       │   │   ├── expense_model.dart
+│   │       │   │   ├── account_model.dart
+│   │       │   │   ├── budget_model.dart
+│   │       │   │   ├── custom_category_model.dart  # NEW
+│   │       │   │   ├── recurring_subscription_model.dart
+│   │       │   │   ├── app_preferences_model.dart
+│   │       │   │   └── index.dart
+│   │       │   └── repositories/
+│   │       ├── domain/repositories/
 │   │       └── presentation/
-│   │           ├── provider/                   # Riverpod providers / notifiers
-│   │           ├── screens/                    # Full-page screens + per-screen subdirs
-│   │           │   ├── home/                   # HomeHeader, HomeDateStrip, HomeMiscWidgets
-│   │           │   ├── records_history/        # RecordsFilter, RecordsCards, etc.
-│   │           │   ├── add_expense/            # AddExpenseWidgets
-│   │           │   ├── stats/                  # StatsWidgets
-│   │           │   ├── settings/               # SettingsWidgets
-│   │           │   ├── accounts/               # AccountsWidgets + SliverAccountsTabView
-│   │           │   └── categories/             # CategoriesWidgets
-│   │           └── widgets/                    # Reusable UI components
+│   │           ├── provider/
+│   │           │   ├── expense_providers.dart
+│   │           │   ├── account_providers.dart
+│   │           │   ├── budget_providers.dart
+│   │           │   ├── preferences_providers.dart
+│   │           │   ├── recurring_subscription_providers.dart
+│   │           │   ├── backup_providers.dart
+│   │           │   ├── notifications_provider.dart  # NEW
+│   │           │   └── index.dart
+│   │           ├── screens/
+│   │           │   ├── app_shell.dart
+│   │           │   ├── home_screen.dart + home/
+│   │           │   ├── stats_screen.dart + stats/
+│   │           │   ├── categories_screen.dart + categories/
+│   │           │   ├── accounts_screen.dart + accounts/
+│   │           │   │   └── tools_tab_widgets.dart   # NEW
+│   │           │   ├── add_expense_screen.dart + add_expense/
+│   │           │   │   └── amount_expression.dart   # NEW – calculator expression parser
+│   │           │   ├── records_history_screen.dart + records_history/
+│   │           │   │   └── records_search_logic.dart  # NEW
+│   │           │   ├── settings_screen.dart + settings/
+│   │           │   ├── transaction_search_screen.dart
+│   │           │   ├── onboarding_screen.dart
+│   │           │   ├── scanner_screen.dart
+│   │           │   ├── upi_scanner_screen.dart      # NEW
+│   │           │   ├── unified_scanner_screen.dart  # NEW – routes to UPI / receipt / product scan
+│   │           │   ├── receipt_scanner_screen.dart  # NEW
+│   │           │   ├── product_scanner_screen.dart  # NEW
+│   │           │   ├── scan_mode_sheet.dart         # NEW – bottom sheet to pick scan mode
+│   │           │   ├── voice_entry_screen.dart      # NEW
+│   │           │   ├── pin_entry_screen.dart        # NEW
+│   │           │   ├── notifications_screen.dart    # NEW
+│   │           │   ├── about_screen.dart            # NEW
+│   │           │   ├── support_screen.dart          # NEW
+│   │           │   ├── profile_screen.dart
+│   │           │   └── index.dart
+│   │           └── widgets/
+│   │               ├── transaction_card.dart
+│   │               ├── expense_category.dart
+│   │               ├── account_editor_sheet.dart
+│   │               ├── budget_editor_sheet.dart
+│   │               ├── category_editor_sheet.dart   # NEW
+│   │               ├── subscription_editor_sheet.dart
+│   │               ├── account_icons.dart
+│   │               ├── subscription_icons.dart
+│   │               ├── quick_action_bar.dart
+│   │               ├── power_pill_menu.dart
+│   │               ├── app_drawer.dart
+│   │               ├── amount_visibility.dart
+│   │               ├── ui_feedback.dart
+│   │               ├── recurring_tool_view.dart
+│   │               ├── split_bill_tool_view.dart
+│   │               └── index.dart
 │   ├── routes/
-│   │   └── app_routes.dart                 # Centralised navigation helpers
-│   ├── shared/
-│   │   └── widgets/
-│   │       ├── floating_nav_bar.dart       # FloatingNavBar + NavBarItem (extracted from AppShell)
-│   │       ├── placeholder_screen.dart     # Generic "coming soon" stub
-│   │       └── app_pill_switch.dart        # AppPillSwitch – shared two-option pill toggle
+│   │   ├── app_routes.dart             # Centralised navigation helpers
+│   │   └── index.dart
+│   ├── shared/widgets/
+│   │   ├── floating_nav_bar.dart       # FloatingNavBar + NavBarItem
+│   │   ├── placeholder_screen.dart     # Generic "coming soon" stub
+│   │   ├── app_pill_switch.dart        # AppPillSwitch
+│   │   ├── app_button.dart             # AppButton – full-width elevated button
+│   │   ├── app_filter_sheet.dart       # NEW – reusable filter bottom sheet
+│   │   ├── app_page_header.dart        # NEW – standard screen header
+│   │   ├── app_tab_switcher.dart       # NEW – shared tab switch widget
+│   │   ├── app_toggle_switch.dart      # NEW – shared toggle
+│   │   └── index.dart
 │   └── main.dart
-├── pubspec.yaml
+├── pubspec.yaml                        # name: xpens, version: 2.1.0+21
 ├── analysis_options.yaml
 └── test/
     └── features/expense/               # Unit tests mirroring lib structure
@@ -90,13 +167,23 @@ Each large screen has a dedicated subdirectory `screens/<name>/` containing extr
 | `home_screen.dart` | Dashboard: hero stats, date strip, recent transactions | `home/` |
 | `stats_screen.dart` | Monthly analytics with charts | `stats/` |
 | `categories_screen.dart` | Spending by category + budget targets | `categories/` |
-| `accounts_screen.dart` | Account list, balance overview, tools tab | `accounts/` |
-| `add_expense_screen.dart` | Create / edit a transaction (expense or income) | `add_expense/` |
-| `records_history_screen.dart` | Full transaction history with filters | `records_history/` |
+| `accounts_screen.dart` | Account list, balance overview, tools tab | `accounts/` (incl. `tools_tab_widgets.dart`) |
+| `add_expense_screen.dart` | Create / edit a transaction (expense or income) | `add_expense/` (incl. `amount_expression.dart`) |
+| `records_history_screen.dart` | Full transaction history with filters | `records_history/` (incl. `records_search_logic.dart`) |
 | `transaction_search_screen.dart` | Fuzzy search across all transactions | — |
 | `settings_screen.dart` | App preferences, theme, backup / restore | `settings/` |
 | `onboarding_screen.dart` | First-run setup flow | — |
-| `scanner_screen.dart` | QR / UPI barcode scanner → auto-fills AddExpense | — |
+| `scanner_screen.dart` | Legacy QR / UPI barcode scanner | — |
+| `upi_scanner_screen.dart` | Dedicated UPI QR scanner → auto-fills AddExpense | — |
+| `unified_scanner_screen.dart` | Entry point; routes to UPI / receipt / product scan mode | — |
+| `scan_mode_sheet.dart` | Bottom-sheet to choose scan mode | — |
+| `receipt_scanner_screen.dart` | Camera + OCR receipt parsing (scaffolded) | — |
+| `product_scanner_screen.dart` | Barcode → product price lookup via AI (scaffolded) | — |
+| `voice_entry_screen.dart` | Speech-to-expense entry (scaffolded) | — |
+| `pin_entry_screen.dart` | PIN creation + verification screen | — |
+| `notifications_screen.dart` | In-app notification list | — |
+| `about_screen.dart` | App version, credits, links | — |
+| `support_screen.dart` | FAQ, feedback, contact | — |
 | `profile_screen.dart` | User profile (mostly placeholder) | — |
 | `placeholder_screen.dart` | Generic "coming soon" stub | — |
 
@@ -124,6 +211,7 @@ Each large screen has a dedicated subdirectory `screens/<name>/` containing extr
 | `expense_model.dart` | `ExpenseModel`, `TransactionType`, `ExpenseStats` |
 | `account_model.dart` | `AccountModel` |
 | `budget_model.dart` | `BudgetModel` |
+| `custom_category_model.dart` | `CustomCategoryModel` – user-defined categories |
 | `recurring_subscription_model.dart` | `RecurringSubscriptionModel` |
 | `app_preferences_model.dart` | `AppPreferencesModel` |
 
@@ -152,16 +240,39 @@ Each large screen has a dedicated subdirectory `screens/<name>/` containing extr
 | `preferences_providers.dart` | `appPreferencesProvider`, `appThemeModeProvider`, `localeProvider`, `currencySymbolProvider`, `privacyModeEnabledProvider`, `isOnboardingCompletedProvider` |
 | `recurring_subscription_providers.dart` | `recurringSubscriptionListProvider`, `recurringSubscriptionControllerProvider` |
 | `backup_providers.dart` | `backupControllerProvider`, `autoBackupEnabledProvider`, `backupFrequencyProvider`, `backupDirectoryPathProvider` |
+| `notifications_provider.dart` | `notificationsProvider` – in-app notification state |
+
+### SMS Parser Feature (`lib/features/sms_parser/`)
+| File | Purpose |
+|------|---------|
+| `data/sms_queue_item.dart` | Parsed SMS pending user confirmation |
+| `data/sms_transaction.dart` | Structured transaction extracted from SMS |
+| `domain/sms_broadcast_service.dart` | Android BroadcastReceiver bridge |
+| `domain/sms_monitoring_service.dart` | Foreground SMS monitoring service |
+| `domain/sms_parser_engine.dart` | Regex-based engine: bank SMS → `SmsTransaction` |
+| `presentation/provider/sms_providers.dart` | Riverpod providers for SMS queue |
+| `presentation/screens/sms_settings_sheet.dart` | Settings bottom sheet for SMS parsing |
+| `sms_parser.dart` | Feature barrel |
+
+### Core Services (`lib/core/services/`)
+| File | Purpose |
+|------|---------|
+| `ai_product_service.dart` | AI-assisted product price lookup from barcode |
+| `biometric_service.dart` | Local biometric (fingerprint / face) authentication |
+| `update_service.dart` | Check for and prompt in-app updates |
+| `widget_sync_service.dart` | Sync today's spend to Android home-screen widget |
 
 ### Core / Utils
 | File | Purpose |
 |------|---------|
 | `lib/core/constants/app_assets.dart` | `AppAssets` – all asset paths |
+| `lib/core/constants/app_constants.dart` | `AppConstants` – app-wide string constants |
 | `lib/core/theme/app_colors.dart` | `AppColors` – all colour constants |
 | `lib/core/theme/app_tokens.dart` | `AppSpacing`, `AppRadii`, `AppTextStyles` |
 | `lib/core/utils/hive_bootstrap.dart` | `HiveBootstrap.initialize()` – registers all Hive adapters |
 | `lib/core/utils/background_backup.dart` | `callbackDispatcher` for Workmanager |
 | `lib/core/utils/context_extensions.dart` | `BuildContext` extension helpers |
+| `lib/core/utils/tag_parser.dart` | Hashtag / mention parser for transaction notes |
 
 ### Routes
 | File | Purpose |
@@ -172,6 +283,13 @@ Each large screen has a dedicated subdirectory `screens/<name>/` containing extr
 | File | Role |
 |------|------|
 | `floating_nav_bar.dart` | `FloatingNavBar` – pill-shaped bottom nav; `NavBarItem` – single animated tab |
+| `placeholder_screen.dart` | Generic "coming soon" stub |
+| `app_pill_switch.dart` | `AppPillSwitch` – two-option pill toggle |
+| `app_button.dart` | `AppButton` – full-width elevated button with loading state |
+| `app_filter_sheet.dart` | Reusable filter bottom sheet |
+| `app_page_header.dart` | Standard screen header component |
+| `app_tab_switcher.dart` | Shared animated tab-switcher |
+| `app_toggle_switch.dart` | Shared toggle switch |
 
 ---
 
@@ -362,6 +480,14 @@ All `push` / `pushReplacement` calls are centralised through **`AppRoutes`** in 
 | 2026-04-06 | Created `lib/shared/widgets/app_pill_switch.dart` – unified `AppPillSwitch` widget replacing duplicate `AccountsPillSwitch` and `CategoriesPillSwitch`; both now resolved as `typedef` aliases | `app_pill_switch.dart`, `accounts_widgets.dart`, `categories_widgets.dart`, `shared/widgets/index.dart` |
 | 2026-04-06 | Created `lib/core/theme/app_theme.dart` – centralised `AppTheme.light()` / `AppTheme.dark()` factory replacing inline `ThemeData` in `main.dart`; `core/theme/index.dart` updated | `app_theme.dart`, `main.dart`, `core/theme/index.dart` |
 | 2026-04-16 | Increased `home_screen.dart` scroll-list bottom padding from default to `160` (EdgeInsets.only(bottom: 160)) so the last record is never hidden behind the floating FAB or the floating nav bar | `home_screen.dart` line ~96 |
+| 2026-04-19 | **Full rebrand XPensa → XPens**: renamed app name, package ID (`app.xpensa.finance` → `app.xpens.finance`), asset file (`xpensa_logo.png` → `xpens_logo.png`), Kotlin package tree, all user-facing strings, channel names, backup file prefixes, and root app class | `pubspec.yaml`, `AndroidManifest.xml`, `build.gradle.kts`, all `.kt` files, `app_constants.dart`, `app_assets.dart`, `main.dart`, `backup_local_datasource.dart`, `settings_screen.dart`, all strings throughout `lib/` |
+| 2026-04-19 | Added `lib/features/sms_parser/` full feature: parser engine, broadcast service, monitoring service, queue model, Riverpod providers, settings sheet | 8 new files |
+| 2026-04-19 | Added `lib/core/services/`: `ai_product_service.dart`, `biometric_service.dart`, `update_service.dart`, `widget_sync_service.dart` | 4 new files |
+| 2026-04-19 | Added new screens: `upi_scanner_screen.dart`, `unified_scanner_screen.dart`, `receipt_scanner_screen.dart`, `product_scanner_screen.dart`, `scan_mode_sheet.dart`, `voice_entry_screen.dart`, `pin_entry_screen.dart`, `notifications_screen.dart`, `about_screen.dart`, `support_screen.dart` | 10 new files |
+| 2026-04-19 | Added new shared widgets: `app_button.dart`, `app_filter_sheet.dart`, `app_page_header.dart`, `app_tab_switcher.dart`, `app_toggle_switch.dart` | 5 new files |
+| 2026-04-19 | Added `lib/core/utils/tag_parser.dart`, `lib/core/constants/app_constants.dart`, `custom_category_model.dart`, `category_editor_sheet.dart`, `notifications_provider.dart`, `tools_tab_widgets.dart`, `amount_expression.dart`, `records_search_logic.dart` | 8 new files |
+| 2026-04-20 | Created `TASKS.md` – full future-goals backlog organised into 7 sections (Brand, Architecture, Features, UI/UX, Testing, Performance, DevOps) | `TASKS.md` |
+| 2026-04-20 | Updated `memory.md` – reflected rebrand, all new files (sms_parser, services, screens, widgets), updated §1 layout, §2 classification, §8 change log | `memory.md` |
 
 ---
 
@@ -377,15 +503,27 @@ All AI agents working on this repository **must** follow these rules:
 
 ---
 
-## 10. Release Notes – v2.1.0 (2026-04-16)
+## 10. Release Notes – v2.1.0 (2026-04-19)
 
 ### What Changed
 | Area | Change |
 |------|--------|
+| **Rebrand** | App name: XPensa → **XPens**. Package ID: `app.xpensa.finance` → `app.xpens.finance` |
 | Home screen scroll | Increased bottom padding of the recent-transactions scroll list to `160 dp` so the last record is never occluded by the floating FAB or the floating nav bar |
+| **SMS Auto-import** | New `sms_parser` feature: engine, monitoring service, queue model, provider, settings sheet |
+| **Scanner modes** | Unified scanner with UPI / receipt / product sub-modes; dedicated screens scaffolded |
+| **Voice entry** | `voice_entry_screen.dart` scaffolded for speech-to-expense |
+| **Security** | PIN entry screen + biometric service added |
+| **Notifications** | In-app notification screen + provider scaffolded |
+| **Home widget** | `widget_sync_service.dart` for Android home-screen widget data sync |
+| **Custom categories** | `CustomCategoryModel` + `category_editor_sheet.dart` added |
+| **Shared widgets** | `AppButton`, `AppFilterSheet`, `AppPageHeader`, `AppTabSwitcher`, `AppToggleSwitch` added to `lib/shared/widgets/` |
+| **Core services** | `AiProductService`, `BiometricService`, `UpdateService`, `WidgetSyncService` added to `lib/core/services/` |
+| **New info screens** | `about_screen.dart`, `support_screen.dart` added |
 
 ### Migration Notes
 - No database schema changes; no data migration required.
-- No new dependencies added.
+- New Kotlin package path: `android/app/src/main/kotlin/app/xpens/finance/`. Update any manual references.
+- New backup file extension: `.xpens` (was `.xpensa`).
 
 ---
