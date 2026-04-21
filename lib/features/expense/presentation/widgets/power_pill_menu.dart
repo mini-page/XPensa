@@ -11,7 +11,7 @@ import '../../../../shared/widgets/app_toggle_switch.dart';
 ///
 /// Shows a circular `+` button. When tapped the button rotates 135° (making it
 /// look like ×) and five action pills animate up above it:
-///   Quick Add · Pay Directly · Scanner · Voice · SMS
+///   Quick Add · Pay via UPI · Scanner · Voice · SMS
 ///
 /// The SMS pill has a split interaction:
 ///   - Tapping the label / icon area opens the SMS settings sheet.
@@ -149,8 +149,9 @@ class PowerFabState extends State<PowerFab>
             animation: _ctrl,
             staggerStart: 0.1,
             icon: Icons.currency_rupee_rounded,
-            label: 'Pay Directly',
-            infoText: 'Pay via UPI QR code and log the transaction instantly',
+            label: 'Pay via UPI',
+            infoText:
+                'Scan a merchant UPI QR, open your payment app, and log the transaction',
             onTap: () => _closeAndRun(widget.onPayDirectly),
           ),
           const SizedBox(height: 8),

@@ -37,16 +37,19 @@ class AddExpenseScreen extends ConsumerStatefulWidget {
   final String? initialToAccountId;
   final TransactionType initialType;
 
-  /// When non-null the screen starts in "Pay Directly" mode.
+  /// When non-null the screen starts in "Pay via UPI" mode.
   ///
-  /// The save button is replaced with a **Pay** button that launches the UPI
-  /// deep-link.  After the user returns from the UPI app the button
-  /// automatically reverts to the normal save/check button.
+  /// The save button is replaced with an **Open UPI App** button that hands
+  /// the user off to their preferred UPI app with only the payee VPA
+  /// (no pre-filled amount), avoiding the fraud-score spike that
+  /// externally-injected payment requests trigger in GPay / PhonePe / Paytm.
+  /// After the user returns from the UPI app, a "Did the payment go through?"
+  /// dialog is shown before the transaction is saved.
   final String? payUpiUri;
 
   bool get isEditing => expenseId != null;
 
-  /// Whether the screen was opened for the "Pay Directly" flow.
+  /// Whether the screen was opened for the "Pay via UPI" flow.
   bool get isPayMode => payUpiUri != null;
 
   @override
@@ -67,11 +70,15 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
   late bool _hasExplicitAccountChoice;
   bool _isSaving = false;
 
-  /// True once the user has returned from the UPI app (pay-mode only).
+  /// True once the user has returned from the UPI app AND confirmed the payment.
   bool _paymentDone = false;
 
   /// True while the UPI launch is in progress.
   bool _isLaunching = false;
+
+  /// Set when the app resumes after a UPI-app handoff so the post-frame
+  /// callback can show the "Did the payment go through?" dialog.
+  bool _pendingPaymentConfirm = false;
 
   @override
   void initState() {
@@ -127,16 +134,52 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // When the user returns from the UPI app, switch the button to Save.
+    // When the user returns from the UPI app, schedule a confirmation dialog.
     if (widget.isPayMode &&
         !_paymentDone &&
         _isLaunching &&
         state == AppLifecycleState.resumed) {
       setState(() {
-        _paymentDone = true;
         _isLaunching = false;
+        _pendingPaymentConfirm = true;
       });
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _askPaymentConfirmation());
     }
+  }
+
+  Future<void> _askPaymentConfirmation() async {
+    if (!mounted || !_pendingPaymentConfirm) return;
+    setState(() => _pendingPaymentConfirm = false);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Payment Complete?'),
+        content: const Text(
+          'Did the payment go through in your UPI app?',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('No, Retry'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Yes, Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (confirmed == true) {
+      setState(() => _paymentDone = true);
+      _saveExpense();
+    }
+    // If "No, Retry", _paymentDone stays false and the "Pay via UPI" button
+    // is shown again.
   }
 
   @override
@@ -507,8 +550,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
                             foregroundColor: const Color(0xFFC23358),
                             child: const Icon(Icons.backspace_outlined),
                           ),
-                          // Pay Directly mode: show "Pay" before payment,
-                          // then revert to the normal save/check button.
+                          // Pay via UPI mode: show "Open UPI App" button before
+                          // the payment, then revert to the normal save button.
                           if (widget.isPayMode && !_paymentDone)
                             AddExpenseKeypadButton(
                               onTap: canSubmit ? _launchUpiPayment : null,
@@ -1088,14 +1131,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
   Future<void> _launchUpiPayment() async {
     if (_isLaunching || widget.payUpiUri == null) return;
 
-    // Build a fresh URI with the current amount so the UPI app pre-fills it.
-    final amountState = evaluateAmountExpression(_amountExpression);
     final baseUri = Uri.parse(widget.payUpiUri!);
-    final updatedParams = Map<String, String>.from(baseUri.queryParameters);
+    final params = Map<String, String>.from(baseUri.queryParameters);
 
-    // Validate that payee VPA (pa) is present — it is the only truly
-    // mandatory field; without it every UPI app will reject the request.
-    final paRaw = updatedParams['pa'];
+    // Validate that payee VPA (pa) is present — mandatory for any UPI app.
+    final paRaw = params['pa'];
     final pa = paRaw?.trim() ?? '';
     if (pa.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1106,42 +1146,41 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
       return;
     }
 
-    if (amountState.previewAmount > 0) {
-      updatedParams['am'] = amountState.previewAmount.toStringAsFixed(2);
-    }
-    if (_noteController.text.trim().isNotEmpty) {
-      updatedParams['tn'] = _noteController.text.trim();
-    }
-    // Always enforce the currency field so the intent is well-formed.
-    updatedParams['cu'] = 'INR';
+    // Build a "safe" launch URI with ONLY pa + pn.
+    // Omitting am/tn/cu avoids the fraud-score spike that most UPI apps
+    // apply to externally-prefilled payment requests.  The user enters the
+    // amount themselves inside their trusted payment app.
+    final safeParams = <String, String>{'pa': pa};
+    final pn = params['pn']?.trim();
+    if (pn != null && pn.isNotEmpty) safeParams['pn'] = pn;
 
     final launchUri = Uri(
       scheme: baseUri.scheme,
       host: baseUri.host,
       path: baseUri.path,
-      queryParameters: updatedParams,
+      queryParameters: safeParams,
     );
 
-    // Show a confirmation dialog before handing control to the UPI app.
-    // This explicit user gesture reduces the likelihood of the payment app
-    // treating the request as a suspicious auto-triggered redirect.
-    final payeeName = (updatedParams['pn']?.isNotEmpty == true)
-        ? updatedParams['pn']!
-        : pa;
-    final amountText = amountState.previewAmount > 0
-        ? '₹${amountState.previewAmount.toStringAsFixed(2)}'
-        : 'the entered amount';
+    final payeeName = pn ?? pa;
+    final amountState = evaluateAmountExpression(_amountExpression);
+    // Build an optional hint shown in the dialog body. Leading space is
+    // intentional — it is appended directly to the "pay $payeeName." sentence.
+    final amountHint = amountState.previewAmount > 0
+        ? ' Enter ₹${amountState.previewAmount.toStringAsFixed(2)} when prompted.'
+        : '';
 
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm Payment'),
+        title: const Text('Open UPI App'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Pay $amountText to $payeeName?'),
+          children: <Widget>[
+            Text(
+              'Your UPI app will open to pay $payeeName.$amountHint',
+            ),
             const SizedBox(height: 8),
             Text(
               'UPI ID: $pa',
@@ -1149,14 +1188,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
             ),
           ],
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Pay'),
+            child: const Text('Open'),
           ),
         ],
       ),
@@ -1182,8 +1221,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
         ),
       );
     }
-    // If launched successfully, _isLaunching stays true until
-    // didChangeAppLifecycleState(resumed) fires when the user returns.
+    // If launched, _isLaunching stays true until didChangeAppLifecycleState
+    // fires on resume, which schedules the "Payment Complete?" dialog.
   }
 
   Future<void> _saveExpense() async {
