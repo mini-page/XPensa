@@ -47,9 +47,28 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
       return;
     }
 
+    final Uri uri;
+    try {
+      uri = Uri.parse(rawValue);
+    } on FormatException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not read QR data. Try again.')),
+      );
+      return;
+    }
+
+    final pa = uri.queryParameters['pa'];
+    if (pa == null || pa.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid QR: payee UPI ID is missing. Try again.'),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isProcessed = true);
 
-    final uri = Uri.parse(rawValue);
     final am = uri.queryParameters['am'];
     final pn = uri.queryParameters['pn'];
     final tn = uri.queryParameters['tn'];

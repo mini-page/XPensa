@@ -1092,18 +1092,77 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen>
     final amountState = evaluateAmountExpression(_amountExpression);
     final baseUri = Uri.parse(widget.payUpiUri!);
     final updatedParams = Map<String, String>.from(baseUri.queryParameters);
+
+    // Validate that payee VPA (pa) is present — it is the only truly
+    // mandatory field; without it every UPI app will reject the request.
+    final paRaw = updatedParams['pa'];
+    final pa = paRaw?.trim() ?? '';
+    if (pa.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid QR: payee UPI ID is missing.'),
+        ),
+      );
+      return;
+    }
+
     if (amountState.previewAmount > 0) {
       updatedParams['am'] = amountState.previewAmount.toStringAsFixed(2);
     }
     if (_noteController.text.trim().isNotEmpty) {
       updatedParams['tn'] = _noteController.text.trim();
     }
+    // Always enforce the currency field so the intent is well-formed.
+    updatedParams['cu'] = 'INR';
+
     final launchUri = Uri(
       scheme: baseUri.scheme,
       host: baseUri.host,
       path: baseUri.path,
       queryParameters: updatedParams,
     );
+
+    // Show a confirmation dialog before handing control to the UPI app.
+    // This explicit user gesture reduces the likelihood of the payment app
+    // treating the request as a suspicious auto-triggered redirect.
+    final payeeName = (updatedParams['pn']?.isNotEmpty == true)
+        ? updatedParams['pn']!
+        : pa;
+    final amountText = amountState.previewAmount > 0
+        ? '₹${amountState.previewAmount.toStringAsFixed(2)}'
+        : 'the entered amount';
+
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Payment'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pay $amountText to $payeeName?'),
+            const SizedBox(height: 8),
+            Text(
+              'UPI ID: $pa',
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Pay'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
 
     setState(() => _isLaunching = true);
 
