@@ -36,6 +36,7 @@ class AppPreferencesModel {
     this.aiVoiceEnabled = true,
     this.aiScannerEnabled = true,
     this.aiSmsAiEnabled = true,
+    this.subcategoriesJson = '',
   });
 
   static const AppPreferencesModel defaults = AppPreferencesModel(
@@ -71,6 +72,7 @@ class AppPreferencesModel {
     aiVoiceEnabled: true,
     aiScannerEnabled: true,
     aiSmsAiEnabled: true,
+    subcategoriesJson: '',
   );
 
   final String themeModeKey;
@@ -155,6 +157,10 @@ class AppPreferencesModel {
   /// Whether AI-assisted SMS parsing is enabled.
   final bool aiSmsAiEnabled;
 
+  /// JSON-serialised list of user-defined and overridden subcategories.
+  /// Each element is a serialised [SubcategoryModel].
+  final String subcategoriesJson;
+
   bool get isPinEnabled => pinHash.isNotEmpty;
 
   AppPreferencesModel copyWith({
@@ -194,6 +200,7 @@ class AppPreferencesModel {
     bool? aiVoiceEnabled,
     bool? aiScannerEnabled,
     bool? aiSmsAiEnabled,
+    String? subcategoriesJson,
   }) {
     return AppPreferencesModel(
       themeModeKey: themeModeKey ?? this.themeModeKey,
@@ -243,6 +250,7 @@ class AppPreferencesModel {
       aiVoiceEnabled: aiVoiceEnabled ?? this.aiVoiceEnabled,
       aiScannerEnabled: aiScannerEnabled ?? this.aiScannerEnabled,
       aiSmsAiEnabled: aiSmsAiEnabled ?? this.aiSmsAiEnabled,
+      subcategoriesJson: subcategoriesJson ?? this.subcategoriesJson,
     );
   }
 }
@@ -305,6 +313,7 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
     bool aiVoiceEnabled = AppPreferencesModel.defaults.aiVoiceEnabled;
     bool aiScannerEnabled = AppPreferencesModel.defaults.aiScannerEnabled;
     bool aiSmsAiEnabled = AppPreferencesModel.defaults.aiSmsAiEnabled;
+    String subcategoriesJson = AppPreferencesModel.defaults.subcategoriesJson;
 
     try {
       if (reader.availableBytes > 0) locale = reader.readString();
@@ -363,6 +372,7 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       if (reader.availableBytes > 0) aiVoiceEnabled = reader.readBool();
       if (reader.availableBytes > 0) aiScannerEnabled = reader.readBool();
       if (reader.availableBytes > 0) aiSmsAiEnabled = reader.readBool();
+      if (reader.availableBytes > 0) subcategoriesJson = reader.readString();
     } catch (_) {
       // Fallback if reading fails
     }
@@ -402,6 +412,7 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       aiVoiceEnabled: aiVoiceEnabled,
       aiScannerEnabled: aiScannerEnabled,
       aiSmsAiEnabled: aiSmsAiEnabled,
+      subcategoriesJson: subcategoriesJson,
     );
   }
 
@@ -444,7 +455,8 @@ class AppPreferencesModelAdapter extends TypeAdapter<AppPreferencesModel> {
       ..writeBool(obj.aiSmartSearchEnabled)
       ..writeBool(obj.aiVoiceEnabled)
       ..writeBool(obj.aiScannerEnabled)
-      ..writeBool(obj.aiSmsAiEnabled);
+      ..writeBool(obj.aiSmsAiEnabled)
+      ..writeString(obj.subcategoriesJson);
   }
 
   List<String> _readStringList(BinaryReader reader) {

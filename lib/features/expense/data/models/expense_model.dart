@@ -41,6 +41,7 @@ class ExpenseModel {
     this.accountId,
     this.toAccountId,
     this.type = TransactionType.expense,
+    this.subcategory,
   }) : date = date.toUtc() {
     if (id.isEmpty) {
       throw ArgumentError.value(id, 'id', 'Expense id cannot be empty.');
@@ -69,6 +70,7 @@ class ExpenseModel {
     String? accountId,
     String? toAccountId,
     TransactionType type = TransactionType.expense,
+    String? subcategory,
   }) {
     return ExpenseModel(
       id: const Uuid().v4(),
@@ -80,6 +82,9 @@ class ExpenseModel {
       toAccountId:
           toAccountId?.trim().isEmpty ?? true ? null : toAccountId?.trim(),
       type: type,
+      subcategory: subcategory?.trim().isEmpty ?? true
+          ? null
+          : subcategory?.trim(),
     );
   }
 
@@ -93,6 +98,9 @@ class ExpenseModel {
   /// Destination account for [TransactionType.transfer] records.
   final String? toAccountId;
   final TransactionType type;
+
+  /// Optional subcategory name under [category].
+  final String? subcategory;
 
   bool get isIncome => type == TransactionType.income;
 
@@ -117,6 +125,8 @@ class ExpenseModel {
     String? toAccountId,
     bool clearToAccountId = false,
     TransactionType? type,
+    String? subcategory,
+    bool clearSubcategory = false,
   }) {
     return ExpenseModel(
       id: id ?? this.id,
@@ -127,6 +137,7 @@ class ExpenseModel {
       accountId: clearAccountId ? null : accountId ?? this.accountId,
       toAccountId: clearToAccountId ? null : toAccountId ?? this.toAccountId,
       type: type ?? this.type,
+      subcategory: clearSubcategory ? null : subcategory ?? this.subcategory,
     );
   }
 }
@@ -187,6 +198,14 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       toAccountId = null;
     }
 
+    String? subcategory;
+    try {
+      final stored = reader.readString();
+      subcategory = stored.isEmpty ? null : stored;
+    } catch (_) {
+      subcategory = null;
+    }
+
     return ExpenseModel(
       id: id,
       amount: amount,
@@ -196,6 +215,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       accountId: accountId,
       toAccountId: toAccountId,
       type: type,
+      subcategory: subcategory,
     );
   }
 
@@ -209,6 +229,7 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeString(obj.note)
       ..writeString(obj.accountId ?? '')
       ..writeString(obj.type.storageValue)
-      ..writeString(obj.toAccountId ?? '');
+      ..writeString(obj.toAccountId ?? '')
+      ..writeString(obj.subcategory ?? '');
   }
 }
