@@ -4,3 +4,4 @@ export 'budget_model.dart';
 export 'custom_category_model.dart';
 export 'expense_model.dart';
 export 'recurring_subscription_model.dart';
+export 'subcategory_model.dart';
