@@ -588,17 +588,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     }
   }
 
-  String _actionDetail(_BoardMode mode) {
-    switch (mode) {
-      case _BoardMode.expenses:
-        return 'Create your own expense category.';
-      case _BoardMode.income:
-        return 'Create your own income category.';
-      case _BoardMode.accounts:
-        return 'Create a new account entry.';
-    }
-  }
-
   void _handlePrimaryActionTapFor(_BoardMode mode) {
     switch (mode) {
       case _BoardMode.expenses:

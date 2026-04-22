@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasource/month_budget_local_datasource.dart';
+import '../../data/models/expense_model.dart';
 import 'budget_providers.dart';
 import 'expense_providers.dart';
 
@@ -16,10 +17,18 @@ String monthKeyOf(DateTime dt) =>
 // ── selected month ────────────────────────────────────────────────────────────
 
 /// The currently-viewed month (always normalised to the 1st of that month).
-final selectedMonthProvider = StateProvider<DateTime>((ref) {
-  final now = DateTime.now();
-  return DateTime(now.year, now.month);
-});
+final selectedMonthProvider =
+    NotifierProvider<SelectedMonthNotifier, DateTime>(
+  SelectedMonthNotifier.new,
+);
+
+class SelectedMonthNotifier extends Notifier<DateTime> {
+  @override
+  DateTime build() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month);
+  }
+}
 
 // ── datasource provider ───────────────────────────────────────────────────────
 
