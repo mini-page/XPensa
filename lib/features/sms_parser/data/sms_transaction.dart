@@ -11,6 +11,7 @@ class SmsTransaction {
     required this.rawMessage,
     required this.senderAddress,
     required this.confidence,
+    this.suggestedCategory,
   });
 
   /// Stable identifier (typically a hash of sender + body + timestamp).
@@ -37,4 +38,8 @@ class SmsTransaction {
   /// Parser confidence score in [0, 1]. Values below [SmsParserEngine.kMinConfidence]
   /// are considered low-confidence and require manual edit.
   final double confidence;
+
+  /// Expense category inferred from message content (e.g. "Food & Dining").
+  /// Null if no category could be reliably inferred.
+  final String? suggestedCategory;
 }

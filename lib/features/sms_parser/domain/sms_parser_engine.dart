@@ -12,7 +12,8 @@ import '../data/sms_transaction.dart';
 ///  2. Detect transaction direction (credit/income vs debit/expense).
 ///  3. Extract date/time.
 ///  4. Build a notes string from ref IDs, UPI IDs, merchant names, etc.
-///  5. Compute a confidence score.
+///  5. Infer an expense category from merchant/sender keywords.
+///  6. Compute a confidence score.
 ///
 /// A result with [confidence] < [kMinConfidence] should be treated as
 /// low-confidence and shown to the user for manual review rather than being
@@ -33,7 +34,9 @@ abstract final class SmsParserEngine {
         upper.contains('BANK') ||
         upper.contains('FINANCE') ||
         upper.contains('PAY') ||
-        upper.contains('UPI')) { return true; }
+        upper.contains('UPI')) {
+      return true;
+    }
     return false;
   }
 
@@ -66,7 +69,10 @@ abstract final class SmsParserEngine {
     // ── 4. Notes ──────────────────────────────────────────────────────────
     final notes = _buildNotes(body, senderAddress);
 
-    // ── 5. Confidence ─────────────────────────────────────────────────────
+    // ── 5. Category inference ─────────────────────────────────────────────
+    final suggestedCategory = inferCategory(body, senderAddress);
+
+    // ── 6. Confidence ─────────────────────────────────────────────────────
     final confidence = _computeConfidence(
       body: lower,
       amount: amount,
@@ -75,7 +81,7 @@ abstract final class SmsParserEngine {
       receivedAt: receivedAt,
     );
 
-    // ── 6. Stable ID ──────────────────────────────────────────────────────
+    // ── 7. Stable ID ──────────────────────────────────────────────────────
     final id = _stableId(senderAddress, body, receivedAt);
 
     return SmsTransaction(
@@ -87,6 +93,7 @@ abstract final class SmsParserEngine {
       rawMessage: body,
       senderAddress: senderAddress,
       confidence: confidence,
+      suggestedCategory: suggestedCategory,
     );
   }
 
@@ -100,6 +107,9 @@ abstract final class SmsParserEngine {
     'deposited',
     'refund',
     'cashback',
+    'reversed',
+    'transfer received',
+    'money received',
   ];
 
   static const List<String> _kDebitKeywords = <String>[
@@ -113,6 +123,15 @@ abstract final class SmsParserEngine {
     'purchase',
     'txn',
     'transaction',
+    'transferred',
+    'transfer',
+    'charged',
+    'neft',
+    'imps',
+    'rtgs',
+    'emi',
+    'mandate',
+    'bill payment',
   ];
 
   // Matches: ₹1,234.56  |  Rs.1234  |  Rs 1234  |  INR 1234  |  1234 INR
@@ -199,6 +218,12 @@ abstract final class SmsParserEngine {
     caseSensitive: false,
   );
 
+  // UTR is always a 12-digit numeric reference used by UPI/NEFT/IMPS
+  static final RegExp _kUtrPattern = RegExp(
+    r'(?:UTR|UPI\s*Ref(?:\s*No)?|Transaction\s*ID|Txn\s*ID)\s*:?\s*([A-Z0-9]{10,22})',
+    caseSensitive: false,
+  );
+
   static final RegExp _kUpiPattern = RegExp(
     r'(?:UPI(?:\s*ID)?:?\s*)([a-zA-Z0-9._\-]+@[a-zA-Z0-9._\-]+)',
     caseSensitive: false,
@@ -210,15 +235,21 @@ abstract final class SmsParserEngine {
   );
 
   static final RegExp _kMerchantPattern = RegExp(
-    r'(?:to|at|from|merchant|shop|store|vendor|using)\s+([A-Z][A-Za-z0-9 &\.\-]{2,30})',
+    r'(?:to|at|from|merchant|shop|store|vendor|using|towards|for)\s+([A-Z][A-Za-z0-9 &\.\-]{2,30})',
     caseSensitive: false,
   );
 
   static String _buildNotes(String body, String sender) {
     final parts = <String>[];
 
-    final refMatch = _kRefPattern.firstMatch(body);
-    if (refMatch != null) parts.add('Ref: ${refMatch.group(1)}');
+    // Prefer UTR over generic ref — UTR is the canonical UPI transaction ID
+    final utrMatch = _kUtrPattern.firstMatch(body);
+    if (utrMatch != null) {
+      parts.add('UTR: ${utrMatch.group(1)}');
+    } else {
+      final refMatch = _kRefPattern.firstMatch(body);
+      if (refMatch != null) parts.add('Ref: ${refMatch.group(1)}');
+    }
 
     final upiMatch =
         _kUpiPattern.firstMatch(body) ?? _kVpaPattern.firstMatch(body);
@@ -240,6 +271,66 @@ abstract final class SmsParserEngine {
 
     return parts.join(' · ');
   }
+
+  // ── Category inference ────────────────────────────────────────────────────
+
+  /// Infer a likely expense category from message body and sender ID.
+  ///
+  /// Returns a category name string (matching the built-in expense category
+  /// names) or `null` if no strong match is found.
+  static String? inferCategory(String body, String sender) {
+    final lower = body.toLowerCase();
+    final senderLower = sender.toLowerCase();
+
+    if (_containsAny(lower, const <String>[
+      'swiggy', 'zomato', 'dunzo', 'blinkit', 'restaurant', 'cafe',
+      'food', 'dine', 'hotel', 'domino', 'pizza', 'biryani',
+    ])) return 'Food & Dining';
+
+    if (_containsAny(lower, const <String>[
+      'ola', 'uber', 'rapido', 'redbus', 'irctc', 'petrol', 'fuel',
+      'diesel', 'metro', 'auto', 'cab', 'bus ticket', 'train',
+    ])) return 'Transport';
+
+    if (_containsAny(lower, const <String>[
+      'amazon', 'flipkart', 'myntra', 'ajio', 'meesho', 'nykaa',
+      'shopping', 'mall', 'retail',
+    ])) return 'Shopping';
+
+    // Combine message body + sender once to check both with a single pass.
+    final combined = lower + senderLower;
+    if (_containsAny(combined, const <String>[
+      'electricity', 'water bill', 'gas bill', 'broadband', 'wifi',
+      'jio', 'airtel', 'vodafone',
+      'vi ', // trailing space avoids false-positive on words containing 'vi'
+      'bsnl', 'recharge', 'dth',
+      'tata sky', 'dish tv', 'bill pay', 'bill payment',
+    ])) return 'Bills & Utilities';
+
+    if (_containsAny(lower, const <String>[
+      'pharmacy', 'medical', 'hospital', 'clinic', 'doctor', 'apollo',
+      'medplus', 'netmeds', 'pharmeasy', 'health', 'medicine',
+    ])) return 'Healthcare';
+
+    if (_containsAny(lower, const <String>[
+      'netflix', 'hotstar', 'prime video', 'amazon prime', 'spotify',
+      'youtube', 'game', 'movie', 'theatre', 'multiplex', 'pvr', 'inox',
+    ])) return 'Entertainment';
+
+    if (_containsAny(lower, const <String>[
+      'school', 'college', 'university', 'tuition', 'coaching',
+      'education', 'course', 'udemy', 'coursera',
+    ])) return 'Education';
+
+    if (_containsAny(lower, const <String>[
+      'salary', 'payroll', 'stipend', 'wages',
+    ])) return 'Salary';
+
+    return null;
+  }
+
+  static bool _containsAny(String text, List<String> keywords) =>
+      keywords.any(text.contains);
 
   // ── Confidence scoring ────────────────────────────────────────────────────
 
@@ -264,8 +355,10 @@ abstract final class SmsParserEngine {
     if (_kDatePattern.hasMatch(body)) score += 0.15;
     if (_kTimePattern.hasMatch(body)) score += 0.05;
 
-    // Ref ID or UPI found
-    if (_kRefPattern.hasMatch(body) || _kUpiPattern.hasMatch(body)) {
+    // UTR, Ref ID, or UPI ID found — strong signal of a real bank transaction
+    if (_kUtrPattern.hasMatch(body) ||
+        _kRefPattern.hasMatch(body) ||
+        _kUpiPattern.hasMatch(body)) {
       score += 0.1;
     }
 

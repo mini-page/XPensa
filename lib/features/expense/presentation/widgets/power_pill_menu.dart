@@ -10,12 +10,8 @@ import '../../../../shared/widgets/app_toggle_switch.dart';
 /// An expandable power FAB.
 ///
 /// Shows a circular `+` button. When tapped the button rotates 135° (making it
-/// look like ×) and five action pills animate up above it:
-///   Quick Add · Pay Directly · Scanner · Voice · SMS
-///
-/// The SMS pill has a split interaction:
-///   - Tapping the label / icon area opens the SMS settings sheet.
-///   - The inline toggle switch toggles SMS parsing on/off directly.
+/// look like ×) and action pills animate up above it:
+///   Quick Add · Voice
 ///
 /// Use [PowerFabState] via a [GlobalKey] to imperatively [close] the menu
 /// (e.g. from a barrier tap in the parent).
@@ -117,41 +113,11 @@ class PowerFabState extends State<PowerFab>
         if (_open) ...<Widget>[
           _AnimatedPill(
             animation: _ctrl,
-            staggerStart: 0.4,
-            icon: Icons.sms_outlined,
-            label: 'SMS',
-            infoText: 'Reads transaction SMS and logs expenses automatically',
-            onTap: () => _closeAndRun(widget.onSms),
-            trailingToggleValue: widget.smsParsingEnabled,
-            onTrailingToggle: widget.onSmsToggle,
-          ),
-          const SizedBox(height: 8),
-          _AnimatedPill(
-            animation: _ctrl,
-            staggerStart: 0.3,
+            staggerStart: 0.1,
             icon: Icons.mic_none_rounded,
             label: 'Voice',
             infoText: 'Speak an expense aloud — parsed and saved for you',
             onTap: () => _closeAndRun(widget.onVoice),
-          ),
-          const SizedBox(height: 8),
-          _AnimatedPill(
-            animation: _ctrl,
-            staggerStart: 0.2,
-            icon: Icons.document_scanner_outlined,
-            label: 'Scan & Log',
-            infoText:
-                'Scan a bill barcode/QR or photograph a product — XPens fills in the details for you',
-            onTap: () => _closeAndRun(widget.onScanner),
-          ),
-          const SizedBox(height: 8),
-          _AnimatedPill(
-            animation: _ctrl,
-            staggerStart: 0.1,
-            icon: Icons.currency_rupee_rounded,
-            label: 'Pay Directly',
-            infoText: 'Pay via UPI QR code and log the transaction instantly',
-            onTap: () => _closeAndRun(widget.onPayDirectly),
           ),
           const SizedBox(height: 8),
           _AnimatedPill(
@@ -291,7 +257,7 @@ class _AnimatedPillState extends State<_AnimatedPill> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          // ── Pill row ────────────────────────────────────────────────────
+          // ── Pill row ──────────────────────────────────────────────────
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -303,7 +269,7 @@ class _AnimatedPillState extends State<_AnimatedPill> {
                   : null,
               borderRadius: BorderRadius.circular(28),
               child: Container(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   left: 20,
                   right: 12,
                   top: 14,
@@ -344,7 +310,8 @@ class _AnimatedPillState extends State<_AnimatedPill> {
                         color: Colors.white.withValues(alpha: 0.25),
                       ),
                       const SizedBox(width: 8),
-                      // GestureDetector absorbs taps so they don't bubble to InkWell
+                      // GestureDetector absorbs taps so they don't bubble
+                      // to InkWell
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
@@ -359,7 +326,7 @@ class _AnimatedPillState extends State<_AnimatedPill> {
                         ),
                       ),
                     ],
-                    // ── Info icon ──────────────────────────────────────────
+                    // ── Info icon ────────────────────────────────────────
                     const SizedBox(width: 10),
                     Container(
                       width: 1,
@@ -392,7 +359,7 @@ class _AnimatedPillState extends State<_AnimatedPill> {
             ),
           ),
 
-          // ── Info bar ────────────────────────────────────────────────────
+          // ── Info bar ────────────────────────────────────────────────
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 180),
             transitionBuilder: (child, anim) => FadeTransition(
@@ -404,7 +371,10 @@ class _AnimatedPillState extends State<_AnimatedPill> {
               ),
             ),
             child: _showInfo
-                ? _InfoBar(key: const ValueKey('info'), text: widget.infoText)
+                ? _InfoBar(
+                    key: const ValueKey('info'),
+                    text: widget.infoText,
+                  )
                 : const SizedBox.shrink(key: ValueKey('empty')),
           ),
         ],

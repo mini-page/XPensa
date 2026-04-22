@@ -297,10 +297,16 @@ class ExpenseStats {
     required this.incomeCategoryTotals,
   });
 
-  factory ExpenseStats.fromExpenses(List<ExpenseModel> expenses) {
+  factory ExpenseStats.fromExpenses(
+    List<ExpenseModel> expenses, {
+    DateTime? forMonth,
+  }) {
     final now = DateTime.now();
-    final int currentYear = now.year;
-    final int currentMonth = now.month;
+    final reference = forMonth ?? now;
+    final int currentYear = reference.year;
+    final int currentMonth = reference.month;
+    final bool isCurrentMonth =
+        reference.year == now.year && reference.month == now.month;
     final int currentDay = now.day;
 
     int transactionCount = 0;
@@ -333,7 +339,8 @@ class ExpenseStats {
           ifAbsent: () => amount,
         );
 
-        final bool isToday = localDate.day == currentDay;
+        final bool isToday =
+            isCurrentMonth && localDate.day == currentDay;
 
         if (isIncome) {
           monthIncomeTotal += amount;

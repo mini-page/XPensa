@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../features/expense/data/datasource/account_local_datasource.dart';
 import '../../features/expense/data/datasource/budget_local_datasource.dart';
 import '../../features/expense/data/datasource/expense_local_datasource.dart';
+import '../../features/expense/data/datasource/month_budget_local_datasource.dart';
 import '../../features/expense/data/datasource/preferences_local_datasource.dart';
 import '../../features/expense/data/datasource/recurring_subscription_local_datasource.dart';
 import '../../features/expense/data/models/account_model.dart';
@@ -51,6 +52,9 @@ abstract final class HiveBootstrap {
       await Hive.openBox<RecurringSubscriptionModel>(
         RecurringSubscriptionLocalDatasource.boxName,
       );
+    }
+    if (!Hive.isBoxOpen(MonthBudgetLocalDatasource.boxName)) {
+      await Hive.openBox<double>(MonthBudgetLocalDatasource.boxName);
     }
   }
 }

@@ -5,11 +5,12 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_routes.dart';
 
-/// A QR scanner specialised for the "Pay Directly" flow.
+/// A QR scanner specialised for the "Pay via UPI" flow.
 ///
-/// Detects a UPI payment QR, extracts the full URI, and opens
-/// [AddExpenseScreen] in pay-mode so the user can fill in the amount,
-/// launch their UPI app, and then save the transaction.
+/// Detects a UPI payment QR, extracts the payee VPA and merchant name, and
+/// opens [AddExpenseScreen] in pay-mode.  The amount the user enters in
+/// XPensa is shown as a hint; the user manually enters it in their UPI app
+/// to avoid the fraud flags that externally pre-filled payment intents trigger.
 class UpiScannerScreen extends StatefulWidget {
   const UpiScannerScreen({super.key});
 
@@ -47,9 +48,28 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
       return;
     }
 
+    final Uri uri;
+    try {
+      uri = Uri.parse(rawValue);
+    } on FormatException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not read QR data. Try again.')),
+      );
+      return;
+    }
+
+    final pa = uri.queryParameters['pa'];
+    if (pa == null || pa.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid QR: payee UPI ID is missing. Try again.'),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isProcessed = true);
 
-    final uri = Uri.parse(rawValue);
     final am = uri.queryParameters['am'];
     final pn = uri.queryParameters['pn'];
     final tn = uri.queryParameters['tn'];
@@ -112,7 +132,7 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan UPI QR'),
+        title: const Text('Pay via UPI'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
       ),
@@ -150,7 +170,7 @@ class _UpiScannerScreenState extends State<UpiScannerScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
-                        'Point camera at a UPI payment QR',
+                        'Scan merchant UPI QR to pay',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

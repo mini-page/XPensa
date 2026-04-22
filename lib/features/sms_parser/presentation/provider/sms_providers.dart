@@ -128,7 +128,10 @@ class SmsQueueController {
     final defaultAccountId = prefs?.smsDefaultAccountId ?? '';
     final defaultCategory = prefs?.smsDefaultCategory ?? '';
 
-    final category = defaultCategory.isNotEmpty ? defaultCategory : 'Other';
+    // Prefer user-configured default → parser-inferred category → fallback
+    final category = defaultCategory.isNotEmpty
+        ? defaultCategory
+        : (tx.suggestedCategory ?? 'Other');
     final accountId = defaultAccountId.isNotEmpty ? defaultAccountId : null;
 
     await _ref.read(expenseControllerProvider).addExpense(
@@ -179,9 +182,13 @@ class SmsQueueController {
     final prefs = _ref.read(appPreferencesProvider).value;
     final defaultAccountId = prefs?.smsDefaultAccountId ?? '';
     final defaultCategory = prefs?.smsDefaultCategory ?? '';
+    // Prefer user-configured default → parser-inferred category → fallback
+    final category = defaultCategory.isNotEmpty
+        ? defaultCategory
+        : (tx.suggestedCategory ?? 'Other');
     return (
       amount: tx.amount,
-      category: defaultCategory.isNotEmpty ? defaultCategory : 'Other',
+      category: category,
       date: tx.timestamp,
       note: tx.notes,
       accountId: defaultAccountId.isNotEmpty ? defaultAccountId : null,

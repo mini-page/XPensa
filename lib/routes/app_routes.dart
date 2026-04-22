@@ -112,9 +112,9 @@ abstract final class AppRoutes {
     );
   }
 
-  // ── UPI Scanner (Pay Directly) ─────────────────────────────────────────────
+  // ── UPI Scanner (Pay via UPI) ──────────────────────────────────────────────
 
-  /// Push the UPI-payment QR scanner for the "Pay Directly" flow.
+  /// Push the UPI QR scanner for the "Pay via UPI" flow.
   static Future<void> pushUpiScanner(BuildContext context) {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(builder: (_) => const UpiScannerScreen()),
@@ -123,8 +123,10 @@ abstract final class AppRoutes {
 
   /// Replace the current route with [AddExpenseScreen] in pay-mode.
   ///
-  /// Used by [UpiScannerScreen] after a successful scan so that the user returns
-  /// directly to the expense form (pre-filled, pay mode) rather than the scanner.
+  /// Used by [UpiScannerScreen] after a successful scan.  The screen shows an
+  /// "Open UPI App" button that hands the user off to their preferred payment
+  /// app with only the payee VPA — no pre-filled amount that could trigger
+  /// fraud detection in GPay / PhonePe / Paytm.
   static void replaceWithPayExpense(
     BuildContext context, {
     required String payUpiUri,
